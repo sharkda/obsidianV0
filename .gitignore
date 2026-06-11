@@ -1,0 +1,21 @@
+# Volatile Obsidian UI state — changes constantly, causes merge noise
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspace
+
+# Caches and ephemeral data
+.obsidian/cache
+.obsidian/.cache/
+
+# Obsidian trash (deleted notes)
+.trash/
+
+# macOS cruft
+.DS_Store
+.AppleDouble
+.Spotlight-V100
+.Trashes
+Icon?
+
+# Optional: hot-reload plugin dev artifacts
+.hotreload
