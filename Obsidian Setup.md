@@ -17,7 +17,9 @@ git add .
 git commit -m "Initial vault snapshot"
 
 # create an empty PRIVATE repo on GitHub first, then:
-git remote add origin git@github.com:yourname/obsidian-vault.git
+'git@github.com:sharkda/obsidianV0.git'
+git remote add origin git@github.com:sharkda/obsidianV0.git
+##git remote add origin git@github.com:yourname/obsidian-vault.git
 git branch -M main
 git push -u origin main
 ```
