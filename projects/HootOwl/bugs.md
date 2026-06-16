@@ -36,3 +36,10 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 **Verification step before any fix:** Xcode Debug → Energy Impact gauge, leave app idle on main screen ~5 min. If Medium/High while idle, GPS is dominant; if network activity is constant, timers dominate. Instruments → Location + Energy Log to confirm.
 **Files (candidates, not confirmed culprits):** see Root cause section above.
 **Option menu + recommended sequence:** see [[battery]] (standalone topic note).
+
+## 2026-06-15 — IME blocks UI, user stuck in search on All screen
+**Symptom:** When using IME (Chinese / multi-step input methods) in the search field on the All screen (`MncplAllScreen`), the IME / on-screen keyboard blocks the UI and the user cannot exit the search — they appear stuck on the search input.
+**Root cause:** Unknown — not yet investigated. Likely candidates: the search bar fails to dismiss IME on submit/cancel; IME composition state isn't resolved when the user taps outside; a `@FocusState` (or `.searchable` focus binding) is held by the SwiftUI lifecycle. Could also be a `.searchable` / `.searchSuggestions` interaction with IME composition events (vs. final-text events).
+**Fix / workaround:** TBD. First step when picking this up: reproduce in the simulator (or device) — capture which input method (注音 / 拼音 / handwriting / English) triggers it and which gesture (tap outside, swipe down, system back, etc.) fails to dismiss the IME.
+**Status:** open. Logged 2026-06-15 by Jim; investigation deferred until after the current battery pre-release picks land.
+**Files (likely starting point — not verified):** `hootowl/UI/mncplAll/MncplAllScreen.swift` per CLAUDE.md's `@AppStorage("mncpl_Park_SearchData")` note. The search is shared in spirit with `MncplCyclopsScreen` (via the `mncpl_watchList_data` pin list), so the same root cause may surface there.

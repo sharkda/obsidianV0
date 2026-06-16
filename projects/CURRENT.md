@@ -7,27 +7,22 @@ Active focus across projects. Update at session END.
 ## Active project
 **HootOwl** — SwiftUI iOS/macOS app for Taiwan urban mobility (real-time bus + parking).
 
-## State (2026-06-11)
-Pre-release wrap-up. Shipping the current build to gather user feedback first, then circling back to optimization. Battery is the largest known concern; investigation is **deferred to post-launch** but optional pre-ship low-hanging fruit is available.
+## State (2026-06-15)
+Pre-release wrap-up. Shipping the current build to gather user feedback first, then circling back to optimization. **All pre-release working-tree work is now committed in `837cbef`** — bundle includes the Taiwan address-normalization fix, two battery picks (#1 GPS accuracy, #6 `Timer.publish` tolerance), and two cleanup waves (2026-06-13 + 2026-06-15) that deleted the Obs-framework duplicates and several `zz`/`zzz`/deprecated artifacts. Working tree clean.
 
-## Working tree (uncommitted as of 2026-06-10)
-- Taiwan address-normalization fix (`hootowl/Municipalities/Nbs/AddressSearchObs.swift`, `NbsScreen.swift`) — manual test of `北投區中央北路2段350巷66號` still owed before commit.
-- Other modified: `hootowl.xcodeproj/project.pbxproj`, `hootowl/Localizable.xcstrings`, `wrap.MD`. Decide whether to bundle with the address fix or land as a separate pre-release commit.
+## Battery — 2 of 5 pre-release picks taken, 3 still deferrable
+Full investigation lives in [[battery]]. Status as of 2026-06-15:
+- ~~**#1** GPS `kCLLocationAccuracyBest` → `HundredMeters`~~ ✓ done.
+- ~~**#6** Add `tolerance` to every `Timer.publish`~~ ✓ done.
+- **#9** Drop auto-escalation to `requestAlwaysAuthorization` + fix the misleading `NSLocationAlwaysAndWhenInUseUsageDescription` usage string (effort 1, impact 1 battery / 7 App Store review hygiene). Pre-release-friendly. Still open.
+- **#2 + #3** A single `scenePhase` handler that stops GPS and cancels repeating timers on background (effort 2-3, impact 5-6). Still open.
+- **#5** (newly eligible post-2026-06-13 cleanup) Dedupe redundant `self.locationMan = CLLocationManager()` in `Municipal.swift:122` + `:160`. ~1 line, code-health only. Still open.
 
-## Battery — pre-release decision pending
-Full investigation lives in [[battery]]. Ranked shortlist of pre-release picks (each effort ≤ 3, no architectural change, ~60 lines combined):
-- **#1** GPS `kCLLocationAccuracyBest` → `HundredMeters` (effort 1, impact 9). Single biggest battery win in the codebase.
-- **#6** Add `tolerance` to every `Timer.publish` (effort 1, impact 3). Free.
-- **#9** Drop auto-escalation to `requestAlwaysAuthorization` + fix the misleading Info.plist usage string (effort 1, impact 1 battery / 7 App Store review hygiene). Pre-release-friendly.
-- **#2 + #3** A single `scenePhase` handler that stops GPS and cancels repeating timers on background (effort 2-3, impact 5-6).
-
-Jim's call before shipping: take some/all, or defer all to post-launch. See [[battery#sorted-shortlist-low-hanging-fruit-first]] for the full ranked table.
+Jim's call before shipping: take more, or defer the remaining to post-launch. See [[battery#sorted-shortlist-low-hanging-fruit-first]] for the full ranked table.
 
 ## Next steps
-- [ ] Verify the address-search fix in simulator (`北投區中央北路2段350巷66號`).
-- [ ] Decide which pre-ship battery picks to take (or defer all).
-- [ ] Commit the address-search fix (+ any chosen battery picks).
-- [ ] Pre-release wrap-up (see `wrap.MD` in the working tree).
+- [ ] Decide whether to take any of #9 / #2+#3 / #5 before shipping, or defer all.
+- [ ] Final pre-release wrap-up (see `wrap.MD`).
 - [ ] Ship.
 - [ ] Post-launch: revisit [[battery]] starting from the **Verification step** (Xcode Energy Impact, 5 min idle) before any further code change.
 
