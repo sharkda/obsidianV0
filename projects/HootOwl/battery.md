@@ -146,6 +146,92 @@ All four remaining together: under ~35 lines of code, no behavior change visible
 
 ---
 
+## #2 + #3 — Implementation plan (drafted 2026-06-16, no code change taken)
+
+These two picks share a single `.onChange(of: scenePhase)` handler at the App root. Combined: effort 2-3, net +6 to +10 against foreground-idle drain. Approximate scope: ~30 lines across 4 files.
+
+### What's broken today
+
+When the user taps Home or locks the phone, HootOwl moves through SwiftUI scene phases `.active` → `.inactive` → `.background`. The app currently does nothing at any of these transitions, so:
+
+1. **GPS keeps polling.** `CLLocationManager.startUpdatingLocation()` is never paired with a `stopUpdatingLocation()` on background. The chip keeps running at HundredMeters accuracy (mitigated by #1, not eliminated).
+2. **All 5 `Timer.publish` pipelines keep firing.** Daily (`Municipal`), minutely (`Municipal`), cyclops (`CyclopsObs`), source (`SourceBase`), StoreKit retry (`ReceiptObs`). Each fire triggers downstream network work (TDX, Taipei open data, StoreKit).
+3. **iOS suspends ~5-30s after backgrounding** (no `UIBackgroundModes` declared). So the wasted work is bounded in time, but the foreground-idle window — screen dimmed, app still in foreground state — is pure drain.
+
+This is exactly the **foreground-idle drain** in the Hypothesis section. #2 + #3 close that window.
+
+### The fix pattern
+
+```swift
+@Environment(\.scenePhase) private var scenePhase
+
+ContentView()
+    .onChange(of: scenePhase) { _, newPhase in
+        switch newPhase {
+        case .active:     // resume: restart location + timers, refresh data
+        case .background: // tear down: stop location, cancel timers
+        case .inactive:   // do nothing — transient
+        @unknown default: break
+        }
+    }
+```
+
+**Critical:** `.inactive` must be a no-op. It fires transiently when an alert appears, the user pulls down Notification Center, or the app is multitasked. Tearing down on `.inactive` would cause thrashing.
+
+`#2` = the `.background → stopUpdatingLocation()` + `.active → startUpdateLocation()` half.
+`#3` = the `.background → cancel Timer.publish subscriptions` + `.active → re-create them` half.
+Combined because they share the same lifecycle event.
+
+### Design decisions (settle these before writing code)
+
+1. **Where does the handler live?** The App root (`@main App` struct) — standard SwiftUI 4+ pattern. Settled.
+
+2. **How does the handler reach the timer + location owners?**
+   - **(a) Direct calls — recommended.** App root holds references to `Municipal`, `CyclopsObs`, `SourceBase` (and possibly `ReceiptObs`) singletons and calls `pauseForBackground()` / `resumeForForeground()` on each. Pragmatic, explicit, easy to reason about.
+   - (b) NotificationCenter broadcast (`.appDidEnterBackground` / `.appWillEnterForeground`, owners subscribe) — loosest coupling but spreads lifecycle logic across files.
+   - (c) Central `AppLifecycle` observable singleton — cleaner than (b) but adds an abstraction layer.
+
+3. **Which timers actually pause?**
+   - `dailyTimerSubscription` (Municipal, every 5s or 6h) — **pause**
+   - `minutelyTimerCancellable` (Municipal, every ~60s) — **pause** (biggest single win — most frequent network polling)
+   - `timerPub` in `CyclopsObs` (watch-list refresh) — **pause**
+   - `timerSubscription` in `SourceBase` (zone retriever) — **pause**
+   - `self.timer` in `ReceiptObs` (StoreKit retry) — **judgment call.** Lean toward leaving it running so purchases can still validate during the brief background window before suspension. Decide explicitly when implementing.
+
+4. **What happens on `.active` after a long background?** Two staleness concerns:
+   - Last location is stale (GPS hasn't fired in N minutes).
+   - Parking availability data is stale (minutely timer missed N fires).
+
+   Default: the `.active` branch should restart timers AND trigger an immediate one-shot data refresh — otherwise the user sees stale parking counts until the next regular tick.
+
+### Recommended implementation order
+
+1. Add `pauseForBackground()` / `resumeForForeground()` to each timer owner (`Municipal`, `CyclopsObs`, `SourceBase`). Skip `ReceiptObs` unless decision 3 above is "pause StoreKit too." Each method body is ~3-5 lines.
+2. Add the same pair to `Municipal` for location: `stopUpdateLocation()` already exists; `resumeForForeground()` calls it plus restarts the daily / minutely timers and triggers an immediate parking-data refresh.
+3. Wire `.onChange(of: scenePhase)` at the App root, calling the 3 owners' pause / resume.
+
+### Risks
+
+- **Resume omission** → app feels frozen on foreground (stale data, no location).
+- **Race on rapid background → foreground cycles** → pause / resume methods must be idempotent. The existing `Mu1Base+Ext.swift` timer-start functions already begin with `?.cancel()` (de-dup pattern), so resume is naturally safe; pause needs to guard against double-cancel.
+- **Missing data refresh on `.active`** → user sees stale parking counts until the next regular timer tick.
+
+### Manual test plan when implementing
+
+- Background for 30s → foreground (parking counts should refresh visibly).
+- Lock → unlock quickly (no thrash, no torn-down state).
+- Tap an alert / pull down Notification Center (`.inactive` fires) — nothing should tear down.
+- App switcher → return.
+- Force-quit + relaunch (no scenePhase fires; clean cold start path verified).
+
+### Three open decisions still owed before code change
+
+- **`ReceiptObs.timer` pause / keep:** pause for consistency, or keep running so StoreKit purchase retries continue during the brief background-before-suspension window?
+- **Immediate refresh on `.active`:** trigger now, or let next regular timer fire handle it?
+- **Wiring style:** direct calls from App root (option a) is the recommendation — confirm or point at an existing lifecycle pattern in the codebase.
+
+---
+
 ## Recommended sequence
 
 1. **Measure first** (verification step above). ~5 min. Confirms which culprit dominates before touching code.
@@ -166,6 +252,9 @@ All four remaining together: under ~35 lines of code, no behavior change visible
 - **2026-06-15 — Applied #9 (drop Always-auth escalation + Info.plist cleanup).** Two iOS escalation sites in `Municipal+Loc.swift` (`handleAuthChange` case `.authorizedWhenInUse` at line 36; `requestLocationPermission` same case at line 77) wrapped in `#if os(iOS)` — iOS no longer escalates, macOS keeps escalating (macOS `locAuthorized` at that point still required `.authorizedAlways`). Replaced `fatalError("alreadyAlways")` at line 79 with a log to avoid a latent crash if the user grants Always via Settings. Removed `NSLocationAlwaysAndWhenInUseUsageDescription` key + string from `hootowl/Info.plist`. **Out of scope, flagged for separate follow-up:** `NbsObsM+LocDel.swift:44` directly calls `requestAlwaysAuthorization()` from any auth state — more aggressive than the Municipal escalation. The `locMan` storage referenced there is commented out at `NbsObsM.swift:50`, suggesting the site may be dead code; needs investigation before touching. Working tree only, not yet committed. Atomic entry: [[decisions#2026-06-15-drop-always-auth-escalation-info-plist-cleanup]].
 - **2026-06-16 — Jim relaxed macOS `locAuthorized` to accept `.authorizedWhenInUse`.** Updated `Municipal+Loc.swift:53-56` (the `#elseif os(macOS)` branch of `locAuthorized`) to use the same expression as iOS: `locAuthStateVbj.value == .authorizedAlways || locAuthStateVbj.value == .authorizedWhenInUse`. The platform split (`#if os(iOS) / #elseif os(macOS)`) was kept deliberately because Xcode has historically flagged `.authorizedWhenInUse` as macOS-unavailable; the explicit split is defensive against future SDK availability regressions. Saved to auto-memory as [[feedback-clauthorization-platform-split]]. **Implication for #9:** macOS no longer needs to be at `.authorizedAlways` to be considered authorized, so the macOS escalation branches at lines 38-39 (`handleAuthChange`) and 83-84 (`requestLocationPermission`) are no longer load-bearing. Dropping macOS escalation is now a clean follow-up — left out of scope for now per Jim's call.
 - **2026-06-16 — `NbsObsM+LocDel.swift` deleted, validating the dead-code suspicion.** The file I'd flagged in the 2026-06-15 #9 entry (containing the more-aggressive `locMan.requestAlwaysAuthorization()` call at line 44, with the `locMan` storage commented out at `NbsObsM.swift:50`) is now staged for deletion. Confirms the original read: the site was unreachable dead code. No remaining `requestAlwaysAuthorization` on iOS anywhere in the active codebase.
+- **2026-06-16 — Drafted detailed implementation plan for #2 + #3 (no code change).** Jim asked for an explanation of #2 + #3 before authorizing any edits. Captured the issue (foreground-idle drain — GPS + 5 timers never paused on `.background`), the SwiftUI `.onChange(of: scenePhase)` fix pattern, four design decisions (handler location, wiring style, which timers to pause, what to do on `.active` for staleness), recommended implementation order, risks, and manual test plan. See the new [[battery#2--3--implementation-plan-drafted-2026-06-16-no-code-change-taken]] section. Three open decisions still owed before code change: ReceiptObs pause-or-keep, immediate-refresh-on-`.active`, and wiring style.
+- **2026-06-17 — Phase 1a finding: identified the Cyclops emptiness root cause (no code change).** Jim raised the "< 5 min switch-out/in shows emptiness" symptom and asked for evaluation before any fix. Investigation confirmed: `MncplCyclopsScreen` holds all display state (`cyclopsMod`, `cancellables`, `watchList`) in `@State`, while `AppTabView` hosts tabs via dynamic `ForEach(AppScreen.sorted(subTier:))` and re-renders its body every ~5s for the auto-hide tab bar (`.task(id: hideToken)`). The combination loses child view identity, wiping `@State` to defaults. `MncplAllScreen` doesn't have the bug because it reads `municipal.actParkInfos` / `parkAvPack` directly as computed properties — the recommended HootOwl pattern. **Fix plan (Phase 1b, awaiting greenlight):** lift `cyclopsMod` (and `availableTime`) onto `Municipal` (or a dedicated `@Observable` class); reduce `MncplCyclopsScreen` to a thin view that reads the singleton. Trail accumulation Combine pipeline moves to the singleton, runs once at app startup. The full SwiftUI-identity knowledge captured in a new reference doc: `~/obsidianV0/patterns/swiftui-state-and-identity.md`. Two design decisions still owed: (a) put on `Municipal` vs. new `CyclopsBuilder` class; (b) whether `watchList` also moves (it's `@AppStorage`-backed so technically safe to leave).
+- **2026-06-17 — Applied Phase 1b (Layer A: lift Cyclops state to Municipal singleton).** Jim greenlit with decisions: use `Municipal` directly (not a new class), and move `watchList` too. Added 3 stored properties to `Municipal` (`cyclopsMod`, `availableTime`, `watchList`) and a new extension file `Municipal+Cyclops.swift` containing `wireCyclops()` (called from Municipal init), `refreshCyclops()`, `setWatchList(_:)`, plus persistence helpers. `MncplCyclopsScreen` rewritten as a thin view that reads from `municipal.cyclopsMod` / `availableTime` via `@Bindable` (CyclopsView still requires `@Binding<CyclopsItem>`). Removed ~50 lines of @State / wire / unwire / load / refresh. Reorder sheet extracted to `fileprivate struct ReorderSheet` with a local mutable copy that pushes each edit through `municipal.setWatchList()`. **MncplAllScreen unchanged** — its existing `@AppStorage saveWatchList` write pattern routes through UserDefaults, which Municipal now observes via `NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)`, so cross-screen pin/unpin keeps working. Working tree only — not yet committed, awaiting Jim's day-of-testing per the partition plan. Pre-existing SourceKit index noise unchanged; none of the diagnostics reference the new code. Atomic entry: [[decisions#2026-06-17-cyclops-state-lifted-to-municipal-singleton-phase-1b]].
 
 ---
 

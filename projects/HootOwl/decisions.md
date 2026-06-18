@@ -12,6 +12,29 @@ Architectural and design decisions, with brief rationale. Newest at top.
 **Impact:** Files/areas affected.
 -->
 
+## 2026-06-17 — Cyclops state lifted to Municipal singleton (Phase 1b — Layer A)
+**Decision:** Move `cyclopsMod`, `availableTime`, and `watchList` from `MncplCyclopsScreen`'s `@State` onto the `Municipal` `@Observable` singleton. `MncplCyclopsScreen` becomes a thin view that reads from `municipal.*` via `@Bindable` and pushes watchlist edits through `municipal.setWatchList(_:)`. This is Phase 1b of the battery investigation partition plan.
+**Why:** The pre-fix `MncplCyclopsScreen` held all display state in `@State`, including the trail-bearing `cyclopsMod`. SwiftUI loses view identity when the host re-renders — `AppTabView` hosts tabs via dynamic `ForEach(AppScreen.sorted(subTier:))` and an auto-hide tab bar that re-renders body every 5s — wiping `@State` to defaults. The result was the user-visible "screen goes empty on quick switch out/in" bug. Lifting display state to the singleton eliminates the dependency on view identity entirely. Background: [[swiftui-state-and-identity]] in the patterns vault.
+**Alternatives considered:**
+- New `@Observable CyclopsBuilder` class injected separately — rejected per Jim's call: keeping it on `Municipal` is one fewer file, one fewer environment injection, and the cyclops concerns are already coupled to Municipal's data flow.
+- Leave `watchList` on the view (`@AppStorage`-backed already survives @State reset) — rejected per Jim's call: consolidate the source of truth on Municipal even though it doesn't strictly need to move. Cleaner data flow and simpler future cache logic in Phase 2.
+- Refactor `MncplAllScreen` at the same time — deferred. MncplAllScreen doesn't have the bug (it reads `municipal.actParkInfos` / `parkAvPack` directly). Its existing `@AppStorage saveWatchList` write pattern routes through UserDefaults, which Municipal now observes — so cross-screen pin/unpin keeps working without modification.
+**Implementation:**
+- **New file** `hootowl/Municipalities/framework/Municipal+Cyclops.swift` — `wireCyclops()` (called from Municipal init), `refreshCyclops()`, `setWatchList(_:)`, `loadWatchListFromStorage()`, `reloadWatchListIfChanged()`. Subscriptions stored in the existing `Municipal.cancelBag`. UserDefaults observed via `NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)` so writes from any screen flow into Municipal.
+- `hootowl/Municipalities/framework/Municipal.swift:76-79` — added 3 stored properties: `cyclopsMod: CyclopsModel = .Zero`, `availableTime: Date? = nil`, `watchList: [String] = []`.
+- `hootowl/Municipalities/framework/Municipal.swift:130` — added `wireCyclops()` call at the end of init.
+- `hootowl/Municipalities/UI/MncplCyclopsScreen.swift` — rewritten. Removed `@State cyclopsMod`, `@State watchList`, `@State availableTime`, `@State cancellables`, `wire()`, `unwire()`, `loadWatchList()`, `refreshCyclops()`. Body reads `municipal.*` directly. `@Bindable var bindable = municipal` for `CyclopsView`'s `@Binding<CyclopsItem>` requirement. Reorder sheet extracted to `fileprivate struct ReorderSheet` with a local mutable list + push-on-edit via `municipal.setWatchList()`.
+- `MncplAllScreen.swift` — unchanged.
+**Validation:** Working tree only, not committed. Pre-existing SourceKit index noise unchanged; none of the diagnostics reference the new code. Manual test plan to run before commit:
+- Open Cyclops with at least one pin → wait for parking counts to load.
+- Switch to another tab → return within 5 min → counts should still be visible (the bug).
+- Switch to another tab → wait > 5s (auto-hide tab bar trigger) → return → counts should still be visible.
+- Background the app → return after a minute → counts should still be visible.
+- Reorder sheet: move and delete should still persist across sessions.
+- `MncplAllScreen` swipe-to-pin/unpin should still work, and the change should reflect in Cyclops immediately (Municipal observes UserDefaults).
+
+See [[battery]] partition plan and [[swiftui-state-and-identity]] for the underlying SwiftUI behavior.
+
 ## 2026-06-15 — Drop Always-auth escalation + Info.plist cleanup
 **Decision:** Stop auto-escalating from `.authorizedWhenInUse` to `requestAlwaysAuthorization()` on iOS, and remove the misleading `NSLocationAlwaysAndWhenInUseUsageDescription` key from `Info.plist`. Pre-release pick **#9** from [[battery#sorted-shortlist-low-hanging-fruit-first]].
 **Why:** The escalation was triggering a second iOS dialog asking for Always-permission, but the app declares no `UIBackgroundModes` so Always provided zero actual background capability. The escalation was net-negative: misleading UX + App Store review risk (Apple flags apps that ask for Always without legitimate background usage). The Info.plist string further promised "background alerts" that the code never delivered. With escalation removed and the key gone, the app asks for `WhenInUse` only — honest, minimum-necessary permission.

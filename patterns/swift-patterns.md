@@ -33,6 +33,7 @@ Established Swift / SwiftUI conventions for Jim's projects. Append new patterns 
 ## Observation vs Combine
 - `@Observable` types: read properties directly in computed vars; SwiftUI tracks changes automatically.
 - Combine (`sink` + `@State`) only when accumulating state across successive deliveries (e.g. trails/history).
+- **For state-bearing screens, the accumulation should live on the singleton, NOT in view-local `@State`** — `@State` can silently reset when SwiftUI loses view identity (notably with dynamic `ForEach` inside `TabView(selection:)`, which is exactly how `AppTabView` is constructed). Deep dive + diagnostic checklist: [[swiftui-state-and-identity]].
 
 ## Availability
 - Target latest iOS/macOS only. Do NOT write `#available` branches or legacy fallbacks unless explicitly asked.
