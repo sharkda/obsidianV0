@@ -12,6 +12,37 @@ Architectural and design decisions, with brief rationale. Newest at top.
 **Impact:** Files/areas affected.
 -->
 
+## 2026-06-24 — Disk cache for cold-launch / jettison recovery (Phase 2 — Layer B1)
+**Decision:** Persist the latest user location and per-municipality `MncplParkAvPack` snapshot to `Library/Caches/hootowl-snapshot.json`. On Municipal init (before `wireCyclops()`), seed the in-memory `parkAvPack` dict and `userLoc2dVbj` from cache if the snapshot is < 24h old. Phase 2 of the battery investigation partition plan; entirely additive (no UI change, no behavior change for warm-starts).
+**Why:** Phase 1b fixed warm switches (state survives view re-mount). But cold launches and post-jettison resumes still show empty cells because `parkAvPack` starts empty and the first availability fetch takes ≥1s. With cache, the user sees real numbers immediately; fresh data fades in seconds later. Foundation for Phase 3's `.active` re-read story.
+**Alternatives considered:**
+- `@AppStorage` / UserDefaults — rejected. Apple discourages larger blobs (parkAvPack can be 10-50KB per municipality); semantically wrong (this is regenerable cache, not preferences).
+- `Library/Application Support/` — rejected for now. Survives iOS purges under storage pressure, but the data is regenerable and a parking app on a low-storage device has bigger problems than a re-fetch.
+- Cache `actParkInfos` (static daily data) too — deferred. Large, changes rarely, daily timer re-fetches on next foreground tick. Separate decision.
+- Write only on `.background` — rejected. Simpler to write on every update (one small write per minute); survives crashes; cost is negligible.
+- Stale threshold of 1h / 7d instead of 24h — 24h chosen per Jim's call. Aligns with "user opens HootOwl ~once a day" intuition; tunable later if numbers feel stale or refreshes feel wasteful.
+- Staleness badge UI — deferred per Jim's call. Cache infrastructure ships clean; badge ships later once Jim has felt the actual age distribution in real use.
+**Implementation:**
+- **New file** `hootowl/Municipalities/framework/Municipal+Cache.swift` — `wireCacheAndSeed()` (called from Municipal.init), `noteAvailabilityChanged()` (hook for actMinutely), `wireLocationPersistence()` (throttled 30s userLoc2dVbj sink), `writeSnapshot()`, `seedFromCache()`, `cacheFileURL()`. Plus `CachedSnapshot` + `CachedLocation` envelope types.
+- `hootowl/Municipalities/framework/ParkAvailv02.swift` — added `Codable` to the `MncplParkItemAvail` and `MncplParkAvPack` struct declarations directly. Originally written as one-line empty extensions in `Municipal+Cache.swift`, which Xcode rejected: Swift only auto-synthesizes `Codable` when the conformance is declared in the same file as the type. Corrected 2026-06-24 in response to Jim's first compile pass. All members were already primitive Codable types, so no further work needed.
+- `hootowl/Municipalities/framework/Municipal.swift:110` — `actMinutely(p0:)` ends with `noteAvailabilityChanged()` to persist on every availability update.
+- `hootowl/Municipalities/framework/Municipal.swift:131` — init calls `wireCacheAndSeed()` *before* `wireCyclops()` so the cyclops Combine pipeline sees the seeded data on its first refresh.
+- Disk format example: `{ "written": ..., "location": { "lat": ..., "lng": ..., "captured": ... }, "packs": [ { "converted": ..., "published": ..., "municipal": "tpe", "items": [{"parkId": ..., "cars": ..., "chargers": ...}, ...] }, ... ] }`. Written via `Data.write(to:options:.atomic)` to avoid torn-file reads.
+- `cacheMaxAge: TimeInterval = 24 * 60 * 60`. Stale snapshots are silently discarded (logged at `.info`).
+- `locationWriteThrottle: TimeInterval = 30`. The userLoc2dVbj sink uses Combine's `.throttle(for:scheduler:latest:)` to coalesce rapid GPS updates into one write per ~30s.
+**Defer-list:**
+- Staleness badge UI (`MncplCyclopsScreen` infoBar augmentation, `MncplAllScreen` row badging) — separate change, requires Jim's visual call + Localizable.xcstrings entries.
+- `actParkInfos` (static daily data) caching — separate decision.
+- On-`.active` re-read trigger — slots into Phase 3 (`scenePhase` handler). Currently the seed only happens at init (cold launch).
+**Validation:** Working tree only, not committed. Pre-existing SourceKit index noise unchanged; the new file inherits the same `Cannot find type 'MncplParkItemAvail' / 'MncplParkAvPack' / 'Municipal' in scope` noise that all Municipal-area edits trigger this session, and downstream `Codable conformance` diagnostics are caused by those misses (not real issues). Manual test plan before commit:
+- Cold launch with cached data present: verify counts appear immediately (no flash of empty) and refresh from network shortly after.
+- Cold launch with no cache file: verify silent no-op, then normal first-fetch flow.
+- Set system clock forward >24h, relaunch: verify cache is treated as stale (no seed), then normal first-fetch flow.
+- Move the device significantly between launches: verify last cached location is used briefly until GPS gives a fresh fix.
+- Pin/unpin during use: verify cache is written on next `actMinutely` tick (not lost on next launch).
+
+See [[battery]] partition plan for context.
+
 ## 2026-06-17 — Cyclops state lifted to Municipal singleton (Phase 1b — Layer A)
 **Decision:** Move `cyclopsMod`, `availableTime`, and `watchList` from `MncplCyclopsScreen`'s `@State` onto the `Municipal` `@Observable` singleton. `MncplCyclopsScreen` becomes a thin view that reads from `municipal.*` via `@Bindable` and pushes watchlist edits through `municipal.setWatchList(_:)`. This is Phase 1b of the battery investigation partition plan.
 **Why:** The pre-fix `MncplCyclopsScreen` held all display state in `@State`, including the trail-bearing `cyclopsMod`. SwiftUI loses view identity when the host re-renders — `AppTabView` hosts tabs via dynamic `ForEach(AppScreen.sorted(subTier:))` and an auto-hide tab bar that re-renders body every 5s — wiping `@State` to defaults. The result was the user-visible "screen goes empty on quick switch out/in" bug. Lifting display state to the singleton eliminates the dependency on view identity entirely. Background: [[swiftui-state-and-identity]] in the patterns vault.
