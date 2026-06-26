@@ -12,6 +12,35 @@ Architectural and design decisions, with brief rationale. Newest at top.
 **Impact:** Files/areas affected.
 -->
 
+## 2026-06-25 — scenePhase pause/resume handler (Phase 3 — #2 + #3)
+**Decision:** Pause GPS and the active protos' daily/minutely timers on `scenePhase == .background`, and resume them (plus one immediate availability fetch) on `.active`. `.inactive` is a deliberate no-op. Implemented per all four recommended answers from the 2026-06-24 pre-implementation brief: (1) `ReceiptObs.timer` left running, (2) immediate refresh on `.active` = yes, (3) wiring = direct calls from App root, (4) #2 + #3 shipped together. Closes the foreground-idle drain window (screen dimmed, app still foreground, GPS + timers running until iOS suspends ~5–30s; no `UIBackgroundModes` declared).
+**Why:** The drain hypothesis is foreground-idle, not true background. #1 (GPS accuracy) and #6 (timer tolerance) reduced the per-tick cost; Phase 3 eliminates the wasted ticks entirely while the app is backgrounded. Pairs with Phase 2's cache: cold/resumed launches now seed from disk *and* kick an immediate live fetch on `.active`.
+**Scope narrowed vs. the 2026-06-24 brief — only the Municipal-owned live path is touched (GPS + the active protos `TaipeiObs` / `NewTaipeiCityObs`).** The brief had proposed also adding pause/resume to `CyclopsObs` and `SourceBase`; on implementation both were deliberately left out:
+- `CyclopsObs` drives the debug `CyclopsScreen2` and `Zone2 SourceBase` drives `ZoneRetrieveScreen` — both are view-local, only tick while their screen is visible, and are **not reachable from the app root**, so there's no handle to pause them from the lifecycle handler.
+- Cyclops *display* refresh is driven by `parkInfoVbj` / `parkAvailVbj`, so pausing the proto timers already stops the cyclops network work indirectly.
+**Alternatives considered:**
+- Tear down on `.inactive` — rejected. `.inactive` fires transiently for alerts / Notification Center pull-down / multitasking; tearing down there causes thrash. Only `.background` tears down.
+- NotificationCenter broadcast or a central `AppLifecycle` observable (brief options b/c) — rejected per recommendation (a). Phase 1b already made `Municipal` the central orchestrator; one `.onChange` covers GPS + the active protos' timers.
+- Pause `ReceiptObs.timer` too — rejected (decision #1). Left running so StoreKit purchase retries can still validate during the brief background-before-suspension window; cost is a few timer fires.
+- Skip the immediate `.active` refresh and let the next regular tick handle it — rejected (decision #2). Even with Phase 2's cache softening staleness, a resume fires one immediate fetch so counts are live, not up-to-a-minute old.
+- Split #2 and #3 into separate changes — rejected (decision #4). They share the same handler; splitting doubles scaffolding for marginal safety.
+**Implementation:**
+- **New file** `hootowl/Municipalities/framework/Municipal+Lifecycle.swift` — `pauseForBackground()` (calls `stopUpdateLocation()`, then `activeProtos.forEach { $0.pausePolling() }`) and `resumeForForeground()` (calls `startUpdateLocation()`, then `activeProtos.forEach { $0.resumePolling() }`). Both log via `ffl(…,.info)`. File header documents the scope-narrowing rationale.
+- `hootowl/Municipalities/framework/Mu1Proto.swift:72-76` — added `pausePolling()` / `resumePolling()` to the `Mu1Proto` protocol (default impls in `Mu1Base+Ext.swift`), so the lifecycle handler can iterate `activeProtos` generically.
+- `hootowl/Municipalities/framework/Mu1Base+Ext.swift` — `pausePolling()`: `dailyTimerSubscription?.cancel()` + `minutelyTimerCancellable?.cancel()` then `minutelyTimerCancellable = nil` (so `setMinutelyTimer()`'s nil-guard re-creates it on resume); does **not** touch `isActive`/fence state; idempotent for rapid background→foreground cycles. `resumePolling()`: guards `isActive` (skips if inactive), then `startTimerRetrievDaily()` + `setMinutelyTimer()` + `Task.detached { await minuteFlow() }` for the immediate fetch.
+- `hootowl/App/hootowlApp.swift` — added `@Environment(\.scenePhase) private var scenePhase` and a `.onChange(of: scenePhase)` on the root scene: `.active → municipal.resumeForForeground()`, `.background → municipal.pauseForBackground()`, `.inactive → break`, `@unknown default → break`.
+- Immediate-refresh path uses the existing `minuteFlow()` (not `Repository.shared.netRetrieve(...)` as the brief had guessed) — `minuteFlow()` is the proto's own availability-fetch entry point.
+**Idempotency / races:** `pausePolling()` is safe to call twice (double `?.cancel()` is harmless). `resumePolling()` is safe because the timer-start helpers already begin with `?.cancel()` (de-dup pattern). The `isActive` guard in `resumePolling()` prevents resuming a proto that was never started.
+**Defer-list:** Phase 4 (Layer B2 — cyclops trail history persistence) and #5 (dedupe `self.locationMan = CLLocationManager()` at `Municipal.swift:122` + `:160`) remain not started, both deferrable to post-launch.
+**Validation:** Working tree only — **not committed**. New file `Municipal+Lifecycle.swift` is untracked; `hootowlApp.swift`, `Mu1Base+Ext.swift`, `Mu1Proto.swift` modified. Manual test plan before commit:
+- Background for 30s → foreground → counts refresh visibly (immediate fetch fires).
+- Lock → unlock quickly → no thrash, no torn-down state.
+- Tap an alert / pull down Notification Center (`.inactive` fires) → nothing tears down.
+- App switcher → return → GPS + timers resume.
+- Force-quit + relaunch → clean cold-start path (no scenePhase fires; Phase 2 cache seeds).
+
+See [[battery]] partition plan; supersedes [[battery#2026-06-24--phase-3-pre-implementation-brief-asked-jim-awaiting-answers]].
+
 ## 2026-06-24 — Disk cache for cold-launch / jettison recovery (Phase 2 — Layer B1)
 **Decision:** Persist the latest user location and per-municipality `MncplParkAvPack` snapshot to `Library/Caches/hootowl-snapshot.json`. On Municipal init (before `wireCyclops()`), seed the in-memory `parkAvPack` dict and `userLoc2dVbj` from cache if the snapshot is < 24h old. Phase 2 of the battery investigation partition plan; entirely additive (no UI change, no behavior change for warm-starts).
 **Why:** Phase 1b fixed warm switches (state survives view re-mount). But cold launches and post-jettison resumes still show empty cells because `parkAvPack` starts empty and the first availability fetch takes ≥1s. With cache, the user sees real numbers immediately; fresh data fades in seconds later. Foundation for Phase 3's `.active` re-read story.

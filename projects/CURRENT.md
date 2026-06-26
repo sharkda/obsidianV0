@@ -7,11 +7,15 @@ Active focus across projects. Update at session END.
 ## Active project
 **HootOwl** — SwiftUI iOS/macOS app for Taiwan urban mobility (real-time bus + parking).
 
-## State (2026-06-24, session END before Jim upgrades Claude Code)
+## State (2026-06-25, after upgrading Claude Code — Phase 3 implemented, uncommitted)
 
-All battery work to date is committed. Working tree is clean.
+**Phase 3 (#2 + #3 — scenePhase pause/resume) is implemented in the working tree, NOT yet committed.** Jim greenlit all four recommended decisions from the 2026-06-24 brief. Awaiting his day-of device test before commit.
 
-**Last commit on this thread:** `61eec92 June24` — Phase 2 (Layer B1) disk cache.
+Working-tree changes this session:
+- **New (untracked):** `hootowl/Municipalities/framework/Municipal+Lifecycle.swift` — `pauseForBackground()` / `resumeForForeground()`.
+- **Modified:** `hootowl/App/hootowlApp.swift` (`@Environment(\.scenePhase)` + `.onChange`), `Mu1Base+Ext.swift` (`pausePolling()` / `resumePolling()`), `Mu1Proto.swift` (protocol reqs).
+
+**Last commit on this thread:** `61eec92 June24` — Phase 2 (Layer B1) disk cache. (Phase 3 sits on top of it, uncommitted.)
 
 Recent commit chain (battery + cleanup work):
 - `61eec92 June24` — Phase 2: `Municipal+Cache.swift` + Codable on `MncplParkAvPack` / `MncplParkItemAvail` in `ParkAvailv02.swift`.
@@ -32,20 +36,22 @@ Full plan + status lives in [[battery]]. Quick map:
 | #9 — Drop Always-auth + Info.plist cleanup | iOS escalation removed, macOS preserved, dead code dropped | ✓ committed `04e2165` |
 | 1 (Layer A) — Cyclops state → Municipal singleton | `Municipal+Cyclops.swift`, lifted `cyclopsMod`/`availableTime`/`watchList`; thin view | ✓ committed |
 | 2 (Layer B1) — Disk cache for cold-launch / jettison | `Municipal+Cache.swift`, `Library/Caches/hootowl-snapshot.json`, 24h stale threshold | ✓ committed `61eec92` |
-| **3 (#2 + #3) — scenePhase handler** | Pause GPS + cancel timers on `.background`; restart + immediate refresh on `.active` | **next — plan drafted, 4 open decisions for Jim** |
+| **3 (#2 + #3) — scenePhase handler** | Pause GPS + active-proto timers on `.background`; restart + immediate `minuteFlow()` refresh on `.active` (scope narrowed — CyclopsObs/SourceBase left out, see decisions) | ✓ implemented, **uncommitted** (awaiting device test) |
 | 4 (Layer B2) — Cyclops trail history persistence | Optional / deferrable | not started |
 | 5 — Consolidate redundant `CLLocationManager` re-init in `Municipal.swift:122` + `:160` | trivial code-health cleanup | not started |
 
-## Phase 3 — pick up here when resuming
+## Phase 3 — done this session (2026-06-25)
 
-Plan + the 4 open decisions live in [[battery#2026-06-24--phase-3-pre-implementation-brief-asked-jim-awaiting-answers]]. **Before writing any Phase 3 code, ask Jim for answers to those 4 decisions.** Recommendations summarized:
+All four open decisions were answered with the recommendations and the code landed in the working tree. Full record: [[decisions#2026-06-25--scenephase-pauseresume-handler-phase-3--2--3]].
 
-1. `ReceiptObs.timer` — keep running (recommended).
-2. Immediate refresh on `.active` — yes (recommended).
-3. Wiring style — direct calls from App root (recommended).
-4. Partition — ship #2 + #3 together (recommended).
+1. `ReceiptObs.timer` — kept running. ✓
+2. Immediate refresh on `.active` — yes, via `minuteFlow()`. ✓
+3. Wiring — direct calls from App root `.onChange(of: scenePhase)`. ✓
+4. Partition — #2 + #3 shipped together. ✓
 
-Phase 3 scope sketch: new `Municipal+Lifecycle.swift` + pause/resume on `CyclopsObs` and `SourceBase` + App-root `@Environment(\.scenePhase)` handler. ~50 lines.
+**One divergence from the brief:** scope narrowed to GPS + the active protos (`TaipeiObs` / `NewTaipeiCityObs`) only. `CyclopsObs` and `SourceBase` were *not* touched — they're view-local, only tick while their screen is visible, and aren't reachable from the app root. Pausing the proto timers stops cyclops network work indirectly anyway.
+
+**Remaining before this can be committed:** Jim's device test (background/foreground, lock/unlock, `.inactive` no-thrash, app-switcher resume).
 
 ## Open bugs (not blocking battery work)
 
@@ -53,11 +59,9 @@ Phase 3 scope sketch: new `Municipal+Lifecycle.swift` + pause/resume on `Cyclops
 
 ## Next steps (when Jim resumes)
 
-- [ ] Read CLAUDE.md session START protocol; everything is up to date in the vault, so the summary should reflect "Phase 2 done, Phase 3 plan drafted, waiting on 4 answers from Jim."
-- [ ] Ask Jim for the 4 Phase 3 decisions.
-- [ ] Implement Phase 3 per his answers.
-- [ ] Re-test cold launch + background/foreground after Phase 3 lands.
-- [ ] Decide on Phase 4 (Layer B2) + #5 (Municipal CLLocationManager dedupe) — both deferrable until after release.
+- [ ] Device-test Phase 3 (background/foreground refresh, lock/unlock no-thrash, `.inactive` no-op, app-switcher resume), then commit `Municipal+Lifecycle.swift` + the 3 modified files.
+- [ ] Decide on Phase 4 (Layer B2 — cyclops trail history persistence) + #5 (Municipal `CLLocationManager` dedupe at `Municipal.swift:122` + `:160`) — both deferrable until after release.
+- [ ] Post-launch: take the deferred Energy Impact measurement (verification step in [[battery]]) to confirm the foreground-idle drain hypothesis and quantify the #1/#6/Phase-3 wins.
 
 ## Open questions / blockers
-- None blocking. The 4 Phase 3 decisions are the only outstanding asks.
+- None blocking. Phase 3 just needs Jim's device test before commit.
