@@ -1,4 +1,13 @@
 
+#### june 28 
+##### feedback 1700
+_Want Taichung, Kaohsiun, or your city next?_ **_Tell us →_**
+
+ _Fresh numbers, every minute_   :: not every minutes, this is from data source,  currently 2-5 minutes, I don't want this turn out to be a fraud, well , you know, some people that do not make things happen, enjoy complaints or scolds more than support. I try to make minimize the latency between the publishing and the retrieval. However, publish timing is beyond me. 
+
+
+ 
+
 June 23
 
  Phase 2 is next — disk cache. Before I touch code, a few design questions worth settling so the
