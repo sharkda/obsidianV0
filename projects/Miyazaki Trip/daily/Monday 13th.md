@@ -23,3 +23,7 @@ U9I9HG - YUCHING HSU
 
 take taxi to hotel Ann Holiday Inn 
 two room reservation
+
+
+
+lunch [[びろう樹]]
