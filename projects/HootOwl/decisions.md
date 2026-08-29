@@ -12,6 +12,79 @@ Architectural and design decisions, with brief rationale. Newest at top.
 **Impact:** Files/areas affected.
 -->
 
+## 2026-08-20 — `CLLocationManager` dedupe (battery #5)
+**Decision:** `Municipal` creates exactly one `CLLocationManager`. The assignment in `init()` (`Municipal.swift:127`) is the canonical one; `wire0()` configures that instance rather than replacing it. The redundant `self.locationMan = CLLocationManager()` at the top of `wire0()` is deleted, with a WHY comment left in its place.
+**Why:** `locationMan` is a non-optional `var` (`Municipal.swift:44`), so it *must* be assigned before `super.init()` — that constraint is real and the `init()` assignment can't simply be removed instead. `wire0()` then threw that instance away and built a second, which received all the configuration (`delegate`, `desiredAccuracy`, `distanceFilter`). The discarded one was never configured and never started, so this was pure waste, but it also left genuine ambiguity about which manager the lifecycle calls (`startUpdateLocation()` / `stopUpdateLocation()`, added in Phase 3) were acting on. Closing the last item on the pre-release shortlist.
+**Alternatives considered:**
+- Make `locationMan` optional / lazy so only `wire0()` creates it — rejected as a larger change touching every use site, for no behavioural gain.
+- Leave it alone — rejected; it was already logged as the last shortlist item, and the Phase 3 lifecycle work made the ambiguity worth removing.
+**Impact:**
+- `hootowl/Municipalities/framework/Municipal.swift` — one line deleted from `wire0()`, two comment lines added. Exactly one `locationMan =` site remains project-wide (was two).
+**Status:** Working tree only, **not committed, not compile-verified.** `xcodebuild` can't build from the CLI here — `Package.resolved` is gitignored, so SPM tries to re-resolve `ConcaveHull` over the network and fails (pre-existing since `dfa738f`, unrelated). Build once in Xcode. Full caveat in [[battery#decision-log-append-as-decisions-are-taken]].
+**Battery note:** this is **code-health, not a battery win** — the GPS chip is shared, so two managers never drew double power. Recorded under #5 because that's where the shortlist tracked it.
+
+See [[battery]] for the shortlist this closes.
+
+## 2026-08-13 — Long-form output goes in the vault; dated session notes get their own folder
+**Decision:** Long explanations — session briefings, investigations, plans, option menus — are **written into the vault**, not delivered as terminal output. The terminal reply is reduced to a short summary plus a pointer to the note. New folder `projects/HootOwl/sessions/` holds dated session notes named `YYYY-MM-DD-<topic>.md`. First note: [[2026-08-13-session-start]]. Jim also encouraged creating folders freely rather than piling new content into existing files.
+**Why:** Jim's request, verbatim: *"I prefer you to write long statement into Obsidian for me to read, you can organize them into folders too."* The terminal is not his reading surface — long output scrolls away, isn't searchable later, and doesn't survive the session. The vault is what he actually reads and what the next session loads at START.
+**Why a separate folder rather than growing `CURRENT.md`:** [[CURRENT]] must read as *current*. Accumulating narrative inside it is precisely the mechanism that produced the stale Phase-3 and #5 claims corrected in the 2026-08-07 reconciliation — a status note that has become a journal stops being trustworthy as status. Dated session notes are append-only and can't become wrong later, so they can be as long as they need to be. This is the same principle already recorded in [[decisions#2026-08-07-vault-correction-convention-fix-forward-looking-status-preserve-dated-entries]], applied to a new content type.
+**Division of labour across the vault:**
+- `projects/HootOwl/sessions/` — dated briefings, investigations, long-form reasoning. **Immutable after writing.**
+- [[CURRENT]] — short, current-state-only. Overwritten as things change. Now carries a pointer callout to the sessions folder.
+- [[battery]], [[onboarding]], [[cyclops-first-run]] — standalone topic notes, updated **inline as work happens** (existing convention, unchanged).
+- [[decisions]] / [[bugs]] — atomic entries, newest at top.
+**Alternatives considered:**
+- Keep writing long summaries to the terminal and let the vault hold only structured notes — rejected, this is the behaviour Jim asked to change.
+- Put session briefings in `CURRENT.md` — rejected per the drift argument above.
+- One rolling `sessions.md` file instead of one file per session — rejected; it would grow unbounded and lose the property that each note is a self-contained snapshot readable on its own.
+**Impact:** No code. New folder `projects/HootOwl/sessions/` + first note; pointer callout added near the top of [[CURRENT]]. Saved to auto-memory as `feedback-longform-to-obsidian`.
+**Tooling note:** MCP `create-note` stalled past 120s writing the first session note and had to be `TaskStop`ped; the note was written with the normal file tools instead. Reads via MCP were fine in the same session. **Writes are the stall-prone MCP operation** — go straight to direct file access for creates/edits, and `mkdir -p` parent folders yourself. Recorded in auto-memory `feedback-obsidian-mcp-config`.
+
+## 2026-08-07 — Cyclops 🕐 fix sequencing: verify assumption + device run before any edit
+**Decision:** The Cyclops first-run 🕐 bug was traced to root cause, but **no code was changed**. Fixes are gated behind two checks, in this order: (1) confirm `MncplParkItemAvail.parkId` carries the same `tpe_`/`ntpc_` prefix the watchList uses (`CyclopsModel.swift:112`); (2) one fresh-install device run to see whether the clock clears after ~15–20s or genuinely never. Only then apply the two one-liners.
+**Why:** Static reading proves a **≥16s** blank window on any cache-less launch. It does **not** prove the reported *"forever"*. Shipping the fix and closing the bug without the device run risks declaring victory over 16 seconds while an indefinite stall (a `minuteFlow` bail-out at `Mu1Base+Ext.swift:144–177`) survives. Jim also chose to read the code himself before edits.
+**The two staged fixes:**
+- **Immediate `minuteFlow()` at the end of `activate()`** (`Mu1Base+Ext.swift:15–49`), mirroring what `resumePolling()` already does at `:78`. One line.
+- **`allFencesVbj.send(enclosing)` → `activeFencesVbj.send(enclosing)`** (`Municipal+Ext.swift:135`). One word.
+**Why fix #2 now despite being latent:** nothing currently reads `activeFencesVbj` for activation, so it does no damage today. But it *destructively narrows* the full fence list — a user outside all fences collapses `allFencesVbj` to `[]`, after which every `assessFences` throws `.noFences` permanently. It is a landmine directly under the planned multi-city expansion, and would surface as *"the new city doesn't work."* Cheap insurance.
+**Alternatives considered:**
+- Apply both fixes immediately and move on — rejected; would likely mask rather than resolve, and Jim wanted to review first.
+- Fix only the clock and leave the fence typo — rejected; one word now vs. a confusing regression later.
+- Treat it as a first-run-only cosmetic issue — rejected once the 24h cache expiry (`Municipal+Cache.swift:47`) showed it recurs routinely for episodic parking use.
+**Impact:** No files changed. Full investigation: [[cyclops-first-run]]. Bug entry: [[bugs#2026-08-07-cyclops-shows-on-every-cache-less-launch-investigated-not-fixed]].
+
+## 2026-08-07 — Fence-driven zone activation is an open design decision, not a patch
+**Decision:** `ActDeActOnes(ids:)` (`Municipal+Ext.swift:165–175`) has **zero callers** and `activeIds` at `:158` is computed and discarded — the fence→activation link its own comment promises was never wired. **Do not wire it opportunistically.** Log it as an open decision and settle the activation policy deliberately.
+**Why:** Turning it on changes *which zones fetch for whom* — a behavioural change with correctness, coverage, and battery consequences. It is not a bug fix. Wiring it while `Municipal+Ext.swift:135` is still broken would immediately break users outside covered fences.
+**Current behaviour:** all protos activate unconditionally via `loadedProtos.map({ $0.activate() })` at `Municipal+Ext.swift:43`, so every user polls every zone regardless of location.
+**Cost of leaving it:** (a) works against the #1/#6/#9/Phase-3 battery wins and **confounds the deferred Energy Impact measurement** — some measured drain is zones the user isn't in; (b) cost is linear in cities — tolerable at two, meaningful at six, plus multiplied load on public open-data endpoints that may rate-limit.
+**Open questions to settle before implementing:** what activates a zone when location is unknown or permission is denied? Does a user near a boundary keep both zones warm? Is there a manual override for someone checking a destination city remotely?
+**Sequencing:** fix `Municipal+Ext.swift:135` first — fence-driven activation is unsafe until `activeFencesVbj` is actually populated.
+**Impact:** No files changed. Context: [[cyclops-first-run]] (Finding 3); confound warning added to [[battery]]'s measurement log.
+
+## 2026-08-07 — Vault correction convention: fix forward-looking status, preserve dated entries
+**Decision:** When vault notes drift from reality, correct **status and forward-looking claims** in place, but leave **dated journal/decision entries as originally written**. Record the discrepancy in a dated reconciliation section rather than editing history.
+**Why:** Dated entries are a record of what was known and true on that date. Silently rewriting them destroys the ability to reconstruct how a decision was reached, and makes the notes untrustworthy in a subtler way than being out of date. Status claims, by contrast, are read as *current* and are actively harmful when stale — `CURRENT.md` telling the next session that Phase 3 was uncommitted would have caused real re-tread.
+**Applied 2026-08-07/08 after verifying against `git log`:** Phase 3 committed `aa6b02a` (not uncommitted); #9 committed `04e2165` (not uncommitted); #5 target is `Municipal.swift:127` + `:169` (not 122/160 — file shifted); HEAD is `860f82d`, not `61eec92`.
+**Impact:** [[CURRENT]] rewritten; [[battery]] status + option table + shortlist corrected, with a `[!info]` callout and a dated **Reconciliation — 2026-08-07** section; [[decisions]] defer-list line numbers; auto-memory `project_battery_drain.md` + `MEMORY.md` index hook (both would otherwise have re-seeded the error into future sessions). Dated Decision-log entries in [[battery]] left untouched by design.
+
+## 2026-07-12 — Onboarding copy + feedback + ratings strategy
+**Decision:** Author the 3-page onboarding flow (the `hootowl/UI/onboard/` swipe framework) as **parking-only**, **playful owl-mascot voice**, **no app name baked into copy**, with **freshness-honest** wording, plus a **compliant ratings/feedback loop** that decouples App Store ratings from feature requests. Full living copy in [[onboarding]].
+**Why:** First-run is the only surface most users actually read ("nobody reads docs" — Jim), so it must be tight and do the persuasion + permission-priming + expectation-setting all at once, without over-promising.
+**Key sub-decisions:**
+- **Scope = parking only.** Bus tracking exists but is not sold in onboarding. Launch = Taipei + New Taipei (80/20); expansion is *maybe*, gated on feedback — so coverage copy is present-tense and honest ("Now live: Taipei & New Taipei"), never a promise.
+- **Coverage limitation reframed as a request:** "Not your city yet? Tell me where to fly next →" turns "we don't cover you" into user agency + a demand signal.
+- **No app name in user-facing copy.** "HootOwl" is a working name that will likely change and will have a *very different* Chinese name. Owl voice never says the name, so it survives a rename. Use `{APP}` placeholder only if a name slot is unavoidable. Saved to auto-memory as [[app-name-is-a-placeholder]].
+- **Voice = owl mascot** (nocturnal, watchful, smug, privacy-respecting in character). Playful OK per Jim.
+- **Freshness honesty (important):** never claim a fixed cadence. Rejected "Fresh numbers, every minute" — the source (city open data) publishes every ~2–5 min and publish timing is beyond us. Chosen: "Always the latest count / I grab each lot's newest numbers the moment the city publishes them" + owl aside "As fresh as the source allows." Protects against bad-faith "this is fraud" complaints and aligns with the in-app "Updated"/DQI timestamp.
+- **Location screen** pre-primes benefit + privacy right before the system dialog ("Only while you're here — I don't follow you home"), which is literally true (`WhenInUse`, no `UIBackgroundModes`).
+**Ratings/feedback — rejected vs. chosen:**
+- **Rejected (Jim's initial instinct):** suggest 5-star, collect city requests inside the App Store review, prioritize cities for 5-star reviewers, and state this in onboarding. This violates App Store rules — you can't steer users to 5 specifically, must use the native review sheet (can't preset stars), and **can't offer incentives/priority in exchange for reviews** (incentivized/gated reviews). Reviews are also a poor request inbox (no private reply/follow-up). Documenting the deal in onboarding would be evidence for rejection.
+- **Chosen (decouple the two goals):** (1) Ratings via native `@Environment(\.requestReview)` / `SKStoreReviewController` at a **win moment** (e.g. 3rd time a pinned lot shows spaces), **never in onboarding**; no custom text, no preset stars. (2) City/feature requests via an **owned channel** (mailto → later a form), captured in Jim's inbox. (3) Prioritize cities by **counting demand**, not by star rating, then **close the loop** ("You asked for Taichung — it's live") which earns 5-stars honestly. Settings gets "Request a city", "Send feedback", and a neutral "Rate the app". Saved to auto-memory as [[app-store-ratings-and-feedback-policy]].
+**Impact:** No code yet — copy + strategy only. When implemented: `hootowl/UI/onboard/` (`LandingScreen`/ob0, build out `ob1`/`ob2`), a `Localizable.xcstrings` batch (English + blank 中文), a feedback transport (mailto/form), the `requestReview` win-moment trigger, and Settings entries.
+**Status:** copy drafted, awaiting Jim's final headline-lane pick + the xcstrings batch. See [[onboarding]] for the living copy and open TODOs.
+
 ## 2026-06-25 — scenePhase pause/resume handler (Phase 3 — #2 + #3)
 **Decision:** Pause GPS and the active protos' daily/minutely timers on `scenePhase == .background`, and resume them (plus one immediate availability fetch) on `.active`. `.inactive` is a deliberate no-op. Implemented per all four recommended answers from the 2026-06-24 pre-implementation brief: (1) `ReceiptObs.timer` left running, (2) immediate refresh on `.active` = yes, (3) wiring = direct calls from App root, (4) #2 + #3 shipped together. Closes the foreground-idle drain window (screen dimmed, app still foreground, GPS + timers running until iOS suspends ~5–30s; no `UIBackgroundModes` declared).
 **Why:** The drain hypothesis is foreground-idle, not true background. #1 (GPS accuracy) and #6 (timer tolerance) reduced the per-tick cost; Phase 3 eliminates the wasted ticks entirely while the app is backgrounded. Pairs with Phase 2's cache: cold/resumed launches now seed from disk *and* kick an immediate live fetch on `.active`.
@@ -31,7 +104,7 @@ Architectural and design decisions, with brief rationale. Newest at top.
 - `hootowl/App/hootowlApp.swift` — added `@Environment(\.scenePhase) private var scenePhase` and a `.onChange(of: scenePhase)` on the root scene: `.active → municipal.resumeForForeground()`, `.background → municipal.pauseForBackground()`, `.inactive → break`, `@unknown default → break`.
 - Immediate-refresh path uses the existing `minuteFlow()` (not `Repository.shared.netRetrieve(...)` as the brief had guessed) — `minuteFlow()` is the proto's own availability-fetch entry point.
 **Idempotency / races:** `pausePolling()` is safe to call twice (double `?.cancel()` is harmless). `resumePolling()` is safe because the timer-start helpers already begin with `?.cancel()` (de-dup pattern). The `isActive` guard in `resumePolling()` prevents resuming a proto that was never started.
-**Defer-list:** Phase 4 (Layer B2 — cyclops trail history persistence) and #5 (dedupe `self.locationMan = CLLocationManager()` at `Municipal.swift:122` + `:160`) remain not started, both deferrable to post-launch.
+**Defer-list:** Phase 4 (Layer B2 — cyclops trail history persistence) and #5 (dedupe `self.locationMan = CLLocationManager()` at `Municipal.swift:127` + `:169` — line numbers re-verified 2026-08-07, previously recorded as 122/160) remain not started, both deferrable to post-launch.
 **Validation:** Working tree only — **not committed**. New file `Municipal+Lifecycle.swift` is untracked; `hootowlApp.swift`, `Mu1Base+Ext.swift`, `Mu1Proto.swift` modified. Manual test plan before commit:
 - Background for 30s → foreground → counts refresh visibly (immediate fetch fires).
 - Lock → unlock quickly → no thrash, no torn-down state.
