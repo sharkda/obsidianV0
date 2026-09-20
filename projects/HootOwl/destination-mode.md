@@ -1,6 +1,6 @@
 # Destination mode — built, and how to undo it
 
-**Branch `destination-mode`, 2026-09-20.** **Nine** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
+**Branch `destination-mode`, 2026-09-20.** **Ten** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
 
 ---
 
@@ -154,6 +154,42 @@ But the reason it looked too busy was **not** the default.
 > plutil -p "$C/Library/Preferences/com.sharkda.hootowl.plist" | grep -E "nbs_"
 > ```
 > If `nbs_user_set_span_v2` is true, **you are looking at a saved preference and not the default** — which is the trap that cost this round.
+
+## Round 5 — losing your place, and a preference read as a bug
+
+### The real one: the map forgot where you were
+
+Jump to Taipei → watch list → back to the map → **Cupertino**, with the bar still saying *"Showing 台北市"*.
+
+`cameraPosition` is `@State`, and switching tabs destroys the view. **Exactly the pattern this vault already warns about** — `AppTabView`'s dynamic `ForEach` inside `TabView` loses child identity routinely, which is what [[working-agreements#prefer-singleton-state-for-state-bearing-screens]] is about.
+
+**The destination itself survived** — it lives on `Municipal` and is persisted. Only the camera forgot. Restored on appear, so the context now holds for the whole session.
+
+### The other was not a bug — and it is the second time today
+
+> *"when I jump to Taipei and go to the cyclops, there are no 'pre-defined' watch list"*
+
+Instrumented rather than guessed:
+
+```
+👁 cyclops rebuilt: 1 of 1 watched · 3160 lots · 2584 avails
+```
+
+**The model was correct.** The simulator held `mncpl_watchList_data = ['TPE0155']` — Jim's own test pin from earlier. The three landmark defaults **seed only when nothing is stored**, deliberately, so a user who unpins everything does not get them resurrected under them.
+
+> [!warning] Twice in one session, a stored preference was read as a broken default
+> First the span (`nbs_user_set_span` true, `0.028` saved, so the sweet spot never applied). Then the watch list. **Both times the app was behaving correctly and the device was carrying test residue.**
+>
+> **When something looks wrong on a simulator that has been tested on for days, read the preferences before reading the code:**
+> ```sh
+> C=$(xcrun simctl get_app_container <UDID> com.sharkda.hootowl data)
+> plutil -p "$C/Library/Preferences/com.sharkda.hootowl.plist" | grep -E "nbs_|mncpl_"
+> ```
+> `refreshCyclops` now logs what it built at `.notice`, because "the watch screen is empty" has three causes indistinguishable from the UI — an empty list, watched ids missing from the loaded lots, and the `@Observable` invalidation failure that file already documents.
+
+### A real pinch verified the pinch detection
+
+Jim noodled the UI mid-session and asked whether it had interfered. It had not — it **proved the fix**. Afterwards the simulator held `nbs_user_set_span_v2: true` with span `0.0025`, i.e. **the flag latched from a human pinch**, which is precisely what two rounds of inference failed to do and what I could not test without hands on the device.
 
 ## Verified
 
