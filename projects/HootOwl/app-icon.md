@@ -155,7 +155,8 @@ Done with a CoreGraphics Swift script using `CGImageAlphaInfo.noneSkipLast`, so 
 ## Verification — copy-paste before any upload
 
 ```bash
-cd /Users/jimhsu/developer/farms/hootowl
+# run from the repo root — paths differ per machine, see [[working-agreements#paths-differ-per-machine]]
+cd "$(git rev-parse --show-toplevel)"
 
 # 1. Which icon is the build actually using?
 grep -n "ASSETCATALOG_COMPILER_APPICON_NAME" hootowl.xcodeproj/project.pbxproj

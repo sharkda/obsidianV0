@@ -461,6 +461,9 @@ An Archive is the only thing that type-checks the `#else` half of every `#if DEB
 > [!success] ✅ **Corrected 2026-09-20 — the command line CAN build this project, and has been able to since `a4a005b` (2026-09-14).**
 > Everything below this callout used to say *"all builds are still Jim, in Xcode"*. **That is no longer true and has not been for a week** — every build of the 09-15 → 09-20 sessions was run from the CLI. The blocker was the dangling `ConcaveHull` package reference, and deleting it removed the last SPM dependency from the project. **There are now zero `XCRemoteSwiftPackageReference` entries**, so nothing has to resolve over the network, and a fresh clone builds. Ads are a vendored xcframework, not a package → [[admob-sdk]].
 
+> [!note] Paths differ per machine
+> Every command in this section assumes you are **in the repo root** — `cd "$(git rev-parse --show-toplevel)"`. Nothing here should be given an absolute path; the project folder and the vault are in different places on Jim's other Mac. → [[working-agreements#paths-differ-per-machine]]
+
 ## The one environment line you need
 
 ```sh

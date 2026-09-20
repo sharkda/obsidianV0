@@ -7,6 +7,53 @@
 
 ---
 
+## Paths differ per machine
+
+**Jim works on more than one Mac, and the project folder and this vault are in different places on each.** Nothing in this vault should assume a path — anything that does is a bug that only shows up on the other machine, which is the worst place for it to show up.
+
+### Find things, do not assume them
+
+```sh
+# the app repo — from any directory inside it
+REPO="$(git rev-parse --show-toplevel)"
+
+# confirm it is the right one, by remote rather than by name
+git -C "$REPO" remote get-url origin        # → …:sharkda/hootOwl.git
+```
+
+For the vault, the reliable marker is this folder's own index — search rather than guess:
+
+```sh
+MARKER="$(find "$HOME" -maxdepth 5 -path '*/projects/HootOwl/INDEX.md' 2>/dev/null | head -1)"
+VAULT="$(dirname "$(dirname "$(dirname "$MARKER")")")"
+git -C "$VAULT" remote get-url origin       # → …:sharkda/obsidianV0.git
+```
+
+*(Tested 2026-09-20 on the main Mac: resolves the vault root and the right remote.)*
+
+**Simpler, and worth doing once per machine:** ask Jim where the vault is on *this* Mac the first time you need it, then work from that variable for the session. One question beats a wrong guess written into a note.
+
+### Two things that are per-machine and will not arrive by syncing
+
+**1. `CLAUDE.md` names a vault path that may be wrong here.** In the app repo it says:
+
+> `Vault path: ~/obsidianV0` · `Vault name (MCP): obsidianv0`
+
+That file **is** in git, so it syncs — with this machine's path baked in. **If the vault lives somewhere else on your Mac, that line is wrong and the session-start protocol will fail to read anything.** Tell Jim rather than silently editing their file; it is theirs, and the right fix may be to make the line say "wherever the vault is" rather than to swap one absolute path for another.
+
+**2. `.claude/settings.local.json` is gitignored, so this machine has none.** On Jim's main Mac it allowlists the vault so writes do not stop for approval on every note — 13 references to the vault path, plus `permissions.additionalDirectories` so an out-of-tree folder is in scope at all.
+
+**Symptom if it is missing:** every single vault write prompts for permission, which makes the "write it to Obsidian" convention unusable. **Fix:** create `.claude/settings.local.json` in the app repo with this machine's own vault path — `Read`/`Write`/`Edit` globs on `<vault>/**`, the matching `Bash(...)` entries, and `permissions.additionalDirectories: ["<vault>"]`. It stays gitignored, so it never conflicts with the other machine's copy. Record: [[decisions]], 2026-08-13.
+
+### When writing notes from now on
+
+- **Commands assume you are already in the repo root.** `xcodebuild -project hootowl.xcodeproj …`, not `cd /Users/…`.
+- **Refer to files repo-relative** — `hootowl/Municipalities/Zone2/NewTaipeiCityObs.swift:20`.
+- **Refer to vault notes by wikilink**, never by path. They resolve by name wherever the vault sits.
+- An absolute path is acceptable only in a **dated historical record** of something that happened on a specific machine — never in an instruction.
+
+---
+
 ## Working with Jim
 
 **Jim spent years as a software product manager.** It shows in how they work, and it should change how you work.
@@ -21,18 +68,18 @@
 
 **Jim's instruction, 2026-09-20:** *"next time, do wrapup, please always push both."*
 
-There are **two** git repositories, and a wrap-up that pushes one of them is half-finished:
+There are **two** git repositories, and a wrap-up that pushes one of them is half-finished. **Identify them by remote, never by path** — see [[#Paths differ per machine]]:
 
-| Repo | Remote | Holds |
-|---|---|---|
-| `~/developer/farms/hootowl` | `git@github.com:sharkda/hootOwl.git` | the app, **and the vendored AdMob xcframework** |
-| `~/obsidianV0` | `git@github.com:sharkda/obsidianV0.git` | this vault |
+| Remote | Holds |
+|---|---|
+| `git@github.com:sharkda/hootOwl.git` | the app, **and the vendored AdMob xcframework** |
+| `git@github.com:sharkda/obsidianV0.git` | this vault |
 
 **Why it matters more than it sounds.** Jim works across two machines, and these repos are the only channel between them. Code pushed without notes means the other instance sees a change it cannot explain; notes pushed without code means it reads about work that is not there. **The pair is the handoff** — either half alone is worse than neither, because it looks complete.
 
 ```sh
-cd ~/developer/farms/hootowl && git status -sb | head -1   # expect no "ahead"
-cd ~/obsidianV0              && git status -sb | head -1
+# from anywhere inside either repo
+git -C "$(git rev-parse --show-toplevel)" status -sb | head -1   # expect no "ahead"
 ```
 
 Do this **unprompted** as the last step of any wrap-up, not only when asked to push.

@@ -70,6 +70,9 @@ Follow the runbook below **only** to move to a newer version.
 
 ## Runbook — updating to a new SDK version
 
+> [!note] Run everything below from the repo root
+> `cd "$(git rev-parse --show-toplevel)"`. The project folder is in a different place on Jim's other Mac, so no step here names an absolute path. → [[working-agreements#paths-differ-per-machine]]
+
 ### 1. Find the latest version
 
 Google's SPM mirror is the authoritative, scriptable source of both the version list and the binary:
