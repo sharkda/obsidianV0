@@ -1,6 +1,6 @@
 # Destination mode — built, and how to undo it
 
-**Branch `destination-mode`, 2026-09-20.** **Six** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
+**Branch `destination-mode`, 2026-09-20.** **Seven** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
 
 ---
 
@@ -70,6 +70,45 @@ He found one bug and specified four changes. Compiled spec and the geometry chec
 
 **The rule is universal, not an out-of-Taiwan case.** Someone standing in Taipei who pans to Kaohsiung gets the same grey button and the same message — the app has no data there either way, and where the user's body is does not change that.
 
+## Round 3 — the map's zoom, and what Clear is for
+
+### The sweet spot
+
+**Jump used `savedSpanDelta`** — the `@AppStorage` value updated on *every* camera change. So it inherited whatever zoom the user last left the map at: pan around Cupertino zoomed out, and you arrive in Taipei equally zoomed out. **That is why arriving did not feel like arriving.**
+
+The numbers, at Taipei's latitude:
+
+| Span | On the ground | |
+|---|---|---|
+| 0.0005 | ≈ 55 m | pinch-in clamp (`nbs_min_span`) |
+| 0.008 | ≈ 0.9 km | |
+| **0.012** | **≈ 1.3 km × 1.2 km** | **the sweet spot — chosen** |
+| 0.015 | ≈ 1.7 km × 1.5 km | the old `savedSpanDelta` default |
+| 0.050 | ≈ 5.6 km × 5.0 km | the initial camera, before any saved value |
+| 0.300 | ≈ 33 km | pinch-out clamp (`nbs_max_span`) |
+
+**Every programmatic camera move now lands at 0.012** — six call sites. Close enough to read individual car parks and the streets between them, wide enough to hold the near cluster; the nine nearest lots to Taipei Main Station spanned 93 m–1,874 m.
+
+### Unless the user has chosen their own
+
+> Jim: *"there should be a sweet spot for the span factor, and we should always stick to it unless users have changed their span factor."*
+
+That needs a way to tell **a deliberate pinch** from **a span we just set ourselves** — and `savedSpanDelta` cannot, because it records both. `suppressPannedAway` already marks our own moves, so a change outside that window is the user's. A new `nbs_user_set_span` flag latches on the first real pinch, and from then on their zoom is theirs and arrivals stop overriding it.
+
+> [!note] MapKit will not give you exactly what you ask for
+> Requesting 0.012 rendered as `spanDelta:0.013 lat:0.015 lon:0.012`. MapKit holds one axis and fits the other to the view's aspect ratio. **Expect the logged number to differ from the requested one** — it is not a bug, and chasing it would be.
+
+### What Clear is for, and where it is not
+
+Clear sets the destination to `nil` — "go back to following my device".
+
+- **In Taipei**, after searching an address across town: returns you to *near me*. Useful.
+- **In California**: returns you to **the dead-end picker**. It undoes the only thing that made the app work.
+
+**Hidden when the user's own location is outside the service area**, which is the same rule as the centre-on-me button — and Jim's call: *"clear doesn't make sense when users is outside the active zone."* No location fix at all also counts as hidden: there is nowhere to go back to.
+
+**Jump is now prominent** rather than plain footnote text identical to Clear, which gave the primary action no more weight than the one that undoes it.
+
 ## Verified
 
 Three cases, on the iPhone 17 Pro / iOS 26.5 simulator:
@@ -94,6 +133,7 @@ All four configurations build: iOS Debug/Release, hootmac Debug/Release.
 
 The scheme now launches in **Cupertino**, so the picker is what you get on Run. To go back in-zone: **scheme → Run → Options → Default Location → `Wanli34.gpx`**.
 
+0. **The round-3 zoom** — does 0.012 (≈1.3 km) feel right on arrival? It is one constant, `NbsScreen.sweetSpotSpan`. Pinch once and the app should stop overriding you from then on.
 0. **The four round-2 changes have never been tapped either** — button colours, the alert, Jump, and the hidden centre-on-me button. The camera fix *was* verified from the log.
 1. **Does the picker read as an offer or as an error?** It still sits inside `ContentUnavailableView`, which is Apple's "nothing here" furniture. That may be exactly the wrong frame for a screen whose message is *"here is where to go"*.
 2. **Is the bar reassuring or nagging?** It never goes away while a destination is set.
