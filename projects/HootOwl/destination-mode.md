@@ -1,6 +1,6 @@
 # Destination mode — built, and how to undo it
 
-**Branch `destination-mode`, 2026-09-20.** **Seven** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
+**Branch `destination-mode`, 2026-09-20.** **Nine** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
 
 ---
 
@@ -108,6 +108,52 @@ Clear sets the destination to `nil` — "go back to following my device".
 **Hidden when the user's own location is outside the service area**, which is the same rule as the centre-on-me button — and Jim's call: *"clear doesn't make sense when users is outside the active zone."* No location fix at all also counts as hidden: there is nowhere to go back to.
 
 **Jump is now prominent** rather than plain footnote text identical to Clear, which gave the primary action no more weight than the one that undoes it.
+
+## Round 4 — visibility rules, auto-search, and a bug of my own
+
+### Two questions that were being answered by one flag
+
+| | Governed by | Rule |
+|---|---|---|
+| **The bar** | **where the user is** | visible whenever their own location is outside the active zone |
+| **Jump** | **what the user is looking at** | visible only when the map centre has no data — so it vanishes once you have arrived, and returns if you pan off into nowhere |
+
+Jump is hidden entirely for someone inside the active zone: they have *centre on me* for the same job and do not need a second way home.
+
+### The map now searches itself
+
+There was **no such rule before** — panning set `pannedAway` and left the user to find the magnifying glass. **A button you have to discover is one most people never press.**
+
+**1.2 s after settling, at least 300 m from the last search.** Jim proposed 5 s; I argued against it and he took 1.2 — by five seconds the user has concluded nothing will happen and either pressed the button or moved on, which is the problem this solves.
+
+> [!note] The cost objection does not apply here
+> `search()` is **entirely local** — phase 1 renders from cached `parkInfoVbj`, phase 2 is `quadTree.findNearest`. **No network call.** Doing it for the user costs a tree walk, not a request. That is what made auto-search an easy yes.
+
+Silent outside the service area, where it would find nothing and quietly contradict the grey button. A programmatic arrival records its own centre, so the timer does not fire on the point we just searched.
+
+### The zoom, and the bug underneath it
+
+**0.012 → 0.004** (≈445 m across, a four-minute walk) after Jim saw it and said *"still too busy"*.
+
+But the reason it looked too busy was **not** the default.
+
+> [!danger] "Has the user chosen their own zoom?" was wrong twice, and the second failure is the instructive one
+> **Attempt 1 — timing.** Any camera change outside an 0.8 s suppression window counted as a pinch. **MapKit keeps emitting camera changes after an animation settles**, so our own moves latched the flag.
+>
+> **Jim caught it by asking the right question** — *"can you read what is the current saved span factor on the simulator? I am not sure that our saved preference will be mistaken by our default value?"* Stored on his device: flag `true`, span **0.028 (≈3.2 km)**. **The sweet spot had never once been applied.** "Too busy" was a stale preference, not the default.
+>
+> **Attempt 2 — compare rendered against requested.** Also wrong. **MapKit snaps to its own zoom levels, by an amount that grows as you zoom in:** 8% off at 0.012, **50% off at 0.004**. No threshold is safe.
+>
+> **The fix: stop inferring.** A `MagnifyGesture` on the map answers the only question that matters — did the user's fingers do this — and infers nothing. The `@AppStorage` key is renamed `_v2` to discard what the broken versions latched.
+
+**Verified with every preference cleared:** the map lands at `spanDelta:0.004` and the flag stays unset.
+
+> [!tip] How to check this yourself, on any simulator
+> ```sh
+> C=$(xcrun simctl get_app_container <UDID> com.sharkda.hootowl data)
+> plutil -p "$C/Library/Preferences/com.sharkda.hootowl.plist" | grep -E "nbs_"
+> ```
+> If `nbs_user_set_span_v2` is true, **you are looking at a saved preference and not the default** — which is the trap that cost this round.
 
 ## Verified
 
