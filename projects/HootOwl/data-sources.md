@@ -88,6 +88,16 @@ So New Taipei's ~70% `-9` rate is **not a broken feed and not our bug** — thos
 
 ---
 
+## 🎯 Next zone: 基隆市 Keelung — decided 2026-09-20
+
+Not yet integrated. **Chosen because the geometry pointed at it:** Keelung tests as *inside* the New Taipei fence, since these fences are convex hulls of each city's car parks and the New Taipei hull bulges over it. That is a false positive today — the app would promise live parking it does not have — and it is also the signal. Keelung sits inside the commuter belt this app already serves, close enough that its lots fall within its neighbour's hull. **The people already using this app drive there.**
+
+Adding it **fixes the false positive as a side effect.** Reasoning: [[decisions#2026-09-20-keelung-is-the-next-zone-and-a-bug-is-the-reason-we-know]].
+
+**When it lands, three things move together:** the `onb_s1_body` string in both languages, the App Store subtitle, and the service-area rule — which at three cities should stop being geometric and start asking the quadtree whether any lot actually exists nearby.
+
+---
+
 ## How I re-check — one command per city
 
 ```bash

@@ -51,6 +51,7 @@ Live at https://jimhsuyc.wixsite.com/tataro/privacy-policy. Full review, and a t
 
 Branch `destination-mode`, four commits, **not merged**. The scheme now launches the simulator in **Cupertino**, so Run gives you the out-of-zone case directly. Switch back in-zone via scheme → Run → Options → Default Location → `Wanli34.gpx`.
 
+- [ ] 🌿 **Round 2 is in and also untapped:** the search button's green/grey, the "no data here yet" alert, **Jump**, and the centre-on-me button disappearing outside the area. **The camera fix was verified from the log** — a restored destination now logs `destination → camera` and the map goes to Taipei.
 - [ ] 🌿 **Does the picker read as an offer or as an error?** It still sits inside `ContentUnavailableView` — Apple's "nothing here" furniture — which may be the wrong frame for a screen that says *"here is where to go"*.
 - [ ] 🌿 **Is the "Showing 台北市 — you're not there" bar reassuring, or nagging?** It stays for as long as a destination is set.
 - [ ] 🌿 **Tap through the whole thing.** **Nothing in the UI has ever been pressed** — this Xcode ships no Simulator.app, so the model was proven by seeding a destination and relaunching, and not one pixel was exercised. That is the part only you can judge.

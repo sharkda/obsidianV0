@@ -5,6 +5,21 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-09-20 — Keelung is the next zone, and a bug is the reason we know
+
+**Decision (Jim):** when a third municipality is added, **Keelung (基隆市) goes first.**
+
+**How it came up.** Building the service-area test, Keelung turned out to be a **false positive**: it tests as *inside* the New Taipei fence, because these fences are convex hulls of each city's car parks and the New Taipei hull bulges out over Keelung. The app would show a green "search here" button and promise live parking it does not have.
+
+**Jim's read turned that from a defect into a roadmap item:** *"it's worth noting that Keelung should be the next zone we should cover if not yet."* The geometry is telling us something real — Keelung sits inside the commuter belt this app already serves, close enough that its car parks fall within the hull of its neighbour's. **The people already using this app drive there.**
+
+**What it means practically:**
+- The false positive is **shipped deliberately** for now. Soft failure: a search finds nothing rather than something wrong.
+- Adding Keelung **fixes the bug as a side effect** — the area stops being a false promise and becomes real coverage.
+- Until then, `onb_s1_body` and the subtitle stay as they are.
+
+**Not chosen, and why it would have been the wrong fix:** tightening the boundary to exclude Keelung. That treats a demand signal as a rendering error.
+
 ## 2026-09-20 — The vault lives at `~/obsidianV0` on every machine
 
 **Decision (Jim):** rather than make the documentation path-agnostic about where the vault is, **put the vault at the same absolute path on every Mac.** Jim is moving the Air's copy to `~/obsidianV0` to match.
