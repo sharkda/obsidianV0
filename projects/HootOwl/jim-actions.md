@@ -47,6 +47,17 @@ Live at https://jimhsuyc.wixsite.com/tataro/privacy-policy. Full review, and a t
 > [!tip] You do **not** need to buy a domain
 > Wix upsells one. `wixsite.com` is fine for Apple's Privacy Policy URL *and* Support URL, and that page is already shipping in the app. The contact form / Messenger link on it **is** the relay you wanted — no personal address published, destination changeable without a release. [[decisions#2026-09-16-no-custom-domain-the-relay-is-a-form-on-the-site-that-already-exists]]
 
+## 🌿 Test `destination-mode` — then tell me to keep it or bin it
+
+Branch `destination-mode`, four commits, **not merged**. The scheme now launches the simulator in **Cupertino**, so Run gives you the out-of-zone case directly. Switch back in-zone via scheme → Run → Options → Default Location → `Wanli34.gpx`.
+
+- [ ] 🌿 **Does the picker read as an offer or as an error?** It still sits inside `ContentUnavailableView` — Apple's "nothing here" furniture — which may be the wrong frame for a screen that says *"here is where to go"*.
+- [ ] 🌿 **Is the "Showing 台北市 — you're not there" bar reassuring, or nagging?** It stays for as long as a destination is set.
+- [ ] 🌿 **Tap through the whole thing.** **Nothing in the UI has ever been pressed** — this Xcode ships no Simulator.app, so the model was proven by seeding a destination and relaunching, and not one pixel was exercised. That is the part only you can judge.
+- [ ] 🌿 **Then switch back to Taipei and confirm nothing changed at all.** With no destination the code path is identical by construction, and it was verified that way — but you are the one who knows what normal feels like.
+
+Everything, including how to revert each commit: **[[destination-mode]]**.
+
 ## Second machine — the MacBook Air
 
 - [ ] 💻 **Put the vault at `~/obsidianV0` on the Air**, the same absolute path as here. **Your call, 2026-09-20** — standardise the path rather than make every note path-agnostic. It means `CLAUDE.md`'s `Vault path: ~/obsidianV0` line is simply *correct* on both machines and needs no edit, and the session-start protocol works there with no change. Reasoning: [[decisions#2026-09-20-the-vault-lives-at-obsidianv0-on-every-machine]].
