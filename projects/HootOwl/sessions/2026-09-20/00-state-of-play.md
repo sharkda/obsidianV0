@@ -1,64 +1,48 @@
-# State of play — 2026-09-19
+# State of play — 2026-09-20
 
 > [!info] What this note is
 > **One table, every open item, with a stable ID.** Built by reading every note in this folder and then **checking each claim against the repo** — several items the notes still listed as open are in fact done, and they are called out below rather than silently dropped.
 >
-> Carried forward from [[sessions/2026-09-18/00-state-of-play|2026-09-18]]. The IDs do not change — only **State** and **Moved** move, so an item cannot quietly disappear and "didn't we fix that?" has an answer.
+> Carried forward from [[sessions/2026-09-19/00-state-of-play|2026-09-19]]. The IDs do not change — only **State** and **Moved** move, so an item cannot quietly disappear and "didn't we fix that?" has an answer.
 
-**Repo:** `main` = `origin/main` = **`9285a47`**, working tree clean, **everything pushed.**
+**Repo:** `main` = `origin/main` = **`5d4d794`**, working tree clean, everything pushed.
 **Toolchain:** Xcode 27.0 (27A266a) / Swift 6.4, macOS 27.0. All four configurations build.
+
+**Today: the AdMob SDK went 13.3.0 → 13.10.0**, and the two things that made it hard to do got written down — how the SDK is wired at all ([[admob-sdk]]), and how to work on this project from a second machine ([[working-agreements]]).
 
 ---
 
 # Today in plain words
 
-**Three things, all done and pushed.** The first two are `327bf08`; the third is `9285a47`. The second was found by accident while doing the first.
+**One change, and a lot of writing down.**
 
-## 1. The subscription screen was missing a required link
+## The ad SDK was seven versions behind
 
-**What was wrong.** Before someone can subscribe, Apple wants two links on the screen: a **privacy policy** and **terms of use**. Our screen showed buttons for both — but only the privacy one led anywhere. The terms button had nothing behind it. This had been true the whole time; nobody had noticed because the button looks fine until you press it.
+**What was wrong.** Google's ad SDK sat at **13.3.0**, vendored back in April. Latest is **13.10.0**. Nothing warns you — it is a binary committed to the repo, not a package, so there is no update prompt and no resolution step that could fail.
 
-**Why it came up now.** Jim asked where the policy page's terms sentence was. That sentence turned out to point at a page that does not exist — and checking that led to the app, where the link was missing altogether.
+**What we did.** Took it to 13.10.0 from Google's own SPM mirror, so the artefact is checkable rather than whatever a download page serves. **Checksum matched Google's published value; signature is Apple team `EQHXZ8M8AV`**, which the project file already pins — a substituted binary would have failed the build rather than shipped.
 
-**What we fixed.** Both subscription screens now link terms of use. It points at **Apple's own standard subscription agreement** — because we never wrote terms of our own, and when you don't, Apple's is the agreement that legally applies. So it is the right answer, not a stand-in.
+**Is it solved? Yes, and this one was actually seen working.** No source change needed. All four configurations build, and on the simulator a test banner **loaded**: `🟢 bannerViewDidReceiveAd`, twice, zero errors. Committed `5d4d794`, pushed.
 
-**Is it solved?** **Yes, in the code.** One thing is unchecked: **nobody has actually seen the button appear.** This version of Xcode has no Simulator app, so there is no way to tap through to that screen here. The code is written exactly like the privacy button next to it, which works — but that is reasoning, not seeing. **Please check it on your phone**: open Subscribe, look for *both* buttons, tap both. That is now part of the device pass (**R-14**).
+## It turned out none of this was written down
 
-## 2. A screen we believed was dead was actually live — and it was showing English to Chinese users
+Asked how the SDK got into the project, the honest answer was that **the vault documented the consequences but never the mechanism** — nothing on how it is wired, why it is not Swift Package Manager, or how to update it.
 
-**What was wrong.** On **8 September** a note was written saying one of the two subscription screens was no longer used by anything. **That note was wrong.** The screen is reachable — from the Cyclops toolbar, through the subscribe icon.
+**Now in [[admob-sdk]]:** the four project-file entries, why a vendored binary beat SPM here, what is deliberately absent (Google's consent SDK, because the EEA is excluded), a step-by-step update runbook with checksum verification, and version history.
 
-**Why that mattered.** On **9 September**, the day after, we fixed a bug where a screen showed the English words "Privacy Policy" to a user with a Chinese phone. That fix was applied to the *other* subscription screen. **This one was skipped — because the note said it was dead.**
+**The trap in that runbook is worth knowing:** a version bump is not just modified files. This one **deleted 18 headers and added two untracked `PrivateHeaders/` directories.** `git commit -am` would have skipped those — building fine here, missing from the framework for anyone who clones. **Use `git add -A`.**
 
-So for **eleven days**, a Chinese-speaking user who tapped the subscribe icon saw English.
+## And the build instructions were actively wrong
 
-**What we fixed.** Same commit. That screen now uses the same translatable text as its sibling. The wrong note is corrected in [[unfinished]].
+`operations.md` still said *"all builds are still Jim, in Xcode — the CLI cannot build this project."* **That stopped being true on 14 September**, when the dangling `ConcaveHull` package reference was deleted; every build this week ran from the command line.
 
-**Is it solved?** **Yes — but the wider risk is not.** The same 8 September note *also* says `EntitledView` is unused, and **we have not checked that one.** More importantly, there is a planned cleanup (**E-16**) to **delete three files** on the strength of notes from the same week. **Do not delete them until each one is traced the way this one was.** Logged as **E-29**.
+On a fresh machine that line would have sent the next instance down a dead end immediately. Rewritten from what is verified: the one `DEVELOPER_DIR` line, the four build commands, the full simulator run sequence, **there is no `Simulator.app` so nothing can be tapped**, and the warning that **Xcode rewrites the project file while open** — twice now, once silently bumping the deployment target.
 
----
+## Ready for the MacBook Air
 
-## 3. Searching for a car park only worked if you used capitals
+Jim syncs this vault to a second machine and expects another Claude instance to work the same way there. The gap: **Claude Code's own memory is local to one laptop and does not travel with the vault.**
 
-**What was wrong.** Every Taipei car-park id looks like `TPE0155`. The search compared text exactly, capitals included — so typing `tpe0155` found **nothing** and the list came back empty. This is the bug Jim reported back in June.
-
-**Why it mattered more than it looked.** The App Store review notes now tell a reviewer to **search for `TPE`**. A reviewer who types it in lower case out of habit gets an empty list, and concludes the app is broken. It went from a small annoyance to the cheapest possible rejection.
-
-**What we fixed.** One line. Measured against the live 1,773-lot Taipei feed before and after:
-
-| You type | Before | After |
-|---|---|---|
-| `TPE` | 1773 | 1773 |
-| `tpe` | **0** | **1773** |
-| `tpe0155` | **0** | **1** |
-| 信義 | 158 | 158 |
-| 大安 | 246 | 246 |
-
-**The Chinese searches are untouched** — this changes nothing for the market the app is actually for. It only stops the English ids from being a trap.
-
-**Is it solved?** **Yes**, and unlike the other two it was *measured*, not reasoned about — the numbers above come from running the new rule over the real feed.
-
-**One thing the measurement disproved:** a full-width `ＴＰＥ` from a Chinese IME still matches nothing. The documentation implies standard comparison folds width; here it did not. Left alone deliberately — nobody types a car-park id in full-width — and the code comment now says what was measured rather than what was assumed.
+Twenty-three memories' worth of working agreements are now in **[[working-agreements]]** — how Jim works, the project conventions not visible in the code, and the verification standards, each with the incident that produced it.
 
 ---
 
@@ -66,26 +50,24 @@ So for **eleven days**, a Chinese-speaking user who tapped the subscribe icon sa
 
 | Question | Answer |
 |---|---|
-| Is the terms-of-use link done? | **Yes** — in the code, builds on all four configurations, committed `327bf08`. |
-| Is anything about it still unproven? | **One thing.** The button has never been *seen*. Check on your phone. |
-| Is the English-on-Chinese bug fixed? | **Yes**, same commit. |
-| Is that whole class of problem closed? | **No.** Other "this file is unused" notes from the same week are unverified. Don't act on them yet. |
-| Does the privacy policy page still need work? | **Yes**, but nothing urgent — the false "collects only 'name'" line (**R-04**) is the one worth fixing. |
-| Is the search fixed? | **Yes**, and proved by measurement — `tpe` went from 0 matches to 1,773. |
-| Can we archive and upload now? | **Yes — nothing is blocking it.** Both items worth putting in the binary are in and pushed. |
-| Is anything still waiting on me (Claude)? | **No.** The last 🔴 with my name on it was R-12, the data-source credit — and today's audit found it **already shipped on 15 September**. Everything release-blocking is now yours. |
+| Is the ad SDK updated? | **Yes** — 13.10.0, checksum and signature verified, committed `5d4d794` and pushed. |
+| Did it need code changes? | **None.** Same slices, same layout; all four configurations built untouched. |
+| Was it actually seen working? | **Yes** — a test banner loaded on the simulator, not just "it compiles". |
+| Is the integration documented now? | **Yes** — [[admob-sdk]], written to be followed on another machine. |
+| Can the MacBook Air pick this up? | **Yes.** The xcframework is in git, so a pull brings the exact bytes. Start at [[working-agreements]], then [[CURRENT\|projects/CURRENT]]. |
+| Can we archive and upload? | **Yes — still nothing blocking it.** |
 
 ## What to do next
 
-**R-01 — archive and upload**, then **R-20** — paste the App Review Notes. Those two are the front of the queue; the rest of the 🔴 table is App Store Connect form-filling that follows from them.
+**R-01 — archive and upload**, then **R-20** — paste the App Review Notes. Unchanged, and still the front of the queue.
 
-Two things to carry into the device pass (**R-14**):
-- **Confirm both policy buttons appear** in the Subscribe sheet and open. The one part of this week that was never *seen*, only reasoned about.
+One thing the SDK bump adds to the device pass (**R-14**): **look at a real banner.** The simulator served a *test* ad unit; a real one on hardware is a different code path, and 13.10.0 has never served a live impression.
+
+Carried over into the same pass:
+- **Confirm both policy buttons appear** in the Subscribe sheet and open.
 - **Try `tpe` in the All tab** and watch ~1,700 lots appear.
 
-**Nothing is waiting on me.** Today's audit closed the last 🔴 that was mine (R-12 — already shipped on 15 September, the table just had not caught up).
-
-Detail on today's work: [[sessions/2026-09-19/01-terms-of-use|01 — Terms of Use]] · [[sessions/2026-09-19/02-reviewer-scope-and-testing|02 — the California reviewer]].
+Detail: [[admob-sdk]] · [[working-agreements]] · yesterday's [[sessions/2026-09-19/00-state-of-play|state of play]].
 
 ---
 
@@ -207,12 +189,10 @@ All four re-checked against the live page today; all still present. None of thes
 
 | ID | Item | How it closed |
 |---|---|---|
-| **E-28** | **No Terms of Use link in either subscription screen.** Both set `.storeButton(.visible, for: … .policies …)`, so the sheet advertised two policy buttons with one destination supplied. `grep termsOfService` returned nothing project-wide. | **`327bf08`.** Both screens now offer it, pointing at Apple's standard EULA — the agreement that actually governs the subscription absent a custom one. New localised key `sub_terms_of_use` (en *Terms of Use* / zh-Hant *使用條款*), verified present in **both** `.lproj` of the built app. All four configurations build. |
-| **R-05** | **No Terms of Use anywhere** — page, site, or app. | Both halves done: Jim deleted the dead *"accessible at bopomofo"* sentence on 09-18, and the working link landed today. **Caveat: rendering is unverified** — this Xcode ships no Simulator.app, so the button was never seen. Folded into **R-14**. |
-| **R-21** / **J-01** | **Search only matched capitals.** `TPE0155` worked, `tpe0155` returned nothing. Jim's June bug report, promoted on 09-18 when the review notes started telling reviewers to type `TPE`. | **`9285a47`** — one line, `localizedStandardContains`. **Measured over the live 1,773-lot feed**, not reasoned about: `tpe` 0 → 1773, `tpe0155` 0 → 1, 信義 158 → 158 unchanged. Only this call site ships — the two others were traced and are unreachable. |
-
-> [!note] Where the subscription flow stands
-> Privacy policy **and** Terms of Use are now both reachable before purchase, which is what Guideline 3.1.2 asks for. What is left on the policy *page* is accuracy and polish, not compliance risk — with the caveat that **R-04 is an outright false statement about this app**, and it is the first line under its heading.
+| **E-30** | **The ad SDK was seven minor versions behind** (13.3.0, vendored April), with no mechanism that would ever tell you. | **`5d4d794`** — 13.10.0 from Google's SPM mirror. Checksum matched the published value, signature `EQHXZ8M8AV` as pinned. No source change; all four configurations build; a test banner loaded on the simulator. |
+| **E-31** | **The SDK integration was undocumented.** The vault covered the *consequences* (the dSYM warning) but never the mechanism, so "how do I update this" had no answer. | **[[admob-sdk]]** — the four pbxproj entries, why not SPM, what is deliberately absent, an update runbook with checksum verification and the `git add -A` trap, and version history. |
+| **E-32** | **`operations.md` said the CLI could not build this project.** False since `a4a005b` (09-14); every build this week was CLI. On a fresh machine it was a dead end. | §3 rewritten from what is verified — `DEVELOPER_DIR`, the four builds, the simulator run sequence, no `Simulator.app`, and Xcode's habit of rewriting the project file while open. |
+| **E-33** | **Claude Code's working agreements lived only in local memory**, which does not sync with the vault — so a second machine would start blind. | **[[working-agreements]]** — 23 memories distilled: how Jim works, project conventions invisible in the code, and verification standards, each with the incident behind it. |
 
 ## 🧹 Stale rows
 

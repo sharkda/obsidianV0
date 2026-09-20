@@ -409,3 +409,13 @@ Insert the block as **text**, at the right alphabetical position, matching the s
 **Measure the fold you are claiming.** Standard comparison is documented as width-insensitive too, but measured here it did **not** match full-width `ＴＰＥ` against `TPE`. The comment in the code says what was measured; do not write down what the documentation implies.
 
 **Seen:** 2026-09-19 (`9285a47`), fixing a bug Jim reported in June.
+
+## A note saying "this file is unused" is a claim, not a fact — trace the callers
+
+`unfinished.md` recorded on 2026-09-08 that `SubscriptionStoreScreen` was unreferenced. It was not: `AppScreen:89 → MncplCyclopsScreen → toolbar0 → ToolbarPrinciple → SubButtons → NavigationLink`. The claim was made from `AppScreen.swift:112`, where a *direct* call is commented out, and the toolbar route was missed.
+
+**The cost of a wrong "dead code" note is that the file leaves every future sweep.** The 09-09 localisation pass skipped it, so a bare English `Link("Privacy Policy")` shipped to Chinese users for eleven days.
+
+**Trace before trusting** — `grep` for the type name, then for each caller, then for *its* callers, until you reach a screen the tab list actually returns. It takes two minutes. Doing exactly that on 09-19 also proved which of three `contains(searchText)` sites ships: `.allTpe` appears in no array `AppScreen.sorted()` returns, and `zzParkInfoScreen` has no callers at all.
+
+**Seen:** 2026-09-19 (`327bf08`, `9285a47`).

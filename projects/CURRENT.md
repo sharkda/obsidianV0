@@ -24,22 +24,33 @@ Active focus across projects. Update at session END.
 
 > [!tip] Long-form reading lives in `projects/HootOwl/sessions/YYYY-MM-DD/`
 > This note stays short and current-state-only. Every session gets its own **dated working folder** — created by default, no need to ask — holding that day's briefings, investigations, and extended reasoning as numbered notes (`00-` is always the where-we-left-off note). Append-only, never edited after the fact.
-> Most recent: [[sessions/2026-09-19/00-state-of-play|sessions/2026-09-19/]]. Convention: [[decisions#2026-08-31-every-session-gets-a-dated-working-folder-created-by-default]].
+> Most recent: [[sessions/2026-09-20/00-state-of-play|sessions/2026-09-20/]]. Convention: [[decisions#2026-08-31-every-session-gets-a-dated-working-folder-created-by-default]].
 > **Anything older than two days lives in `sessions/older/`** (2026-09-17) — the top level shows only what is current. Wikilinks resolve by note name, so the move breaks nothing.
 
 > [!success] ✅ The macOS update is behind us — **re-verified 2026-09-17**
 > Xcode did **not** change (27.0 / 27A266a / Swift 6.4), so the 09-15 verification stands. All five builds pass and the app was run on the simulator: no launch crash, fences load, coverage flips `outside` ↔ `covered`. The standing rule still holds for next time — a toolchain upgrade expires every build verification written down here: [[swift-patterns#a-toolchain-upgrade-expires-every-build-verification-you-have-written-down]].
 
-👉 **Resuming? Start at [[sessions/2026-09-19/00-state-of-play|sessions/2026-09-19/00-state-of-play]].** Every open item in one table, with a stable ID per row, checked against the repo rather than copied from these notes. The 09-15 handoff and its re-verify commands are still at [[sessions/2026-09-15/02-pick-up-here|sessions/2026-09-15/]].
+> [!important] 💻 **On a different machine? Start at [[working-agreements]].**
+> Claude Code's own memory is local to one laptop and does not sync with this vault, so a second instance starts blind without it. It carries how Jim works, the project conventions that are invisible in the code, the verification standards, and **the rule that a wrap-up pushes both repos** — this vault *and* `sharkda/hootOwl`.
 
-**`main` = `origin/main` = `9285a47`, pushed 2026-09-19. Working tree clean.**
+👉 **Resuming? Start at [[sessions/2026-09-20/00-state-of-play|sessions/2026-09-20/00-state-of-play]].** Every open item in one table, with a stable ID per row, checked against the repo rather than copied from these notes. The 09-15 handoff and its re-verify commands are still at [[sessions/2026-09-15/02-pick-up-here|sessions/2026-09-15/]].
+
+**`main` = `origin/main` = `5d4d794`, working tree clean. Both repos pushed 2026-09-20.**
+Latest: the **AdMob SDK went 13.3.0 → 13.10.0** (`5d4d794`). Checksum matched Google's published value, signature is team `EQHXZ8M8AV` as the project pins, **no source change was needed**, all four configurations build, and a test banner loaded on the simulator (`🟢 bannerViewDidReceiveAd`). How it is wired and how to do it again: **[[admob-sdk]]**.
+`55197b4` is Jim's own *"sep20"*, committing an Xcode rewrite: the 09-16 `Info.plist` → build-settings migration redone, plus a whole-file `.xcstrings` reformat. **Audited before it landed: no string content changed across 338 keys, `sub_terms_of_use` intact, and the deployment target was NOT touched this time.** The only loss is the export-compliance comment block; the declaration itself survives as a build setting.
 **Session of 09-18 — no code written, three things settled.** Privacy policy round 3: the last 🔴 on the page closed, and Jim deleted the dead terms sentence. That question exposed a real one — **there is no Terms of Use anywhere**, so **E-28** (a `termsOfService` link in both subscription screens, ~4 lines each) is now **the last compliance item that must be inside the binary**, and it blocks the re-archive. Then: *how does a reviewer in California check the app?* — **no code needed**, the All tab is not location-filtered, so the app already works anywhere; the notes just have to say *type `TPE` in capitals*. That turned up `tpe` → 0 matches, promoting Jim's June search bug to **R-21**.
 
 **09-19: E-28 landed (`327bf08`)** — both subscription screens now offer Terms of Use beside the privacy policy, pointing at Apple's standard EULA. **R-05 closes with it and R-01 is unblocked.** Wiring it found that `SubscriptionStoreScreen` was **never** unreferenced, so a live English-only string had been sitting in a shipping screen for eleven days behind a wrong "dead code" note.
 
 **09-19 also closed R-21 (`9285a47`)** — search was case-sensitive, so `tpe0155` matched **0 of 1,773** lots while `TPE0155` matched one. Jim's June bug, and urgent because the review notes now tell reviewers to type `TPE`. Measured over the live feed rather than reasoned about; the Chinese terms are unchanged.
 
-**Next: R-01, archive and upload — and that is the whole list.** Nothing is waiting on me. Two things to carry into the device pass (R-14): confirm **both** policy buttons render in the Subscribe sheet (never seen, only reasoned about — this Xcode ships no Simulator.app), and type `tpe` in the All tab.
+**09-19 also answered the California reviewer question properly.** No code needed: the map screen's address search calls `search(mapMode: .mapTap, loc0:)`, which has **no reference to the user's location** and biases to Taiwan — verified against the live geocoder, and **English resolves** (`Taipei 101` → 25.0336, 121.5648). So a reviewer types an address and sees the real map with live pins. The review notes were rewritten to lead with that; the All tab is the second route. A *"Preview Taipei"* button was considered and **rejected as unnecessary**. → [[sessions/2026-09-19/02-reviewer-scope-and-testing|02]]
+
+**Next: R-01 (archive and upload), then R-20 (paste the review notes).** Every release blocker is Jim's; nothing is waiting on me — today's audit closed the last 🔴 that was mine (R-12, already shipped 09-15).
+
+**The open scope gap is R-10:** the App Store **description is unwritten**, and it is the only place a reviewer learns the coverage before installing. The name says *TW*; the app covers **Greater Taipei**. The cities belong in the opening clause, as the subtitle does it.
+
+Carry into the device pass (R-14): confirm **both** policy buttons render in the Subscribe sheet (never seen — this Xcode ships no Simulator.app), and type `tpe` in the All tab.
 
 ## State (2026-09-15 — merged, and the toolchain moved under us)
 

@@ -1,5 +1,8 @@
 # AdMob — findings and status
 
+> [!tip] 🔧 **How the SDK is integrated, and how to update it: [[admob-sdk]]** (new 2026-09-20)
+> A vendored XCFramework committed to git, not SPM — with the full update runbook, written to be followed on another machine. This note is about *what the ads do*; that one is about *how the SDK gets there*.
+
 *Jim's paste of the three findings, kept verbatim. Status added underneath each as they are dealt with — the text above a status line is the original finding, not a description of today.*
 
 **Ads themselves are fine and were never the problem:** the SDK starts at `hootowlApp.swift:79`, the banner is placed in `ContentView.swift:58`, test ad unit in DEBUG and the real one in release, hidden for subscribers via `StoreObs.showAdRelay`, and every main screen honours `\.adBannerHeight`. Only the three items below were outstanding.
@@ -29,5 +32,5 @@
 ---
 
 ## Related
-[[jim-actions]] — your action list · [[operations#2b-ads-idfa-and-territories]] — the how-to and the territory decision · [[bugs#2026-09-07-no-privacy-manifest-att-never-requested-admob-is-staying]] — the full record, including the correction to my original wrong claim that no ads were running
+[[admob-sdk]] — **the SDK itself: integration and update runbook** · [[jim-actions]] — your action list · [[operations#2b-ads-idfa-and-territories]] — the how-to and the territory decision · [[bugs#2026-09-07-no-privacy-manifest-att-never-requested-admob-is-staying]] — the full record, including the correction to my original wrong claim that no ads were running
 

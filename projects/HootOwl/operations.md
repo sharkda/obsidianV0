@@ -387,6 +387,8 @@ Every upload produces this, and it will never stop:
 
 ### Why there is no dSYM — Google ships none
 
+*How the framework got here in the first place, and how to update it: [[admob-sdk]].*
+
 Checked directly in `GoogleMobileAds.xcframework` (2026-09-14):
 - **No `.dSYM`, no `.bcsymbolmap`, no DWARF anywhere** in the xcframework.
 - The device slice is a **13 MB static `ar` archive** with **zero debug-map entries** — stripped.
@@ -456,16 +458,71 @@ An Archive is the only thing that type-checks the `#else` half of every `#if DEB
 
 # 3. Building and testing
 
-- **The command line still cannot build this project — but the recorded reason was incomplete.** Re-investigated 2026-09-10:
-  - `xcode-select` points at `/Library/Developer/CommandLineTools`, so `xcodebuild` and `simctl` appear missing entirely. **`export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` fixes that with no sudo** — Xcode 26.6 and the simulators are then both reachable. Worth knowing: it means CLI tooling *is* available for anything that does not need package resolution.
-  - **The real blocker is `ConcaveHull`.** `Package.resolved` is absent (gitignored), and `-resolvePackageDependencies` fails with *"the package manifest at '/Package.swift' cannot be accessed"* — the bare repo fetches from cache but the checkout never materialises. A retry bypassing the cache ran past five minutes without finishing. The upstream repo is fine (tag 1.3.0 exists, `Package.swift` is at its root), so this is local resolution state, not the dependency.
-  - **A `Package.resolved` exists in `farms/backup/hootowl`** (April 2025) but pins **GoogleMobileAds and Google UMP**, not ConcaveHull — from the era when ads were an SPM dependency rather than an xcframework. Copying it in does not help.
-  - **So: all builds are still Jim, in Xcode.** If that ever needs to change, the thing to fix is package resolution — one successful Xcode build writes a `Package.resolved` that could be copied into the workspace.
-- **Incidental find worth remembering:** that backup shows **Google UMP was once integrated in this project**. If EEA/UK is ever opened up (see the gate table), there is prior art in the repo history rather than a from-scratch integration.
+> [!success] ✅ **Corrected 2026-09-20 — the command line CAN build this project, and has been able to since `a4a005b` (2026-09-14).**
+> Everything below this callout used to say *"all builds are still Jim, in Xcode"*. **That is no longer true and has not been for a week** — every build of the 09-15 → 09-20 sessions was run from the CLI. The blocker was the dangling `ConcaveHull` package reference, and deleting it removed the last SPM dependency from the project. **There are now zero `XCRemoteSwiftPackageReference` entries**, so nothing has to resolve over the network, and a fresh clone builds. Ads are a vendored xcframework, not a package → [[admob-sdk]].
+
+## The one environment line you need
+
+```sh
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+```
+
+`xcode-select` points at `/Library/Developer/CommandLineTools`, so without this `xcodebuild` reports *"tool 'xcodebuild' requires Xcode"* and `simctl` appears missing. **No sudo needed.** Put it at the top of any script.
+
+## The four builds
+
+```sh
+xcodebuild -project hootowl.xcodeproj -scheme hootowl -configuration Debug   -destination 'generic/platform=iOS Simulator' build
+xcodebuild -project hootowl.xcodeproj -scheme hootowl -configuration Release -destination 'generic/platform=iOS' build
+xcodebuild -project hootowl.xcodeproj -scheme hootmac -configuration Release -destination 'platform=macOS' build
+xcodebuild -project hootowl.xcodeproj -scheme hootmac -configuration Debug   -destination 'platform=macOS' build
+```
+
+**Run the macOS ones even for an iOS-only change.** They are what prove the `#if os(iOS)` guards still hold — the AdMob xcframework has no macOS slice, so a dropped guard breaks `hootmac` and nothing else.
+
+## Compiling is not enough — run it
+
+This is not a stylistic preference. On 2026-09-15 an empty `@CommandsBuilder` closure **compiled clean and aborted at launch**, and the archive built from it was uploadable and unrunnable ([[bugs]]).
+
+```sh
+UDID=$(xcrun simctl list devices available | grep -m1 "iPhone 1[78]" | grep -oE '[0-9A-F-]{36}')
+xcodebuild -project hootowl.xcodeproj -scheme hootowl -configuration Debug \
+  -destination "id=$UDID" -derivedDataPath DerivedData/sim ENABLE_DEBUG_DYLIB=NO build
+xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+xcrun simctl install "$UDID" DerivedData/sim/Build/Products/Debug-iphonesimulator/hootowl.app
+xcrun simctl privacy "$UDID" grant location com.sharkda.hootowl
+xcrun simctl location "$UDID" set 25.0340,121.5645          # Taipei 101 → covered, live pins
+xcrun simctl location "$UDID" set 37.3230,-122.0322         # Cupertino → "We're not here yet"
+xcrun simctl launch --console-pty "$UDID" com.sharkda.hootowl
+```
+
+**`ENABLE_DEBUG_DYLIB=NO` is required** — the preview dylib adds its own launch failures outside Xcode.
+
+**Derive the UDID, never hardcode one.** Device ids differ per machine, and the available runtimes change with every Xcode update.
+
+## Simulator gotchas, learned the hard way
+
+- **This Xcode ships no `Simulator.app`.** `/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app` does not exist, so there is **no way to tap the UI** from the CLI — you can install, launch and read the console, and that is all. Anything that needs a tap (the subscription sheet's policy buttons, the ATT prompt) has to go on Jim's device-pass list instead of being claimed as verified.
+- **The ATT prompt becomes a zombie** once presented and unanswered: it survives terminate, reinstall and TCC edits, and with no Simulator.app there is nothing to click it with. `simctl erase` is the way out — a *first* launch never prompts, the gate being launch count ≥ 2.
+- **`simctl spawn … defaults write` does not reliably reach the app's real preferences** — they live in the container plist and `cfprefsd` caches them.
+- **The runtime set can change under you.** An Xcode or macOS update adds and removes simulator runtimes, so a destination that worked an hour ago can stop matching.
+
+## ⚠️ Xcode.app rewrites the project file while it is open
+
+Twice now (2026-09-16 and 2026-09-20) `project.pbxproj`, `Info.plist` and `Localizable.xcstrings` changed on disk with no human edit, because Xcode was open. On 09-16 it also silently bumped **`IPHONEOS_DEPLOYMENT_TARGET` 26.0 → 26.6**, which would have dropped every device below 26.6.
+
+**`xcodebuild` itself does not do this** — the tree stayed clean across five CLI builds afterwards. It is the GUI.
+
+**So: `git status` before trusting any build result, and again before archiving.** If the diff contains a deployment-target change nobody asked for, that is the signature.
+
+## Other build-and-test facts
+
 - **`mailto:` links do nothing in the Simulator** — no Mail account. Test anything that opens mail **on a real device**.
 - **To see logs on a device**, log at `.notice` or above and read them in **Console.app** (select the device, filter category `ffl`). `.debug` and `.info` go through `print()`, which exists only while Xcode's debugger is attached and vanishes the moment it detaches.
-- **Testing subscriptions in a non-English locale?** The StoreKit test configuration has its own `settings._locale` and `_storefront` (`hootowl/iAp/hootowl.storekit`). **They override the device language** for everything StoreKit draws — product names, descriptions, prices, and `SubscriptionStoreView`'s own chrome. Set to `zh_TW` / `TWN` on 2026-09-10; if the store ever looks English on a Chinese device again, check there first.
-- **DEBUG builds start with fake config values** (`test-support@example.com` and the real tutorial URL) and then replace them with the live Gist as soon as the fetch lands. If the Gist lacks those keys you will see buttons **appear and then vanish** a second later. That is expected — fix the Gist, not the code.
+- **Testing subscriptions in a non-English locale?** The StoreKit test configuration has its own `settings._locale` and `_storefront` (`hootowl/iAp/hootowl.storekit`). **They override the device language** for everything StoreKit draws. Set to `zh_TW` / `TWN` on 2026-09-10; if the store ever looks English on a Chinese device again, check there first.
+- **DEBUG builds start with fake config values** and replace them with the live Gist as soon as the fetch lands. If the Gist lacks those keys you will see buttons **appear and then vanish** a second later. That is expected — fix the Gist, not the code.
+- **`hoot_test_ui` does not build**, and has not since June. Pre-existing, no scheme, in no verification. It blocks nothing.
+- **Historical note:** a `Package.resolved` in `farms/backup/hootowl` (April 2025) pins GoogleMobileAds and Google UMP — from the era when ads were an SPM dependency. It shows **Google UMP was once integrated here**, which is prior art if EEA/UK is ever opened up (see the gate table).
 
 ---
 

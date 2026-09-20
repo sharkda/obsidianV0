@@ -5,6 +5,20 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-09-19 — A reviewer in California tests the app through the address search, not a feature we build
+
+**Decision:** the App Review Notes lead with *"open the first tab, type `Taipei 101` in the search bar"*. **No code was written for review purposes.**
+
+**Why:** the map screen's address search already calls `nbs.search(mapMode: .mapTap, loc0: coord)` — a search around an arbitrary point with **no reference to the user's location** — and it biases to `AddressSearchObs.taiwanRegion`. Verified against the live geocoder: `Taipei 101` → 25.0336, 121.5648; `Taipei Main Station` → 25.0486, 121.5149. **English resolves**, so no IME is needed on a US keyboard. A reviewer sees the real product — a live map with free-space counts — with no setup at all.
+
+**Alternatives rejected:**
+- **A "Preview Taipei" button on the outside-coverage screen.** The obvious build before reading the code, and unnecessary: the address search already does exactly this, for reviewers and real users alike, and predates the coverage screen. Worth revisiting only as a *discoverability* question for real users — not a review problem.
+- **Leading with the All tab** (the 09-18 version). Correct, and it still works from anywhere, but it demonstrates a *list* when the product is a map. Kept as the second route.
+- **Simulator / Xcode location instructions** (the 09-14 draft). A reviewer has neither. Removed entirely.
+- **Relying on the demo video.** Still owed (R-13) and still the strongest single artifact, but it is now belt-and-braces rather than the plan.
+
+**The scope half is not solved by any of this.** A reviewer meets the product page before the binary, and the **description is unwritten** — the one place coverage has to be stated before install. The app name says *TW*; coverage is Greater Taipei. → R-10.
+
 ## 2026-09-19 — Terms of Use links Apple's standard EULA, not a page of our own
 
 **Decision:** both subscription screens point `termsOfService` at `apple.com/legal/internet-services/itunes/dev/stdeula/`.
