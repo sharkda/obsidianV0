@@ -4,13 +4,153 @@ Active focus across projects. Update at session END.
 
 ---
 
+> [!important] 🔁 Claude: check [[data-sources]] at session START
+> The municipal contact details in the Gist are scraped from open-data portals and point at named individuals, so they rot silently. **Re-check when the "last checked" date there is over ~30 days old, and always before a release. This is my job, not Jim's.** Next due: **2026-10-09**.
+
+> [!important] 🗺️ Lost? [[INDEX]] maps the whole HootOwl folder
+> Which note answers which question, and where each finding was filed. Added 2026-09-10.
+
+> [!important] 🚀 Releasing? Read [[release-strategy]] first
+> TestFlight-vs-straight-to-release, the order of operations, and the reviewer-in-California problem that is the likeliest rejection. Added 2026-09-10.
+
+> [!important] 👉 Your action list is [[jim-actions]]
+> Everything waiting on **you** — Gist edits, device tests, decisions, App Store Connect — in one short note, tickable one at a time. Added 2026-09-07.
+
+> [!important] Operational how-to and the **release checklist** live in [[operations]]
+> Anything you change **outside the code** — the contact Gist, the tutorial video, contact phone/email — is a step-by-step runbook there, with exact URLs and how to check it worked. [[operations#2-release-checklist]] is the single list of everything that must be true before submitting. Added 2026-09-07.
+
 ## Active project
 **HootOwl** — SwiftUI iOS/macOS app for Taiwan urban mobility (real-time bus + parking).
 
-> [!tip] Long-form reading lives in `projects/HootOwl/sessions/`
-> This note stays short and current-state-only. Dated session briefings, investigations, and extended reasoning go in [[2026-08-17-status-reset|projects/HootOwl/sessions/]] — append-only, never edited after the fact. Most recent: [[2026-08-17-status-reset]].
+> [!tip] Long-form reading lives in `projects/HootOwl/sessions/YYYY-MM-DD/`
+> This note stays short and current-state-only. Every session gets its own **dated working folder** — created by default, no need to ask — holding that day's briefings, investigations, and extended reasoning as numbered notes (`00-` is always the where-we-left-off note). Append-only, never edited after the fact.
+> Most recent: [[sessions/2026-09-19/00-state-of-play|sessions/2026-09-19/]]. Convention: [[decisions#2026-08-31-every-session-gets-a-dated-working-folder-created-by-default]].
+> **Anything older than two days lives in `sessions/older/`** (2026-09-17) — the top level shows only what is current. Wikilinks resolve by note name, so the move breaks nothing.
 
-## State (session 2026-08-20 — #5 applied; battery shortlist closed)
+> [!success] ✅ The macOS update is behind us — **re-verified 2026-09-17**
+> Xcode did **not** change (27.0 / 27A266a / Swift 6.4), so the 09-15 verification stands. All five builds pass and the app was run on the simulator: no launch crash, fences load, coverage flips `outside` ↔ `covered`. The standing rule still holds for next time — a toolchain upgrade expires every build verification written down here: [[swift-patterns#a-toolchain-upgrade-expires-every-build-verification-you-have-written-down]].
+
+👉 **Resuming? Start at [[sessions/2026-09-19/00-state-of-play|sessions/2026-09-19/00-state-of-play]].** Every open item in one table, with a stable ID per row, checked against the repo rather than copied from these notes. The 09-15 handoff and its re-verify commands are still at [[sessions/2026-09-15/02-pick-up-here|sessions/2026-09-15/]].
+
+**`main` = `origin/main` = `9285a47`, pushed 2026-09-19. Working tree clean.**
+**Session of 09-18 — no code written, three things settled.** Privacy policy round 3: the last 🔴 on the page closed, and Jim deleted the dead terms sentence. That question exposed a real one — **there is no Terms of Use anywhere**, so **E-28** (a `termsOfService` link in both subscription screens, ~4 lines each) is now **the last compliance item that must be inside the binary**, and it blocks the re-archive. Then: *how does a reviewer in California check the app?* — **no code needed**, the All tab is not location-filtered, so the app already works anywhere; the notes just have to say *type `TPE` in capitals*. That turned up `tpe` → 0 matches, promoting Jim's June search bug to **R-21**.
+
+**09-19: E-28 landed (`327bf08`)** — both subscription screens now offer Terms of Use beside the privacy policy, pointing at Apple's standard EULA. **R-05 closes with it and R-01 is unblocked.** Wiring it found that `SubscriptionStoreScreen` was **never** unreferenced, so a live English-only string had been sitting in a shipping screen for eleven days behind a wrong "dead code" note.
+
+**09-19 also closed R-21 (`9285a47`)** — search was case-sensitive, so `tpe0155` matched **0 of 1,773** lots while `TPE0155` matched one. Jim's June bug, and urgent because the review notes now tell reviewers to type `TPE`. Measured over the live feed rather than reasoned about; the Chinese terms are unchanged.
+
+**Next: R-01, archive and upload — and that is the whole list.** Nothing is waiting on me. Two things to carry into the device pass (R-14): confirm **both** policy buttons render in the Subscribe sheet (never seen, only reasoned about — this Xcode ships no Simulator.app), and type `tpe` in the All tab.
+
+## State (2026-09-15 — merged, and the toolchain moved under us)
+
+👉 **Start at [[01-session-wrap|sessions/2026-09-15/]].**
+
+**`main` is at `fb28765`, seven commits ahead of `origin/main`. Nothing is pushed.** Working tree clean. `icon-replacement` merged as a fast-forward; `backup/icon-replacement-pre-fold` deleted as planned.
+
+```
+fb28765  Explain what the app shows outside its coverage area
+88c5b4b  Make the geofence test correct and the fence data decodable
+2c3dbb4  Stop applying .commands on iOS, which crashed the app at launch
+391d784  Fix a FanceMapView01 init that Swift 6.4 rejects
+a4a005b  Delete the dangling ConcaveHull package reference
+98f1253  ← icon-replacement merged here
+```
+
+> [!warning] **Xcode 26.6 → 27.0 happened between 09-14 and 09-15, and it expired every build verification in this vault.**
+> Two hard failures, neither caused by an edit: a **Swift 6.4 definite-initialization error** in a file untouched since March, and — far worse — **the app could not launch at all**. `.commands { #if os(macOS) … #endif }` leaves iOS an *empty* `@CommandsBuilder` closure; it compiles silently and SwiftUI cannot resolve the witness, so the binary aborts in `AppGraph.init(app:)` before drawing. The 09-14 Archive contains that binary.
+> **Consequence: that archive is dead. Re-archive before uploading.** Patterns: [[swift-patterns#an-empty-result-builder-closure-is-a-runtime-crash-not-a-no-op]], [[swift-patterns#a-toolchain-upgrade-expires-every-build-verification-you-have-written-down]].
+
+**The empty state shipped** — the rejection I would have bet on is closed. `Municipal.coverage` is one state read by every screen (`locating` / `denied` / `outside` / `waiting` / `covered`); it answers only "is there anything to show, and if not, why", leaving **age** to `AvailFreshness`. Outside coverage names the cities and offers the city request; staleness keeps the numbers visible with a banner rather than blanking them. Open-data attribution rides along on Options. 16 strings, English and 中文. [[decisions#2026-09-15-coverage-is-one-state-on-municipal-and-it-never-answers-questions-about-age]]
+
+**Building it exposed that the geofence system has never run on iOS** — three independent faults, each sufficient alone: the `fences/` folder was only in **`hootmac`'s** Resources phase; the bundled JSON predates `IdWgs.carCap` so it could not decode; and `convexEnclosing` does its geometry on **`Int`-truncated** degrees, which places Banqiao inside Taipei. Plus the long-recorded `allFencesVbj.send` bug, which turns out to *erase* the fence list rather than narrow it whenever the user is outside coverage — the App Review case exactly. All fixed. [[bugs#2026-09-15-the-geofence-system-has-never-run-on-ios-fixed]]
+
+**Verified by running it.** iPhone 17 Pro simulator, round trip: Cupertino → `coverage locating → outside` and the card appears; Taipei 101 → `outside → covered`, card gone, live pins with real counts. iOS Debug, iOS Release and `hootmac` Release all build clean. **Not visually checked:** the `.denied` state and the two list screens.
+
+**One thing waiting on Jim:** the outside-coverage ask line renders only when a city-request destination is configured, and the Gist has none. **Updated later the same day — it no longer has to be an email**: the config now takes `support.url` (hosted form or page, preferred) as well as `support.email`, with the URL winning, and requests carry `?src=onboarding` / `?src=coverage` so demand can be attributed to the screen that produced it. Recommendation is a Wix form; a Facebook page works only if it describes *this* app. [[decisions#2026-09-15-a-city-request-goes-to-a-url-not-a-mailto]] Today the screen degrades to *"We're not here yet / Right now we cover Taipei and New Taipei"* — honest, but the city-request payoff is missing. That Gist item now gates two screens.
+
+**Later the same session (into 09-16):** a long product thread on where a city request should go, ending with `support.url` in the remote config (URL beats mailto; requests carry `?src=onboarding` / `?src=coverage`). Landed: **no custom domain is needed** — the free `jimhsuyc.wixsite.com` site already hosts the privacy policy the app ships, and a contact form / Messenger link on it *is* the relay Jim wanted, so no personal address is ever published. Facebook can be the user-facing channel but **cannot replace email entirely** — ASC's App Review Information requires a contact address; use a dedicated mailbox. `facebook.com/tataroApp` is not usable until it describes *this* app rather than Bopomofo. [[decisions#2026-09-16-no-custom-domain-the-relay-is-a-form-on-the-site-that-already-exists]]
+
+**Privacy policy is mid-revision, two rounds reviewed.** Round 2 closed the location gap; **three findings remain open**, and the top one got *worse* — the policy now contradicts its own ATT prompt two paragraphs apart. Everything, including a table of what the app actually does with data verified against the source, is in [[privacy-policy]].
+
+**Next:** ① ~~push~~ done; ② **re-verify after the macOS update** (see the callout above); ③ **re-archive** — the 09-14 archive cannot launch — and upload; ④ finish the privacy policy; ⑤ decide the city-request destination, then one line in the Gist; ⑥ the device pass, now including the coverage states.
+
+## State (2026-09-11→14 — the first Archive, and everything it shook loose)
+
+👉 **Start at [[01-session-wrap|sessions/2026-09-11/]].** The briefing that opened it: [[00-resume-here|sessions/2026-09-11/]].
+
+**`main` is untouched at `5048976`. All work is on branch `icon-replacement` (6 commits).** Working tree carries **one uncommitted change** as of 2026-09-14: the `ConcaveHull` removal in `project.pbxproj` (13 lines deleted).
+
+```
+98f1253  Stop tracking .DS_Store
+5eef4fc  Delete the legacy app icon sets
+7ab9cf0  Adopt an Icon Composer icon and point both targets at it
+eaf1acb  Strip the alpha channel from the legacy app icons
+85e4a45  Fix three Release-only breakages that Debug never compiled
+```
+
+Each commit reverts independently; the deletion touches nothing else. Safety ref at `backup/icon-replacement-pre-fold` — delete once merged.
+
+**The plan was the empty state. It did not get written.** The first Archive was attempted instead, failed, and kept failing in different ways — which was the better use of the time.
+
+**Three Release-only compile errors**, all in the `#else` half of an `#if DEBUG` — code no Debug build had ever type-checked. Plus a **near-miss that would have shipped**: the first fix set `debugForceAd = true` in Release, which would have forced ads on for **paying subscribers**. It would have compiled. The compile errors were the lucky ones.
+
+**The app icon took two failures.** `ITMS-90717` blocked the upload (all 20 icons had alpha; the 1024 was 26% transparent). Replaced with `FindParkingTw.icon` via Icon Composer — and the replacement **silently did nothing**, because adding a `.icon` file does not make it the icon. Everything about icons now lives in [[app-icon]].
+
+**Theme:** *the tooling you use every day does not exercise the thing you are about to ship.* Conditional compilation, asset validation and the icon setting all fail without a warning, and all three are found by doing the real thing. Consequence, now written down: **archive early** — uploading is not submitting, and an Archive is the only thing that type-checks half your conditional code. [[operations#2d-archiving-and-distributing--2026-09-11]]
+
+> [!success] **Compile-verified 2026-09-14** — this caveat is now closed for iOS
+> An Archive requires a successful **Release** build, and `hootowl 2026-9-14, 5.38 PM.xcarchive` was built two days after the last source change on this branch (`ContentView.swift`, 09-12 16:43). It carries `CFBundleIconName = FindParkingTw`, which exists **only** on `icon-replacement` — so it was built from the branch, in Release, successfully. **All three `#if DEBUG` fixes and the icon wiring are proven.**
+> **Still unproven: the `hootmac` target.** An iOS archive says nothing about whether macOS compiles, and `hootmac` had its own icon set that now shares the `.icon` file.
+
+**Next:** ~~① confirm `hootmac` compiles~~ — **done 2026-09-14: Debug and Release both `** BUILD SUCCEEDED **`.** Getting there required deleting a **dangling `ConcaveHull` package reference** that had blocked every command-line build since June and was misdiagnosed in this vault as a network/`Package.resolved` problem — it is uncommitted in the working tree, see [[bugs#2026-09-14-a-dangling-concavehull-package-reference-blocked-every-command-line-build]]. **`xcodebuild` now works on this project.** Then ② `git checkout main && git merge icon-replacement`, then delete the backup ref; ③ upload — the `Upload Symbols Failed` warning is expected forever and unfixable ([[operations#the-upload-symbols-failed-warning--ignore-it-permanently]]) — **every App Store Connect field is drafted and paste-ready in [[app-store-connect]]** (new 2026-09-14 — the one page for all ASC copy); ④ **then the empty state**, still the highest-value remaining code task and still the likeliest rejection. Its two design calls are **still unanswered** — see [[00-resume-here|sessions/2026-09-11/]].
+
+## State (2026-09-10 — named, localised, and out of code-blocking work)
+
+**`origin/main` is current. Working tree clean.** 👉 Start at [[01-session-wrap|sessions/2026-09-10/]].
+
+**The app has a name: `Find Parking TW` / `找車位`**, localised in `InfoPlist.xcstrings` so English and 中文 differ deliberately. That closed the last user-visible English in a Chinese build — both system permission prompts are localised, and the three stale names (`Park-Chia`, `車停對`, "Hootowl uses your location…") are gone.
+
+**Map pins now fade with age** — the map had no freshness concept at all, which was the Cyclops disease in a purer form. Alpha carries it (0.9 / 0.7 / 0.45) on the same 5- and 30-minute thresholds, reusing `AvailFreshness` and `Municipal.lastConfirmed`.
+
+**Three bugs this session shared one shape:** something true once that quietly stopped being true — a banner selling a capability removed in June, a permission string naming a permission no longer requested, and a boolean that meant "fetched at some point" and never expired. All found by looking at the running app, not by reading code. Patterns in [[swift-patterns]].
+
+**Nothing is blocked on code now.** What remains is the Gist (`support.email`, real tutorial video), App Store Connect (name, subtitle, availability, subscription 中文, privacy labels, screenshots, age rating), a device pass and a TestFlight pass — plus two product questions: whether a subscription should do more than remove ads, and what a user sees when the feed is down (currently nothing). 👉 [[jim-actions]].
+
+**Six commits since the last Xcode build** (`016f852`, 09:12). Everything before that is compile-verified and was seen running; the six since are parse-checked only.
+
+## Previous state (2026-09-08 — onboarding, ads and subscriptions shipped to `main`)
+
+**`origin/main` = `37a39f8`.** Six commits, built clean in Xcode on the first attempt and pushed. Working tree clean.
+
+**Onboarding is no longer the release blocker** — all three screens exist and carry the final copy. Also landed: the Gist-backed remote config now serves the support inbox and the tutorial video (both changeable with no release, and decoding degrades field by field); ATT asks for IDFA on the second launch; the app finally has a `PrivacyInfo.xcprivacy`; and the `.entitle` tab shows a real subscription screen instead of `EntitledView`'s receipt dump, with tier two removed entirely.
+
+**What is left is not code.** 👉 [[jim-actions]] is the single list: the Gist still holds `example.com` placeholders (a user can dial a fake number), the 中文 pass on ~30 new strings, App Store Connect availability set by hand to Taiwan/US/Japan/HK/Macau, and the device checklists. Operational how-to and the full release checklist: [[operations]].
+
+**One open product question:** a subscription currently changes nothing except turning off ads — on iOS every tier gets the same tabs. The copy is honest about that now, but if subscribers were meant to get more, that gating was never built.
+
+## Previous state (session 2026-09-05/06 — Cyclops done; onboarding is the only blocker left)
+
+**Everything is committed and pushed.** `origin/main` = `43ac0a0`, working tree clean, nothing unbuilt. Seven commits over three days.
+
+**The Cyclops "grey numbers" arc is closed** — it was never a colour bug. The numbers had not been updating for a long time and nobody could see it, because a stale parking number is indistinguishable from a quiet car park. Attaching a freshness clock made the failure loud. Four bugs came out of it (one mine, three pre-existing), then the All-screen keyboard trap (open since 2026-06-15), a fresh-install watch-list disagreement, and a three-card layout off-by-one. All fixed and tested on device.
+
+**Cyclops first-run now works out of the box:** landmark defaults (台北101 / 大安森林公園 / 府前廣場) from a single source on `Municipal`.
+
+**Still unexplained:** why `@Observable` invalidation doesn't reach `MncplCyclopsScreen` on device. `14ceac7` routes around it. **Three screens now carry the same workaround**, so it's structural — `AppTabView`'s dynamic `ForEach` is the suspect. Not blocking; deserves its own session.
+
+**Next:** **onboarding is the only release blocker.** Lane 3 copy is final in [[onboarding]]; the immediate action is the `Localizable.xcstrings` batch, which needs no decision. Then wiring ob0/ob1/ob2. Everything else outstanding is verification (two device checklists) or hygiene (`@MainActor` before the next city).
+
+👉 **Resume from [[01-resume-here]]** — full handoff, including what I got wrong so it isn't re-derived. Standing list: [[unfinished]].
+
+## Previous state (session 2026-08-31 — Cyclops freshness colouring added)
+
+**Working tree now carries two uncommitted, unbuilt changes:** battery #5 (`Municipal.swift`, from 2026-08-20) and the new **Cyclops cache-freshness colouring** (4 files). Both need one Xcode build — the CLI still can't compile this project (`Package.resolved` gitignored → SPM re-resolves `ConcaveHull` over the network).
+
+Cyclops numbers now colour by age of the backing feed: `<5 min` unchanged, `5–30 min` `.primary`, `≥30 min` `.secondary`. Derived from `MncplParkAvPack.converted` (already cached — no new persistence), per-lot, ticked by `TimelineView(.everyMinute)`. **One deviation awaiting Jim's call:** spec said "white", implemented as `.primary` so it isn't invisible in light mode. Full write-up: [[01-cyclops-cache-freshness]]; decision: [[decisions#2026-08-31-cyclops-availability-freshness-is-derived-from-mncplparkavpackconverted-never-from-the-trail]].
+
+Adds one item to the owed device run: force-quit, wait >30 min, relaunch → numbers should appear grey then flip to `.fern` within ~15s.
+
+## Previous state (session 2026-08-20 — #5 applied; battery shortlist closed)
 
 **First code change since 2026-07-03.** #5 (`CLLocationManager` dedupe) applied to the working tree — one line deleted from `wire0()` in `Municipal.swift`, plus a WHY comment. The app now creates exactly one `CLLocationManager`. **Not committed and not compile-verified** — build it in Xcode before trusting it; the CLI can't build this project (gitignored `Package.resolved` → SPM tries to re-resolve `ConcaveHull` over the network). Detail + caveat in [[battery]], atomic entry in [[decisions#2026-08-20-cllocationmanager-dedupe-battery-5]].
 

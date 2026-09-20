@@ -197,6 +197,50 @@ When investigating an "I switched out and back in and the screen was empty / sta
 
 ---
 
+## A read-only `@Binding` suppresses child re-renders
+
+**Rule: use `@Binding` only when the child writes back. If the child only reads, pass by value.**
+
+A read-only `@Binding` is not merely unnecessary — it actively *prevents* the child from updating.
+
+SwiftUI decides whether to re-run a child's `body` by comparing the child's stored properties. **A `Binding`'s identity is its storage location, not its value.** So a `@Binding` compares equal on every parent update no matter how much the underlying data changed, SwiftUI concludes the child's inputs are unchanged, and skips its `body` entirely.
+
+### How it presented (2026-09-01)
+
+`CyclopsView` held `@Binding var item: CyclopsModel.CyclopsItem` and never wrote through it (`$item` appeared nowhere in the file). Result: **Cyclops parking numbers never updated.** The model had `car:20`, the cell displayed `19`, indefinitely.
+
+It went undiagnosed for a long time because *a stale parking number is indistinguishable from a quiet parking lot* — there's no way to look at `19` and know it should be `20`. Someone had already felt it and worked around it with a forced-identity kick rather than diagnosing it:
+
+```swift
+.id("\(item.wrappedValue.pid)-\(uiKick)")   // ← symptom of this bug, not a fix
+```
+
+**A forced `.id()` "kick" to make a view redraw is a strong smell for this pattern.** If you find one, look for a read-only `@Binding` before accepting it.
+
+### The fix
+
+```swift
+// child
+let item: CyclopsModel.CyclopsItem                    // was @Binding var item
+
+// parent
+ForEach(municipal.cyclopsMod.items, id: \.pid) { … }  // was ForEach($bindable.cyclopsMod.items…)
+```
+
+Passing by value gives the child an input that genuinely differs between updates. Reading `municipal.cyclopsMod.items` directly in the body is also what registers the `@Observable` dependency — building the `ForEach` from a `@Bindable` projection does not necessarily read the value, so it may not register one.
+
+### How it was caught, and how to catch it again
+
+The parent kept updating correctly the whole time (a toolbar reading `municipal.availableTime` in the parent body was always current) while the children were frozen. **A working sibling surface next to a broken one localises the fault to the boundary between them.**
+
+The decisive evidence was the *shape* of a logged age, not its value: with a frozen item, an age climbs monotonically in exact `TimelineView`-tick steps (181 → 207 → 267 → 327 → 627). Once fixed it becomes a sawtooth (93 → 126 → 58 → 77 → 44). **Only new data can make an age go down** — so a sawtooth proves liveness even when you can't verify the underlying values are correct.
+
+> Corollary worth remembering: **elapsed time is a good canary for frozen state.** Frozen data hides; a frozen timestamp advertises itself, because it ages on its own and eventually crosses a visible threshold.
+
+Full narrative: [[02-postmortem-what-went-wrong-and-why]].
+
+---
+
 ## External references
 
 (Annotate as Jim finds relevant Apple docs / WWDC talks / community write-ups.)

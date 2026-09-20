@@ -5,12 +5,200 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-09-19 — Terms of Use links Apple's standard EULA, not a page of our own
+
+**Decision:** both subscription screens point `termsOfService` at `apple.com/legal/internet-services/itunes/dev/stdeula/`.
+
+**Why:** the app ships no terms of its own, and **absent a custom EULA that is the agreement that actually governs the subscription** — so this is the correct target, not a placeholder. Guideline 3.1.2 wants privacy *and* terms reachable before purchase; only privacy was ever wired.
+
+**Alternatives rejected:**
+- **Write a terms page on the Wix site.** Real work, and it would have to be maintained and localised, to restate what Apple's EULA already says for an app with no unusual terms.
+- **Point terms at the privacy-policy page.** What the old policy effectively did — it claimed terms were *"accessible at bopomofo"*, a page that does not exist. Pointing a second button at the privacy page would have been the same evasion with a working URL.
+- **Leave it.** `.policies` advertises the button either way; a reviewer finding one of two destinations missing on an auto-renewable subscription is a cheap rejection to avoid.
+
+**Revisit if** custom terms are ever written — one constant, `LegalLink.termsOfUse`.
+
 ## YYYY-MM-DD — Short title
 **Decision:** What was decided.
 **Why:** Constraints/motivation.
 **Alternatives considered:** What was rejected and why.
 **Impact:** Files/areas affected.
 -->
+
+## 2026-09-16 — No custom domain; the "relay" is a form on the site that already exists
+**Decision:** do not buy a domain. Keep the **free `jimhsuyc.wixsite.com/tataro` site**, and let a contact form / Messenger link on it be the channel users see. Keep a **dedicated, non-personal mailbox** for Apple only.
+**Why the question came up:** Jim wanted users to reach him without his personal address being published — "a relay in the middle, for flexibility and security" — and asked whether that removed the need for a Wix page at all.
+**What made it easy:** the Wix page is **not a new thing to add — it is already load-bearing.** `https://jimhsuyc.wixsite.com/tataro/privacy-policy` is hardcoded in `SubscriptionStoreView.swift:43` and `SubscriptionScreen.swift:202` and is what the subscription sheet opens. It returns 200 logged-out. **Apple accepts a `wixsite.com` URL** for both Privacy Policy URL and Support URL; a custom domain buys polish, not compliance. Wix's domain upsell can be ignored.
+**Why a form *is* the relay:** the user types, it lands in whatever inbox it points at, and no address is published. Flexible (change the destination any time), secure (nothing to harvest), free, no domain. No separate relay service is needed.
+**On replacing email with Facebook entirely — no, and the reason is specific:** App Store Connect's **App Review Information** requires a contact name, phone and **email**; Apple's reviewers use it. So an address exists regardless. The real question is only whether email is the channel *users* see, and there Facebook is defensible: Taiwan's FB/Messenger usage for reaching small businesses is genuinely high, it needs no Mail account, public answers compound, and a "which city next?" post collects +1s a form cannot. Against it: **Meta can disable the page** with no appeal, comments and DMs do not tally into a demand ranking, and a logged-out visitor cannot message.
+**What makes the platform risk acceptable:** the destination lives in the Gist, so **the choice is reversible in two minutes with no app release**. If the page dies, repoint `support.url` and every installed copy follows. Without remote config this would be the wrong call.
+**Blocked on one thing:** `facebook.com/tataroApp` renders fine logged-out but describes *"Tataro … the Bobomofo Application"*. Pointing a confused parking user at a page about a different product is worse than pointing them nowhere. Fix the page identity, or give the app its own page.
+**Impact:** no code change — `support.url` from [[decisions#2026-09-15-a-city-request-goes-to-a-url-not-a-mailto]] already accepts any of these. Runbook: [[operations#support--which-transport-and-why-url-wins]]. Detail: [[privacy-policy]].
+
+## 2026-09-15 — A city request goes to a URL, not a mailto
+**Decision:** the remote config gains `support.url` beside `support.email`, and **the URL wins when both are set**. The transport is now an operational choice made in the Gist, not a code change. Requests carry the originating screen as `?src=onboarding` / `?src=coverage`.
+**Why not mailto:** it needs a configured Mail account. Someone using only Gmail's app taps the button and nothing happens — the identical dead affordance the placeholder address was pulled for, arriving by a different route. It also produces free text in an inbox that has to be tallied by hand, when the stated goal ([[decisions#2026-07-12-onboarding-copy--feedback--ratings-strategy]]) is to **rank cities by demand** — which means counting.
+**Why `?src=`:** a request from the outside-coverage screen comes from someone who opened the app **where it does not work yet**. That is a materially stronger signal than a curious tap during onboarding, and the two are worth telling apart when choosing the next city. Costs nothing; an unknown query parameter is ignored by anything that does not read it.
+**Options weighed:**
+- **Wix form — recommended.** Structured rows, no Mail-account dependency, does not publish Jim's personal address, and the ASC **Support URL** field needs an owned page anyway, so it does double duty.
+- **Facebook page — good, for a different job.** Taiwan's FB usage is genuinely high and a "which city next?" post collects +1s that a form cannot. Rejected as the *primary in-app destination* for two reasons: FB increasingly walls content from logged-out visitors, which would fail hardest for a logged-out App Review reviewer; and `facebook.com/tataroApp` — checked 2026-09-15, returns 200 with no wall — describes **Tataro / Bobomofo**, not this app. Pointing a confused parking user at a page about a different product is worse than pointing them nowhere. **A Wix page can contain a Facebook link; a Facebook page cannot reliably contain a form** — one direction composes, the other does not.
+- **Keep mailto only** — rejected for the funnel reasons above.
+**Deliberately kept:** `support.email` as a fallback. It costs nothing and means the decision stays reversible from the Gist.
+**Consequence:** the outside-coverage ask line renders only when a destination exists, so with neither key set the screen degrades to *"We're not here yet / Right now we cover Taipei and New Taipei."* — complete and honest, just without the payoff.
+**Also:** `support` gets its own `SupportConfig` type rather than borrowing `MunicipalContact` — a municipal contact has a phone and no URL, this has a URL and no phone, and sharing meant a meaningless field on one side of every use. The Gist shape is unchanged and the file's lenient hand-decoding convention is followed, so a Gist written before `url` existed still decodes.
+**Impact:** `ContactConfig.swift`, `LandingScreen.swift` (its private duplicate of the mailto builder removed), `CoverageNoticeView.swift`. Commit `9a7190c`. Runbook: [[operations#support--which-transport-and-why-url-wins]].
+
+## 2026-09-15 — Coverage is one state on `Municipal`, and it never answers questions about age
+**Decision:** `Municipal.coverage` (`locating` / `denied` / `outside` / `waiting` / `covered`) is the single source every screen reads to decide whether to explain itself. It answers **only** *"is there anything to show, and if not, why"*. **Age is not its business** — that stays `AvailFreshness`, computed in the view from an injected clock.
+**Why one state:** the map, the list and the watch list were all empty outside coverage, for the same reason, with three different opportunities to disagree about it. That is the mistake the watch list made before `Municipal.defaultWatchList` became its single source ([[bugs#2026-09-05-fresh-install-all-screen-showed-3-pinned-lots-cyclops-showed-none-fixed]]).
+**Why the split from freshness:** the app already has one freshness vocabulary (5 / 30 minutes, `AvailFreshness`, `lastConfirmed`) used by the Cyclops cells and the map pins. Folding "how old" into coverage would have produced a second one that could drift. Coverage is event-driven; freshness is clock-driven; keeping them apart keeps each honest.
+**Why a stored `var`, not a computed property:** the inputs are `CurrentValueSubject`s. Reading `.value` from a computed property registers **no dependency with `@Observable`**, so no view would ever invalidate. It is recomputed at the four points that can change the answer — the location sink, the auth sink, the fence load, the first availability pack — and logged at `.notice` so a device sitting can read the transitions from Console.app.
+**Alternatives considered:**
+- **Per-screen checks** — rejected, three chances to disagree and three places to fix.
+- **A computed property** — rejected for the invalidation reason above; would have looked correct and updated never.
+- **Reading `activeFencesVbj`** — rejected. It is written by `assessFences`, which was destroying its own input, and by the integer-truncating `convexEnclosing`. Coverage reads `allFencesVbj` through the new correct test instead.
+**Impact:** new `Municipal+Coverage.swift`, `CoverageNoticeView.swift`; `Municipal`, `Municipal+Fence`, `NbsScreen`, `MncplAllScreen`, `MncplCyclopsScreen`. Commit `fb28765`.
+
+## 2026-09-15 — Outside-coverage names the cities and asks; the ask hides when it cannot be answered
+**Decision:** the outside-coverage screen names the cities covered and offers the city request. **The ask line renders only when `support.email` is configured** — unlike `LandingScreen`, which keeps its prompt visible and hides only the link.
+**Why the difference from onboarding:** on `LandingScreen` the prompt sits under other content, so a promise with no button is a small wart. On the coverage screen it would be the **last line on an otherwise dead-end screen** — the entire payoff turning out to be another dead end. Without an address it degrades to *"We're not here yet / Right now we cover Taipei and New Taipei"*, which is honest and complete.
+**Why name the cities rather than say "Taiwan only":** someone in Kaohsiung is also outside coverage. "Taiwan" would be a lie by omission, and the list is derived from the loaded fences so it updates itself when a zone is added.
+**Consequence for Jim:** the Gist `support.email` placeholder now gates **two** screens, not one. Still open on [[jim-actions]].
+**Impact:** `CoverageNoticeView.swift`, `ContactConfig.cityRequestURL` (extracted from `LandingScreen` so both surfaces share it).
+
+## 2026-09-15 — The map shows only the coverage states the user can act on
+**Decision:** the map card appears for `.denied` and `.outside` only. `.locating` and `.waiting` are excluded there, though the list screens do show them.
+**Why:** `.locating` is the state of every cold launch for the second or two before the first fix. A card that flashes on every launch is a card people learn to ignore, and it would be ignored in the one case that matters. The map also already carries its own transient chrome (the 🧊 stale pill, the auth banner).
+**Why the list screens differ:** an empty list with no explanation is indistinguishable from a broken list, so there "waiting for live data" is genuinely informative. A map is never blank — it still shows where you are.
+**Also decided:** the notice is a **compact card**, not a takeover. `ContentUnavailableView` expands to fill what it is given, which is right for an empty list and wrong floating over a map — it grew to nearly full height and read as an undismissable modal. The map stays pannable behind the card so a curious user can still look at Taipei.
+**Impact:** `CoverageNoticeView.compact`, `NbsScreen`.
+
+## 2026-09-14 — Release-risky cleanup goes on a branch, in commits that revert independently
+**Decision:** The app-icon replacement and its surrounding cleanup were done on a branch (`icon-replacement`), split so that **each commit can be reverted on its own** — in particular the deletion of the legacy icon sets is its own commit touching nothing else. `main` was left untouched.
+**Why:** Jim asked for the cleanup to be reversible. Deleting 41 tracked PNGs is the kind of change that is trivial to undo *if* a restore point exists and unrecoverable if it does not — and at the time nothing in the working tree was committed at all. Committing first turned an irreversible delete into `git revert <sha>`.
+**Alternatives considered:**
+- **Commit straight to `main`**, as every previous commit in this project has — still reversible via `revert`, but offers no way to abandon the whole line of work in one move while an unproven icon change is in flight.
+- **One big commit** — rejected; it welds the delete to the Release-only bug fixes, so undoing the icons would also undo fixes needed to compile at all.
+- **A scratch backup of the files** — was taken, but it lives in a session-temporary directory and is not a durable answer.
+**Implementation:** five commits (`85e4a45` fixes → `eaf1acb` alpha strip → `7ab9cf0` new icon + wiring → `5eef4fc` delete → `98f1253` `.DS_Store`), plus a safety ref `backup/icon-replacement-pre-fold`. Folding a late fix into the first commit was done by rebuilding the branch with cherry-picks rather than `rebase -i`, which is unavailable in this environment.
+**Caveat carried forward:** the branch is **not compile-verified**, and a Debug build exercises none of the fixed lines. Merge only after a successful Xcode **Release/Archive** build.
+**Status:** branch open, awaiting that build. Full narrative: [[sessions/older/2026-09-11/01-session-wrap|sessions/2026-09-11/]].
+
+## 2026-09-12 — Replace the owl app icon; adopt Icon Composer over a per-size set
+**Decision:** Retire the owl app icon and replace it with `FindParkingTw.icon`, authored in **Icon Composer** and shipped as a `.icon` file, rather than maintaining the 20-PNG `AppIcon.appiconset`.
+**Why:** Three independent reasons, only one of which was the upload failure.
+- The old icon **drew its own rounded corners** and placed the owl's ear tufts inside the corner-radius zone, so iOS's squircle mask would have **clipped them** on every home screen.
+- It carried **`yuchinghsu`** — a personal handle — across the artwork, in pink-on-pink already illegible at 1024px.
+- It was an **owl**, the retired placeholder identity, on an app now called `Find Parking TW` / `找車位`. The icon was the last surviving piece of that identity and the most visible surface the app has.
+The separate trigger was `ITMS-90717`: all 20 icons carried an alpha channel and `Icon1024.png` was 26% genuinely transparent, which blocked the first ASC upload.
+**Why Icon Composer specifically:** the deployment target is **iOS 26.0/26.1**, so every user gets Liquid Glass and a flat legacy PNG would look a generation old. The tool also **owns the mask** — making the clipping failure impossible by construction — and generates dark / tinted / clear variants that would otherwise be drawn by hand.
+**Alternatives considered:**
+- **Fix the alpha and keep the owl** — rejected. It would have cleared the upload while leaving all three real problems shipping.
+- **Single Size (one opaque 1024 PNG, Xcode 14+)** — viable and much simpler, kept documented as the fallback in [[app-icon]]. Rejected as the primary because it forfeits Liquid Glass on an iOS-26-only app.
+- **Keep the per-size appiconset** — rejected; it is precisely what let one bad file block an upload.
+**Consequence discovered immediately:** adding the `.icon` file does **not** make it the icon. `ASSETCATALOG_COMPILER_APPICON_NAME` must be changed for both targets, and the old set must not be deleted until that is verified. Pattern: [[swift-patterns#adding-a-file-to-the-project-is-not-the-same-as-the-project-using-it]].
+**Status:** icon authored; **wiring not yet done** as of 2026-09-12. Full record: [[app-icon]].
+
+## 2026-09-10 — App name: Find Parking TW / 找車位
+**Decision:** The app is **`Find Parking TW`** in English and **`找車位`** in Chinese. Scope lives in the **App Store Subtitle**, not the name.
+**Why not `Find Parking Taipei`, renamed later:** Jim asked whether to scope the name to Taipei now and widen it on expansion. Rejected for three reasons:
+- **Renaming costs most exactly when you can least afford it.** The App Store name is changeable with a version submission, but the search ranking accumulated against the old name is not — and every link, review and word-of-mouth reference still points at it. That bill falls due at the moment of growth.
+- **The Chinese name has no city in it.** 找車位 is scope-free, so scoping only the English half would make the two storefronts describe different products and force a rename of half the identity later.
+- **The Subtitle field exists for exactly this** — 30 characters, shown under the name in search results, and changeable every release at no brand cost. `Taipei & New Taipei parking` (27/30). Someone searching "Taipei parking" still matches on it, so no traffic is lost.
+**"TW" is a market marker, not a coverage claim** — it reads as *the Taiwan edition*, which is why it avoids the over-promise that `Find Parking Taiwan` would carry while covering two cities.
+**When this would have gone the other way:** if expansion were expected to take years rather than months, "Taipei" would be honest for long enough to be worth the eventual rename. The New Taipei feed being ~30% dead is a hint that adding cities is not quick, so this is worth revisiting if a third city is still not in sight in a year.
+**Implementation — one source of truth:** both names live in the new `hootowl/InfoPlist.xcstrings` as a localised `CFBundleDisplayName`. English and 中文 are deliberately **not** translations of each other. Removed: `Park-Chia` from build settings, the app name from the location permission prompt (iOS already prints the name above that line, so repeating it guaranteed staleness), and `LandingScreen`'s hardcoded 車停對, which was two names out of date and invisible to anyone editing the string catalogue.
+**Also fixed by the same change:** `NSLocationWhenInUseUsageDescription` and `NSUserTrackingUsageDescription` are now localised, which was the last user-visible English in a Chinese build.
+
+## 2026-09-08 — Ship to Taiwan, US and Japan only; EEA/UK and mainland China are gated
+**Decision:** App Store availability is set by hand to **Taiwan, US, Japan, Hong Kong and Macau** (HK/Macau confirmed 2026-09-08). **EEA/UK and mainland China are excluded**, each behind a documented gate that must be cleared before they are ever enabled.
+**Why not "ship everywhere and let it break where it breaks":** Jim's instinct — reasonable on its face — was that the app would simply be blocked where it does not comply, which they could live with. It does not degrade that gracefully:
+- **EEA/UK is a Google policy violation, not a quiet block.** Google has required a certified consent platform (CMP) to serve ads to EEA/UK users since January 2024. The optimistic outcome is lost revenue in a region with no users; the outcome worth planning around is **AdMob policy enforcement on the account, which is not scoped to the region that triggered it** — ads stopping globally is a far worse failure than ads never starting in Europe. GDPR also applies to Jim as publisher, independently of Google.
+- **Mainland China does not ship at all.** Apple gates submission on an **ICP filing (备案)**, which needs a Chinese entity or agent. It is not a runtime degradation.
+**The argument that settled it:** including those regions **buys nothing**. The app shows Taipei and New Taipei parking, so a user in the EEA or mainland China has no use for it — the trade is policy and legal exposure for approximately zero downloads. Risk with no matching reward, rather than a cheap risk worth taking.
+**Why excluding costs nothing:** App Store availability is changed at any time with **no new build**. Starting narrow is fully reversible, so there is no option value in shipping wide early.
+**Alternatives considered:**
+- **Ship worldwide and add UMP later** — rejected: it accepts the enforcement window in exchange for users who cannot use the app.
+- **Add UMP now and ship worldwide** — rejected as premature. UMP is a small, well-understood integration; it should be done when an EEA audience actually exists, not speculatively.
+- **Include mainland China for Chinese-speaking reach** — rejected; **Hong Kong and Macau are separate territories** with no ICP requirement, working AdMob, and existing 中文 support. They serve that goal without the gate.
+**Standing rule recorded for future decisions:** before adding any territory, ask who there can use a Taipei parking app. **Coverage should lead availability, not the other way round.**
+**HK/Macau, added 2026-09-08:** zero-cost in the literal sense — no consent platform (Google's CMP requirement is EEA/UK-specific), no ICP, AdMob serves, and `zh-Hant` already covers them via `zh-HK` fallback. Also the best-reasoned non-Taiwan market on the list: Taiwan is a major destination for Hong Kong travellers, which passes the "who there can use a Taipei parking app" test more convincingly than US or Japan do.
+**Impact:** no code. App Store Connect availability (⚠️ which **defaults to all territories**), and the gate table in [[operations#gate-table--read-this-before-adding-any-territory]].
+
+## 2026-09-07 — The remote config decodes leniently, field by field
+**Decision:** `ContactConfig` and `MunicipalContact` get hand-written `init(from:)` using `decodeIfPresent` with defaults, instead of Swift's synthesized `Decodable`. Every key in the Gist is optional and degrades on its own.
+**Why:** Swift's synthesized decoder calls `decode(_:forKey:)` for a non-optional property **even when the property has a default value** — defaults are not consulted. So `"support": { "email": "you@x.com" }` with no `"phone"` threw `keyNotFound`, and because one bad field aborts the whole container it discarded **the entire config**, including the fields that were correct. The app then silently kept serving stale cached values; the only trace was one `ffl(.error)` and an earcon.
+
+This was not theoretical — it is exactly the JSON I handed Jim to paste, verified failing before the fix (`DecodingError.keyNotFound: Key 'phone' not found. Path: support`). It would have looked like "the new onboarding buttons don't work" and cost a debugging session on a config typo.
+**Why it matters more than a normal robustness tweak:** this file is edited **operationally** — by hand, in a browser, months apart, by someone who has said plainly they will not remember the schema. An all-or-nothing decoder makes a forgotten key delete the whole configuration. It has to fail one field at a time or the mechanism is a trap.
+**Alternatives considered:**
+- **Document the required keys and move on** — rejected. It puts the burden on remembering a schema, which is the thing being designed around. The runbook now says "you cannot break one field by leaving another out", which is only honest because the code makes it true.
+- **Make every property Optional** — works, but pushes `?? ""` into every call site and changes the public shape of the type for a decoding-only problem.
+- **A third-party lenient-decoding helper** — a dependency for four fields.
+**Implementation:** both inits live in **extensions**, deliberately: an initializer written in the struct body would suppress the memberwise init that `loadCached()`'s `#if DEBUG` branch uses. `CodingKeys` declared explicitly in each extension rather than relying on synthesis. Same file as the type declarations, per [[feedback-codable-synthesis-same-file]].
+**Validation:** five cases verified with a standalone `swift` script before the change was trusted — the JSON handed to Jim, the Gist as it lives today, `{}`, a contacts entry missing `phone`, and the memberwise init still compiling. All pass. **Still not compile-verified inside the app** — the CLI cannot build this project.
+**Impact:** `hootowl/network/ContactConfig.swift`. Operational consequences written up in the new [[operations]] runbook.
+
+## 2026-09-06 — City-request feedback rides the existing Gist contact config
+**Decision:** The onboarding "Tell us where to go next →" link opens a **`mailto:`** draft, and the address comes from a new optional **`support`** key in the Gist-backed `ContactConfig` — the same file that already carries the per-municipality data-quality contacts.
+**Why:** [[onboarding]] left the transport open (`mailto:` vs. a hosted form) with `mailto:` as the standing recommendation because it ships today and migrating later does not change the copy. What was missing was *which address* — and hardcoding one in source means an app release to change it, plus a personal address baked into a shipping binary. `ContactConfig` already solved exactly that problem for the municipal contacts: a JSON blob on a Gist, fetched at launch, cached in `UserDefaults` so it works offline, editable without a release. Reusing it makes the address a config value rather than a code constant, and it costs four lines.
+**Alternatives considered:**
+- **Constant in `LandingScreen` behind a `#warning`** — matches the file's existing `#warning("chinese app name ")` idiom, but requires an App Store release to change the destination of the app's only feedback channel. Rejected.
+- **A hosted form** — better once volume justifies it, but it is infrastructure to stand up and the copy is identical either way. Still the documented upgrade path.
+- **Firebase Remote Config** — already rejected for this exact job in `ContactConfig.swift`'s own header comment; nothing has changed.
+**Two details that matter:**
+- `support` is **`MunicipalContact?`**, not a defaulted non-optional. Swift's synthesized `Decodable` throws `keyNotFound` for a missing key on a non-optional property *even when it has a default value* — so a defaulted `var support: MunicipalContact = .init()` would break decoding of the Gist as it exists today. Optional gets `decodeIfPresent` and stays backward compatible. (The same trap is latent on `version: Int = 0`, which the file's own doc comment shows being omitted in one example.)
+- **No address configured → the nudge hides itself**, and a `.notice` fires after the fetch has had its chance. A visible link that opens nothing is worse than no link, but a silently absent affordance with no log is the invisible-failure pattern that cost the whole Cyclops arc. The `#if DEBUG` defaults in `loadCached()` gained a `test-support@example.com` so the link is always present while developing.
+**Impact:** `hootowl/network/ContactConfig.swift` (`support`, `supportEmail`, DEBUG defaults, header doc), `hootowl/UI/onboard/LandingScreen.swift` (`cityRequestURL`).
+**Owed:** Jim adds `"support": { "email": "…" }` to the Gist. Until then the link is hidden in release builds.
+**Validation:** working tree only, not committed, **not compile-verified** — the CLI still cannot build this project.
+
+## 2026-09-05 — Cyclops first-run seed: landmarks, from a single source
+**Decision:** `Municipal.defaultWatchList` is the one place the first-run Cyclops watch list is defined, and it holds **landmarks** — 台北101 (`TPE0374`), 大安森林公園 (`TPE0095`), 府前廣場 (`TPE0096`).
+**Why landmarks:** these cells are the first thing a new user sees, so their job is to *explain what the screen is*. The previous seed was three 文山區 lots — our neighbourhood, and meaningless to a user in 信義區 or someone visiting. All three replacements are large enough that the counts actually move, and they sit at very different occupancies, so the scarcity colouring visibly does something on first launch instead of showing three similar numbers.
+**Why a single source:** the seed was a literal in two view files that could drift apart silently, and Municipal — which owns the list Cyclops renders — had no default at all. That combination produced a real first-run bug; see [[bugs#2026-09-05-fresh-install-all-screen-showed-3-pinned-lots-cyclops-showed-none-fixed]].
+**Deliberate distinction:** a **missing** stored list seeds; an **empty** one does not. Unpin everything and the instructor view comes back. Resurrecting defaults under a user who cleared them would be worse than an empty screen.
+**Also decided:** `MncplAllScreen` routes writes through `municipal.setWatchList()` rather than writing `@AppStorage` itself, so Municipal is the only writer. The `UserDefaults.didChangeNotification` observer in `Municipal+Cyclops` is now belt-and-braces rather than the actual sync mechanism.
+**Not done:** `AllTpeParkingScreen` still takes its live list from `repository.pinnedPidVbj` — a genuinely separate legacy path. Only its seed literal was replaced. Rewiring it is its own job.
+**Impact:** `Municipal+Cyclops.swift`, `MncplAllScreen.swift`, `AllTpeParkingScreen.swift`. Committed `881652b`.
+
+## 2026-09-05 — Onboarding goes blunt/utilitarian, and Cyclops gets its own screen
+**Decision:** Screen-1 headline lane = **3, blunt/utilitarian** ("Live parking. Right now."), and screen 2 is rewritten to be **about Cyclops** rather than mentioning it in passing. Full copy in [[onboarding]] under the REVISED section.
+**Why (Jim):** *"most of the app out there using Map, we do that too, but Cyclops is our differential feature (if it clicks, there will be clones, but that's life). 2 is OK too, but not Cyclops highlighting enough."* The tone pick and the structural pick came from the same insight: the earlier draft sold **coverage** on screen 1 — which every competitor also has — and gave the actual differentiator four words on screen 2. Onboarding should lead with what only this app does.
+**What changes beyond the headline:** the playful owl asides go with the playful lane. Their two jobs are preserved as plain copy — freshness honesty moves into the Cyclops screen (where it now also describes the age-based dimming shipped 2026-09-04, so copy and app agree), and the privacy reassurance becomes a clause on screen 3. **The owl remains the app's identity elsewhere**; it is only out of the onboarding.
+**Alternatives considered:**
+- Lane 1 (playful owl) — rejected by Jim; the mascot voice made the copy charming but left the differentiator unstated.
+- Lane 2 (confident/clean, "Know there's a space before you go") — Jim: "OK too, but not Cyclops highlighting enough."
+- Keeping Cyclops on screen 2 as a sub-point — rejected; that is what made lanes 1 and 2 feel undifferentiated.
+- Leading with Cyclops on screen 1 — not taken. A new user needs the category promise before the twist; screen 1 says what it is, screen 2 says why this one.
+**Scope note:** this is the **English** lane only. 中文 is unwritten and is a separate call — a blunt English line does not force a blunt Chinese one.
+**Impact:** no code yet. `hootowl/UI/onboard/` is still 2024 scaffolding. Next: `Localizable.xcstrings` batch (English filled, 中文 blank), then wire `LandingScreen` (ob0) and build ob1/ob2. Feedback transport (mailto vs hosted form) is still undecided.
+
+## 2026-08-31 — Cyclops availability freshness is derived from `MncplParkAvPack.converted`, never from the trail
+**Decision:** Cache-seeded Cyclops numbers are colour-coded by age: `<5 min` keeps the existing scarcity colour, `5–30 min` → `.primary`, `≥30 min` → `.secondary`. The age comes from **`MncplParkAvPack.converted`**, plumbed per-lot into a new `observed: Date?` on `CyclopsItem` via a `parkId → converted` map built in `refreshCyclops()`. New `AvailFreshness` enum owns the thresholds.
+**Why not the obvious source:** `carTrail.last?.time` is wrong in both directions. The trail only appends when the count *changes*, so an unchanged-but-fresh lot reads as old; and `CyclopsModel` isn't cached, so on cold launch `oldTrails` is nil and the trail stamps `Date()` onto disk-loaded data — making hours-old numbers look brand new. That is precisely the bug the feature exists to prevent. Written into the `AvailFreshness` doc comment so it isn't re-derived.
+**Why no new persistence:** Jim's ask assumed the saved time needed saving. It already is — `MncplParkAvPack` is `Codable`, the cache stores whole packs, and `seedFromCache()` already restores `availableTime` from `converted`. No cache-format change, so no migration for existing installs.
+**Why per-lot, not per-screen:** a watchList spanning Taipei + New Taipei has feeds landing minutes apart. Keyed by which pack actually contained the lot, not by `mncplInfo?.mncpl` — that is nil exactly in the degraded case where the freshness label matters most.
+**Why a ticker:** staleness only matters when polling has stopped, which is when nothing emits to redraw. `TimelineView(.everyMinute)` — system-aligned, coalesces across cells, stops on background so it doesn't reopen the battery question.
+**Deviation from the literal spec (Jim's call):** spec said "white"; implemented as `.primary`, and "grey" as `.secondary`. `MncplCyclopsScreen` only forces dark mode while *pinned*, so a literal `.white` number is invisible on an unpinned light-mode device. `.primary`/`.secondary` preserve the intended desaturation ramp (coloured → neutral → dimmed) in both schemes. One-line revert in `AvailFreshness.heroColor` if Jim wants literal white.
+**Alternatives considered:**
+- Add a new `savedAt` field to the cache envelope — rejected, `converted` already carries it per-pack and is strictly more precise than a whole-snapshot write time.
+- Colour by `CachedSnapshot.written` — rejected; that's one timestamp for all municipalities and is only set on write, not on live updates.
+- Staleness as a badge/label instead of recolouring the number — rejected for now; Jim asked for colour, and the hero number is the only thing read at a glance while driving.
+**Impact:** `CyclopsModel.swift` (enum + `observed` + defaulted `observedAt:` param), `Municipal+Cyclops.swift` (the map), `CyclopsView.swift` (TimelineView + colour override), `MncplCyclopsScreen.swift` (toolbar timestamp on the same ramp). All new call-site params are defaulted, so `MncplCyclopsScreen0000` and the two Nbs construction sites compile untouched. **No new files** — `AvailFreshness` lives in `CyclopsModel.swift` to avoid the target-membership trap.
+**Status:** working tree, **not committed, not compile-verified** (same `Package.resolved`/`ConcaveHull` CLI blocker as #5). Full write-up: [[01-cyclops-cache-freshness]].
+
+## 2026-08-31 — Every session gets a dated working folder, created by default
+**Decision:** Every working session opens a folder `projects/HootOwl/sessions/YYYY-MM-DD/` and writes its long-form output there as numbered notes (`00-where-we-left-off.md`, `01-<topic>.md`, …). **This is now default behaviour — Jim does not have to ask for it.** First folder: `sessions/2026-08-31/`. This supersedes the flat `sessions/YYYY-MM-DD-<topic>.md` file convention from [[decisions#2026-08-13-long-form-output-goes-in-the-vault-dated-session-notes-get-their-own-folder]]; the two existing flat notes (`2026-08-13-session-start.md`, `2026-08-17-status-reset.md`) stay where they are — dated notes are never rewritten.
+**Why:** Jim's request, verbatim: *"maybe you can create the working folder using date like 2026-08-31 in the obsidian so I can go back anytime and check, can we make this default behavior in the future?"* Two motivations, both stated: the terminal is not Jim's reading surface for anything long, and they want to **return to it later**. A folder-per-date beats a file-per-date because a session usually produces more than one piece of long-form output, and piling them into one file — or scattering them across the flat `sessions/` list — loses the grouping that makes "what happened that day" answerable at a glance.
+**Alternatives considered:**
+- Keep one flat dated file per session — rejected; a session with a briefing *and* an investigation *and* an option menu has to either concatenate them or invent three sibling filenames with no visual grouping.
+- Ask each session whether to create the folder — rejected; Jim explicitly asked for it to be default.
+- Put the folder at vault root rather than under `projects/HootOwl/` — rejected; sessions are project work and other projects (Tesla, Miyazaki Trip) already live under `projects/`.
+**Convention:** `00-` is always the session-start / where-we-left-off note. Later notes number upward in the order they were written. Notes are **immutable once written** — corrections go in a later note or in the forward-looking status notes, per [[decisions#2026-08-07-vault-correction-convention-fix-forward-looking-status-preserve-dated-entries]].
+**Tooling:** written with direct file tools + `mkdir -p`, not MCP. Reinforced this session — **MCP `read-note` also stalls**, not just writes. Five parallel `read-note` calls hung past 120s and had to be killed; the same reads via `Read`/`grep` on `~/obsidianV0` returned instantly. **Go straight to direct file access for all vault operations, reads included.** Corrects the narrower "writes are the stall-prone operation" note in the 2026-08-13 entry.
+**Permissions:** Jim also asked that vault writes happen *without prompting*. Memory alone can't do that — the prompt is a harness permission gate, not a behaviour choice. Added to `.claude/settings.local.json` (project-local, gitignored): `Read`/`Write`/`Edit` on `//Users/jimhsu/obsidianV0/**`, `Bash(mkdir -p|ls|find|grep …/obsidianV0/*)`, and `permissions.additionalDirectories: ["/Users/jimhsu/obsidianV0"]` so the out-of-tree vault is in scope. Previously only three narrow `Read` globs were allowlisted, which is why every write still stopped for approval.
+**Impact:** No code. New folder `projects/HootOwl/sessions/2026-08-31/` + first note. Pointer callout in [[CURRENT]] updated. `.claude/settings.local.json` permissions extended. Auto-memory `feedback-longform-to-obsidian` and `feedback-skip-obsidian` updated.
 
 ## 2026-08-20 — `CLLocationManager` dedupe (battery #5)
 **Decision:** `Municipal` creates exactly one `CLLocationManager`. The assignment in `init()` (`Municipal.swift:127`) is the canonical one; `wire0()` configures that instance rather than replacing it. The redundant `self.locationMan = CLLocationManager()` at the top of `wire0()` is deleted, with a WHY comment left in its place.
@@ -27,7 +215,7 @@ See [[battery]] for the shortlist this closes.
 
 ## 2026-08-13 — Long-form output goes in the vault; dated session notes get their own folder
 **Decision:** Long explanations — session briefings, investigations, plans, option menus — are **written into the vault**, not delivered as terminal output. The terminal reply is reduced to a short summary plus a pointer to the note. New folder `projects/HootOwl/sessions/` holds dated session notes named `YYYY-MM-DD-<topic>.md`. First note: [[2026-08-13-session-start]]. Jim also encouraged creating folders freely rather than piling new content into existing files.
-**Why:** Jim's request, verbatim: *"I prefer you to write long statement into Obsidian for me to read, you can organize them into folders too."* The terminal is not his reading surface — long output scrolls away, isn't searchable later, and doesn't survive the session. The vault is what he actually reads and what the next session loads at START.
+**Why:** Jim's request, verbatim: *"I prefer you to write long statement into Obsidian for me to read, you can organize them into folders too."* The terminal is not Jim's reading surface — long output scrolls away, isn't searchable later, and doesn't survive the session. The vault is what Jim actually reads and what the next session loads at START.
 **Why a separate folder rather than growing `CURRENT.md`:** [[CURRENT]] must read as *current*. Accumulating narrative inside it is precisely the mechanism that produced the stale Phase-3 and #5 claims corrected in the 2026-08-07 reconciliation — a status note that has become a journal stops being trustworthy as status. Dated session notes are append-only and can't become wrong later, so they can be as long as they need to be. This is the same principle already recorded in [[decisions#2026-08-07-vault-correction-convention-fix-forward-looking-status-preserve-dated-entries]], applied to a new content type.
 **Division of labour across the vault:**
 - `projects/HootOwl/sessions/` — dated briefings, investigations, long-form reasoning. **Immutable after writing.**

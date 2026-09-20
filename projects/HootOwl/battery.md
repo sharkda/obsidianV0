@@ -294,6 +294,14 @@ After Phase 2 (cache) committed in `61eec92`, presented Phase 3 plan to Jim with
 
 ---
 
+## New repeating timer added 2026-09-10 — noted so it is not a surprise later
+
+`NbsScreen` gained a **60 s `Timer.publish`** to tick map-pin freshness (`freshnessTick`). It follows the #6 convention — `tolerance: 6`, i.e. 10% of the interval — so it can coalesce with other wake-ups.
+
+**Why it is cheap:** it changes one `Date` in `@State`. It does not fetch, and it deliberately is **not** a `TimelineView`, which would have rebuilt the entire `Map` every minute and made MapKit re-render — by far the most expensive thing on that screen.
+
+**Why it is worth mentioning here anyway:** it is view-local, so like `CyclopsObs` and `SourceBase` it is **not** paused by `Municipal.pauseForBackground()`. It only ticks while `NbsScreen` is on screen, and the app is suspended when backgrounded, so this should not matter — but it is one more timer in a codebase whose battery story is built on knowing where they all are. The Phase 3 scope note already records that view-local timers were deliberately left out of the pause path.
+
 ## Measurement log (append as measurements are taken)
 
 _(Nothing measured yet. When measurements are taken, append: date, what was measured, raw Energy Impact / Instruments observation, before/after if comparing.)_
