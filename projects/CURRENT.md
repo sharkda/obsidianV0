@@ -33,7 +33,7 @@ Active focus across projects. Update at session END.
 > [!important] 💻 **On a different machine? Start at [[working-agreements]].**
 > Claude Code's own memory is local to one laptop and does not sync with this vault, so a second instance starts blind without it. It carries how Jim works, the project conventions that are invisible in the code, the verification standards, and **the rule that a wrap-up pushes both repos** — this vault *and* `sharkda/hootOwl`.
 >
-> **It also covers what differs per machine.** The project folder and this vault are in **different places on each Mac**, `CLAUDE.md` has one machine's vault path baked into it, and `.claude/settings.local.json` is gitignored — so without one, every vault write stops for approval. → [[working-agreements#paths-differ-per-machine]]
+> **It also covers what differs per machine.** The **vault is standardised at `~/obsidianV0` everywhere** (Jim's call, 2026-09-20), so `CLAUDE.md` is correct on both Macs. The **app repo's location still differs**, which is fine — every command runs from `git rev-parse --show-toplevel`. The one thing that does not sync is **`.claude/settings.local.json`**: it is gitignored, and without it every vault write stops for approval. → [[working-agreements#paths-differ-per-machine]]
 
 👉 **Resuming? Start at [[sessions/2026-09-20/00-state-of-play|sessions/2026-09-20/00-state-of-play]].** Every open item in one table, with a stable ID per row, checked against the repo rather than copied from these notes. The 09-15 handoff and its re-verify commands are still at [[sessions/2026-09-15/02-pick-up-here|sessions/2026-09-15/]].
 

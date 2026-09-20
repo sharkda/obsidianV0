@@ -47,6 +47,12 @@ Live at https://jimhsuyc.wixsite.com/tataro/privacy-policy. Full review, and a t
 > [!tip] You do **not** need to buy a domain
 > Wix upsells one. `wixsite.com` is fine for Apple's Privacy Policy URL *and* Support URL, and that page is already shipping in the app. The contact form / Messenger link on it **is** the relay you wanted — no personal address published, destination changeable without a release. [[decisions#2026-09-16-no-custom-domain-the-relay-is-a-form-on-the-site-that-already-exists]]
 
+## Second machine — the MacBook Air
+
+- [ ] 💻 **Put the vault at `~/obsidianV0` on the Air**, the same absolute path as here. **Your call, 2026-09-20** — standardise the path rather than make every note path-agnostic. It means `CLAUDE.md`'s `Vault path: ~/obsidianV0` line is simply *correct* on both machines and needs no edit, and the session-start protocol works there with no change. Reasoning: [[decisions#2026-09-20-the-vault-lives-at-obsidianv0-on-every-machine]].
+- [ ] 💻 **Create `.claude/settings.local.json` in the app repo on the Air.** It is **gitignored**, so it does not sync and the Air has none. Without it **every vault write stops for approval**, which makes the "write it to Obsidian" convention unusable. Now that the vault path is the same on both machines, **this file can be copied across verbatim** — no path editing. It lives in the app repo at `.claude/settings.local.json`.
+- [ ] 💻 **Then point the other Claude at [[working-agreements]]** — it is the note written for exactly that moment, and its first section covers what still differs per machine (the project folder, which you have not standardised).
+
 ## Right now — 10 minutes, in a browser
 
 Everything in this block is one edit to the same file: https://gist.github.com/sharkda/1abaa9806dae0f34205725b51f21ad87

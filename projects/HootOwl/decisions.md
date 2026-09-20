@@ -5,6 +5,19 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-09-20 — The vault lives at `~/obsidianV0` on every machine
+
+**Decision (Jim):** rather than make the documentation path-agnostic about where the vault is, **put the vault at the same absolute path on every Mac.** Jim is moving the Air's copy to `~/obsidianV0` to match.
+
+**Why it is the better call.** `CLAUDE.md` is committed to the app repo and contains `Vault path: ~/obsidianV0`. That line either matches reality or the session-start protocol silently reads nothing — and it is the *first* thing that runs, before anyone can notice something is wrong. **A convention enforced once beats a discovery routine that has to work every time.** It also means `.claude/settings.local.json`, which is gitignored and therefore per-machine, can be copied across **verbatim** instead of being rewritten with new paths.
+
+**Alternatives rejected:**
+- **Make `CLAUDE.md` path-agnostic.** Considered first, and it is the wrong shape: something has to resolve the path eventually, and doing it at session start on every machine is more moving parts than putting one folder in one place.
+- **Per-machine `CLAUDE.md`.** It is in git; divergent copies would conflict on every pull.
+- **Discovery by marker file.** Written and tested (finding the vault from `projects/HootOwl/INDEX.md`), and kept in [[working-agreements]] as a **fallback** — useful if a machine ever differs, not the primary mechanism.
+
+**Still differs per machine, deliberately:** the **app repo's** location. Nothing depends on it being in a fixed place, because every command is written to run from `git rev-parse --show-toplevel`.
+
 ## 2026-09-19 — A reviewer in California tests the app through the address search, not a feature we build
 
 **Decision:** the App Review Notes lead with *"open the first tab, type `Taipei 101` in the search bar"*. **No code was written for review purposes.**

@@ -9,7 +9,16 @@
 
 ## Paths differ per machine
 
-**Jim works on more than one Mac, and the project folder and this vault are in different places on each.** Nothing in this vault should assume a path — anything that does is a bug that only shows up on the other machine, which is the worst place for it to show up.
+**Jim works on more than one Mac.** One path is standardised and one is not:
+
+| | Where | |
+|---|---|---|
+| **This vault** | **`~/obsidianV0` on every machine** | Jim's call, 2026-09-20 — standardised rather than discovered. → [[decisions#2026-09-20-the-vault-lives-at-obsidianv0-on-every-machine]] |
+| **The app repo** | **differs per machine** | Nothing depends on it; every command runs from `git rev-parse --show-toplevel` |
+
+**So `CLAUDE.md`'s `Vault path: ~/obsidianV0` is correct on both machines and needs no edit.** If it ever does not resolve, **the vault is in the wrong place — move the vault, do not edit the file.** It is committed to the app repo, so divergent copies would conflict on every pull.
+
+Everything else still holds: **nothing in this vault should assume the app repo's path.** Anything that does is a bug that only shows up on the machine you are not testing on.
 
 ### Find things, do not assume them
 
@@ -21,7 +30,7 @@ REPO="$(git rev-parse --show-toplevel)"
 git -C "$REPO" remote get-url origin        # → …:sharkda/hootOwl.git
 ```
 
-For the vault, the reliable marker is this folder's own index — search rather than guess:
+**The vault is at `~/obsidianV0`.** Use it directly. The discovery snippet below is a **fallback** for a machine that somehow differs — it was written before the path was standardised, and is kept because it costs nothing and answers "am I even in the right vault":
 
 ```sh
 MARKER="$(find "$HOME" -maxdepth 5 -path '*/projects/HootOwl/INDEX.md' 2>/dev/null | head -1)"
@@ -31,19 +40,17 @@ git -C "$VAULT" remote get-url origin       # → …:sharkda/obsidianV0.git
 
 *(Tested 2026-09-20 on the main Mac: resolves the vault root and the right remote.)*
 
-**Simpler, and worth doing once per machine:** ask Jim where the vault is on *this* Mac the first time you need it, then work from that variable for the session. One question beats a wrong guess written into a note.
+**If `~/obsidianV0` does not exist on this machine, stop and tell Jim** — that is the vault not having been moved yet, not a path to work around. It is on their to-do list: [[jim-actions#second-machine--the-macbook-air]].
 
 ### Two things that are per-machine and will not arrive by syncing
 
-**1. `CLAUDE.md` names a vault path that may be wrong here.** In the app repo it says:
+**`.claude/settings.local.json` is gitignored, so a second machine has none.** On Jim's main Mac it allowlists the vault so writes do not stop for approval on every note — 13 references to the vault path, plus `permissions.additionalDirectories`, without which an out-of-tree folder is not in scope at all.
 
-> `Vault path: ~/obsidianV0` · `Vault name (MCP): obsidianv0`
+**Symptom if it is missing:** every single vault write prompts for permission, which makes the "write it to Obsidian" convention unusable — and it will look like the convention is broken rather than like a missing settings file.
 
-That file **is** in git, so it syncs — with this machine's path baked in. **If the vault lives somewhere else on your Mac, that line is wrong and the session-start protocol will fail to read anything.** Tell Jim rather than silently editing their file; it is theirs, and the right fix may be to make the line say "wherever the vault is" rather than to swap one absolute path for another.
+**Fix:** it lives at `.claude/settings.local.json` in the app repo. **Now that the vault path is the same on every machine, copy it across verbatim** — no path editing. It stays gitignored, so the two machines never conflict. Record: [[decisions]], 2026-08-13.
 
-**2. `.claude/settings.local.json` is gitignored, so this machine has none.** On Jim's main Mac it allowlists the vault so writes do not stop for approval on every note — 13 references to the vault path, plus `permissions.additionalDirectories` so an out-of-tree folder is in scope at all.
-
-**Symptom if it is missing:** every single vault write prompts for permission, which makes the "write it to Obsidian" convention unusable. **Fix:** create `.claude/settings.local.json` in the app repo with this machine's own vault path — `Read`/`Write`/`Edit` globs on `<vault>/**`, the matching `Bash(...)` entries, and `permissions.additionalDirectories: ["<vault>"]`. It stays gitignored, so it never conflicts with the other machine's copy. Record: [[decisions]], 2026-08-13.
+*(`CLAUDE.md` used to be the other half of this problem — it names an absolute vault path and is committed to git. Standardising the vault path settled it: the line is simply correct everywhere now.)*
 
 ### When writing notes from now on
 

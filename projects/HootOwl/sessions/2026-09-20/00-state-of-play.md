@@ -102,6 +102,15 @@ Detail: [[admob-sdk]] · [[working-agreements]] · yesterday's [[sessions/2026-0
 | **R-11** | **A TestFlight pass.** The only way to exercise sandbox purchases, the real ATT prompt, real ads, and the actual `tel:`/`mailto:` handoffs. | Jim | open | 09-10 | [[release-strategy]] |
 | **R-13** | **Record the real tutorial video**, then set `tutorials.onboarding`. **Re-checked today: the Gist still points at the test clip** (`youtube.com/shorts/PG4CUrdkb6k`). **Downgraded from load-bearing to belt-and-braces** for review purposes — the map and list routes stand on their own — but still owed, and still the strongest single artifact for a geo-restricted app. | Jim | open | 09-19 | [[sessions/2026-09-19/02-reviewer-scope-and-testing\|02]] |
 
+### Second machine — setup, not release
+
+Neither blocks the release; both block the *other* instance from being useful.
+
+| ID | Item | Owner | State | Moved | Detail |
+|---|---|---|---|---|---|
+| **M-01** | **Move the Air's vault to `~/obsidianV0`** — the same absolute path as here. Jim's call today: standardise rather than make every note path-agnostic. Makes `CLAUDE.md`'s vault line correct on both machines with no edit, and lets the settings file below be copied verbatim. | Jim | open | 09-20 | [[decisions#2026-09-20-the-vault-lives-at-obsidianv0-on-every-machine]] |
+| **M-02** | **Create `.claude/settings.local.json` on the Air.** Gitignored, so it does not sync. Without it **every vault write stops for approval** and the "write it to Obsidian" convention is unusable. After M-01 it copies across verbatim. | Jim | open | 09-20 | [[jim-actions#second-machine--the-macbook-air]] |
+
 ### Privacy policy — open, but **not** release-blocking
 
 All four re-checked against the live page today; all still present. None of these is a compliance risk any more — the 🔴 (the ATT contradiction) closed on 09-18 and Terms of Use closed on 09-19. **R-04 is the one worth doing**, because it is a false statement about the app in the first line a reviewer reads.
