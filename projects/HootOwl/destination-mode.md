@@ -1,6 +1,6 @@
 # Destination mode — built, and how to undo it
 
-**Branch `destination-mode`, 2026-09-20.** **Ten** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
+**Branch `destination-mode`, 2026-09-20 → 09-22.** **Eleven** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
 
 ---
 
@@ -190,6 +190,29 @@ Instrumented rather than guessed:
 ### A real pinch verified the pinch detection
 
 Jim noodled the UI mid-session and asked whether it had interfered. It had not — it **proved the fix**. Afterwards the simulator held `nbs_user_set_span_v2: true` with span `0.0025`, i.e. **the flag latched from a human pinch**, which is precisely what two rounds of inference failed to do and what I could not test without hands on the device.
+
+## Round 6 — the tab-return fix that did not fix it
+
+Jim, after a clean first run: *"select to jump to Taipei City, then Tab away to other and tab back to MapView, back in Cupertino again."*
+
+**The round-5 restore was running and losing.** It fired, then something dragged the camera back a beat later.
+
+**Four separate places snapped straight to `userLoc2dVbj`** — the iOS auth sink, the macOS auth sink, the location sink, and an explicit "snap if already known". **Every one of them ran on every tab return**, because:
+
+> `wire0` re-subscribes each time the view appears, and **`locAuthStateVbj` and `userLoc2dVbj` are `CurrentValueSubject`s** — subscribing *replays the current value*. So the sinks fire instantly with "authorized" and "here is your fix", which is Cupertino.
+
+That is the part worth remembering: **a `CurrentValueSubject` sink is not only a change notification — it is also an immediate callback with whatever is already there.** Re-subscribing on appear turns it into "do this again, now".
+
+**Fixed with one guard, not four patches.** All four route through `snapCameraToDevice(_:animated:)`, which stands down when a destination is set. Patching them individually would have left the next "snap to me" line free to reintroduce the bug; the helper is the thing that holds.
+
+**Verified** with a destination set and the device in Cupertino:
+
+```
+📍 returning to 台北市 — camera was reset by the tab switch
+📍 ignoring device-location snap — showing 台北市      ×4
+```
+
+Also removed a log that lied: the location sink announced *"centering on \<device\>"* before the guard refused the move, so the console claimed the camera had gone somewhere it had not.
 
 ## Verified
 
