@@ -1,6 +1,6 @@
 # Destination mode — built, and how to undo it
 
-**Branch `destination-mode`, 2026-09-20 → 09-22.** **Eleven** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
+**Branch `destination-mode`, 2026-09-20 → 09-22.** **Twelve** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
 
 ---
 
@@ -213,6 +213,18 @@ That is the part worth remembering: **a `CurrentValueSubject` sink is not only a
 ```
 
 Also removed a log that lied: the location sink announced *"centering on \<device\>"* before the guard refused the move, so the console claimed the camera had gone somewhere it had not.
+
+## Round 7 — one button
+
+The picker offered **台北市** and **新北市**, one per loaded fence. Jim: *"the two city are too close and one is surrounded by the other, there is no point to provide two buttons now."*
+
+Right, and worse than redundant: it asked the user to make a decision **on the screen where they know least about the app**, between two options that differ by a second of panning.
+
+**Now one button — "Go to Taipei" / 「前往台北市」** — dropping at Taipei Main Station.
+
+**`destinationChoices` no longer derives from the fences.** Fences are a **data** boundary; this is a **destination offer**. The two stop agreeing the moment one metro is served by several fences, which is already true here. New metros get added by hand — **Keelung** is the named next zone and is far enough out to earn its own button; another Taipei-adjacent district would not be.
+
+The label reads as an action rather than a place name: with two options there was a list to scan, with one there is only a thing to press.
 
 ## Verified
 
