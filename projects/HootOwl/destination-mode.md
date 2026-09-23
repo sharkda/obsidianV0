@@ -1,6 +1,13 @@
 # Destination mode — built, and how to undo it
 
-**Branch `destination-mode`, 2026-09-20 → 09-22.** **Twelve** commits on top of `main` at `5d4d794` — four from the first build, two more after Jim's first test. **Not merged.** Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
+**Merged to `main` 2026-09-23 — it ships in build 1.** Twelve commits, fast-forward, `main` = `42ed13b`.
+
+> [!success] Jim's call, 2026-09-23
+> *"i want destination mode in build 1, we need to let our potentional users test the app before they are in the zone."*
+>
+> The reasoning is the product one, not the review one: **someone planning a trip to Taipei should be able to decide the app will work for them before they arrive.** A reviewer in California benefiting too is a side effect.
+>
+> **Verified on merged `main`:** all four configurations build, and a clean first install out of zone reaches `coverage locating → outside` with the picker, `👁 cyclops rebuilt: 3 of 3 watched` (the three landmark defaults seeding properly, which Jim's old test pin had been hiding) and 3,161 lots loaded. Jim: *"I am not so sure about this UI change and experiences, but I can't make decision before I see how it goes, so make sure all these changes are well documented and better reversable."*
 
 ---
 
@@ -32,6 +39,9 @@ var effectiveCentre: CLLocationCoordinate2D? {
 > It is persisted to disk by `Municipal+Cache` as the user's last known position, it is what "distance from me" means, and it is the input to anything that genuinely needs the device. Writing a destination into it would corrupt the cache and quietly lie to every consumer. **That separation is the entire reason `effectiveCentre` exists rather than an override.**
 
 ## Reversibility
+
+> [!note] Now merged — reverting means reverting on `main`
+> The table below still holds commit by commit, but `git checkout main` is no longer the escape hatch. The branch ref `destination-mode` still points at the same tip, so `git revert 5d4d794..42ed13b` or a reset to `5d4d794` is the way back if it ever comes to that.
 
 **The safest property is structural, not procedural: with no destination set, `effectiveCentre` *is* `userLoc2dVbj.value`.** The old path is the default path, by construction — not by a flag someone has to remember to check.
 

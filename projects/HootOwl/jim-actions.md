@@ -47,7 +47,17 @@ Live at https://jimhsuyc.wixsite.com/tataro/privacy-policy. Full review, and a t
 > [!tip] You do **not** need to buy a domain
 > Wix upsells one. `wixsite.com` is fine for Apple's Privacy Policy URL *and* Support URL, and that page is already shipping in the app. The contact form / Messenger link on it **is** the relay you wanted — no personal address published, destination changeable without a release. [[decisions#2026-09-16-no-custom-domain-the-relay-is-a-form-on-the-site-that-already-exists]]
 
-## 🌿 Test `destination-mode` — then tell me to keep it or bin it
+## ✅ `destination-mode` — kept, merged 2026-09-23
+
+Seven rounds of your testing, then merged to `main` and pushed. **It ships in build 1.** Everything about it: [[destination-mode]].
+
+**Three things it leaves open, none of which block the merge:**
+
+- [ ] 🀄 **26 zh-Hant strings marked `needs_review`** — nine of them new this week (the eight `dest_*`/`svc_*` strings plus `sub_terms_of_use`). The one worth your eye is **`dest_bar_showing` → 「顯示 %@ — 你不在這裡」**: that bar is on screen constantly, and my Chinese for *"you're not there"* may land harsher than the English. *(Ignore `parkNav` → `台北停車s` — stray Latin "s", but nothing references it; it is a dead string on the unreachable `allTpe` screen.)*
+- [ ] 📱 **Parts nobody has tapped yet:** the grey/green search button and its *"we haven't collected live parking information for this area yet"* alert · the auto-search 1.2 s after the map settles 300 m away · **Clear** disappearing when you are outside the zone.
+- [ ] ⚠️ **E-12 is now load-bearing.** `convexEnclosing` is integer-truncated and was inert; `isInServiceArea` now depends on it, so a point near a fence boundary could resolve wrongly — green button where there is no data, or grey where there is. The 1 km tolerance masks it in practice.
+
+## ~~Test `destination-mode`~~ — done, the old checklist
 
 Branch `destination-mode`, four commits, **not merged**. The scheme now launches the simulator in **Cupertino**, so Run gives you the out-of-zone case directly. Switch back in-zone via scheme → Run → Options → Default Location → `Wanli34.gpx`.
 
