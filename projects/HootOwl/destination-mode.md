@@ -62,7 +62,7 @@ var effectiveCentre: CLLocationCoordinate2D? {
 
 ## Round 2 — after Jim's first test (2026-09-20)
 
-He found one bug and specified four changes. Compiled spec and the geometry check: [[sessions/2026-09-20/03-service-area-context|03]].
+He found one bug and specified four changes. Compiled spec and the geometry check: [[sessions/older/2026-09-20/03-service-area-context|03]].
 
 **The bug:** the bar said *"Showing 台北市 — you're not there"* over a map **still centred on Cupertino**. Choosing a destination searched Taipei correctly and then deliberately refused to look at it — `NbsScreen` only moves the camera when the search mode is not `.mapTap`, a rule that exists so an explicit map tap does not yank the view, and that destination mode had quietly inherited. **Fixed:** a destination is an explicit request to *go* somewhere.
 
@@ -277,4 +277,4 @@ The scheme now launches in **Cupertino**, so the picker is what you get on Run. 
 - **No 'recent destinations'.** `nbs_recent_addresses` already persists searched addresses; the picker does not offer them.
 
 ## Related
-[[sessions/2026-09-20/01-outside-taiwan-experience|01 — the experience that prompted this]] · [[sessions/2026-09-20/02-destination-mode-design|02 — the design, before building]] · [[bugs]] · [[decisions]]
+[[sessions/older/2026-09-20/01-outside-taiwan-experience|01 — the experience that prompted this]] · [[sessions/older/2026-09-20/02-destination-mode-design|02 — the design, before building]] · [[bugs]] · [[decisions]]

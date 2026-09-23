@@ -65,7 +65,7 @@ So a reviewer can drag to Taiwan and tap the map; the tap runs the same `.mapTap
 
 ## Route 3 — the All tab, with `TPE`
 
-Not location-filtered at all ([[sessions/2026-09-18/01-reviewer-in-california|yesterday's write-up]]). Type `TPE` and ~1,700 Taipei car parks appear with live counts and capacity. Works anywhere on earth, and needs no map interaction.
+Not location-filtered at all ([[sessions/older/2026-09-18/01-reviewer-in-california|yesterday's write-up]]). Type `TPE` and ~1,700 Taipei car parks appear with live counts and capacity. Works anywhere on earth, and needs no map interaction.
 
 Since `9285a47` the search is case-insensitive, so `tpe` works too — which matters, because a reviewer following written instructions types what is written, in whatever case they are used to.
 
@@ -90,4 +90,4 @@ The notes now open with an explicit coverage statement, then give the map route,
 Worth revisiting only as a *discoverability* change — a visitor planning a trip might not think to search an address — but that is a product decision about real users, not a review problem. **Not proposed now**; nothing about review requires it.
 
 ## Related
-[[app-store-connect#34-beta-app-review-information--paste-ready]] · [[sessions/2026-09-18/01-reviewer-in-california|01 — the All tab finding]] · [[release-strategy#the-one-risk-i-would-bet-money-on]] · [[00-state-of-play]]
+[[app-store-connect#34-beta-app-review-information--paste-ready]] · [[sessions/older/2026-09-18/01-reviewer-in-california|01 — the All tab finding]] · [[release-strategy#the-one-risk-i-would-bet-money-on]] · [[00-state-of-play]]

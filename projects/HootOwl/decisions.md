@@ -5,6 +5,32 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-09-23 — Destination mode ships in build 1
+
+**Decision (Jim):** merge `destination-mode` into `main` and ship it in the first release rather than as a later update.
+
+> *"i want destination mode in build 1, we need to let our potentional users test the app before they are in the zone."*
+
+**Why that framing matters.** The obvious argument for shipping it was App Review — a reviewer in California is a guaranteed out-of-zone user, and destination mode makes the app demonstrate itself without them reading the notes. **Jim's reason is the product one:** someone planning a trip to Taipei should be able to decide the app will work for them *before they arrive*. The reviewer benefiting is a side effect, not the point.
+
+**Alternative rejected: ship build 1 without it, add it later informed by real usage.** Defensible — it would have told us whether anyone outside Taipei installs at all before betting a release on a hypothesised segment. Rejected because the segment is not really hypothetical: a Taiwanese commuter app has users abroad, and the first release is exactly when a potential user is deciding whether to keep it.
+
+**Correcting something I had said:** I claimed R-01 (archive) and R-20 (review notes) were "waiting behind" this decision. **They were not.** `main` was releasable from 09-19, and R-20 is text pasted into App Store Connect with no relationship to any code. The only real question was sequencing — whether the merge precedes the archive — and build numbers are a counter, not a statement.
+
+**Merged as a fast-forward, twelve commits, verified on `main`:** all four configurations build, and a clean out-of-zone first install reaches the picker with the three landmark default pins seeding properly.
+
+## 2026-09-22 — The destination picker offers one button, not one per fence
+
+**Decision (Jim):** the out-of-coverage picker offers a single **"Go to Taipei"**, dropping at Taipei Main Station — not one button per covered city.
+
+> *"the two city are too close and one is surrounded by the other, there is no point to provide two buttons now."*
+
+**Why.** New Taipei City surrounds Taipei City, so wherever you land you can pan into the other in a second. The second button asked the user to make a decision **on the screen where they know least about the app**, between two options that differ by a second of panning.
+
+**The structural consequence.** `destinationChoices` stops deriving from the loaded fences. **Fences are a *data* boundary; this is a *destination offer*** — and the two stop agreeing the moment one metro is served by several fences, which is already true here. New metros get added by hand.
+
+**Revisit when:** a genuinely separate metro is covered. **Keelung** is the named next zone and is far enough out to earn its own button; another Taipei-adjacent district would not be.
+
 ## 2026-09-20 — Keelung is the next zone, and a bug is the reason we know
 
 **Decision (Jim):** when a third municipality is added, **Keelung (基隆市) goes first.**

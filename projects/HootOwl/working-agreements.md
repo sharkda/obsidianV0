@@ -96,7 +96,15 @@ Do this **unprompted** as the last step of any wrap-up, not only when asked to p
 - **Long answers go in the vault, not the terminal.** Briefings, investigations, plans, option menus → a note; the terminal gets a few lines and a pointer. Asked for explicitly 2026-08-13. The terminal scrolls away and is not searchable.
 - **Every session opens a dated folder** `sessions/YYYY-MM-DD/`, numbered notes inside (`00-…`, `01-…`). Do this without being asked. Since 2026-09-17 the day's first note is `00-state-of-play.md` — one table, every open item, **a stable ID per row** (`R-` release · `E-` engineering · `J-` Jim's backlog · `D-` decision). The next day copies it forward and only the **State** and **Moved** columns change.
 - **Session notes are append-only.** Do not retroactively edit yesterday's note to reflect today — carry the table forward into today's instead. I got this wrong twice and had to restore.
-- **Sessions older than two days move to `sessions/older/`.** Wikilinks resolve by note name, so moving breaks nothing — except where a name is duplicated (`01-session-wrap` exists three times), where the link must spell out the full path.
+- **Sessions older than two days move to `sessions/older/`.**
+
+  > [!warning] Link by **note name**, not by path — the folders move
+  > Wikilinks resolve by name, so `[[02-reviewer-scope-and-testing]]` survives the move. A **path-prefixed** link like `[[sessions/2026-09-19/02-reviewer-scope-and-testing]]` does **not** — it silently breaks the moment that folder is archived. **59 of them had to be rewritten on 2026-09-23** after two days' folders moved at once.
+  >
+  > Spell out a path **only** when the note name is genuinely ambiguous (`01-session-wrap` exists three times), and expect to fix it later. After any move:
+  > ```sh
+  > grep -rn "\[\[sessions/2026-" --include="*.md" projects/ | grep -v "sessions/older/"
+  > ```
 - **Topic notes are updated inline, as work happens** — not batched to session END. `battery.md`, `privacy-policy.md`, `admob-sdk.md` and the like are meant to be readable standalone, months cold.
 - **`CURRENT.md` stays short and current-state-only.** Narrative accumulating there is what made it drift before.
 - **Jim files some requests as table rows in Obsidian**, not in chat — e.g. `## jim's request table` at the top of [[onboarding]], columns `id | request | rational | status | AI response`. **Check topic notes for these**, answer in the `AI response` cell, set `status`, and never edit their `request` or `rational` text.

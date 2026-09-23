@@ -13,6 +13,24 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 **Files:** path:line references.
 -->
 
+## 2026-09-22 — The map dropped the user's destination on every tab return (fixed)
+**Symptom:** jump to Taipei, switch to the watch list or the All tab, switch back — **the map is in Cupertino again**, while the bar still says *"Showing 台北市 — you're not there"*. The destination itself survived; only the camera forgot.
+**First fix, which did not work:** restoring the camera in `onAppear` (`ca3d85e`). It ran, and was overruled a beat later. That is what made it look like the restore was broken.
+**Root cause:** `cameraPosition` is `@State`, so a tab switch destroys it — but the reason the *restore* lost is separate and more interesting. **Four places snapped the camera straight to `userLoc2dVbj`** (the iOS auth sink, the macOS auth sink, the location sink, and an explicit "snap if already known"), and **all four ran on every tab return**, because:
+
+> `wire0` re-subscribes each time the view appears, and **`locAuthStateVbj` and `userLoc2dVbj` are `CurrentValueSubject`s — subscribing replays the current value.** So the sinks fire instantly with "authorized" and "here is your fix", which is the device's location.
+
+**The general lesson:** a `CurrentValueSubject` sink is not only a change notification — it is **an immediate callback with whatever is already stored**. In an `onAppear`, inside a `TabView` that recreates its children, that becomes "do this again, now" on every navigation. Pattern: [[swift-patterns#re-subscribing-to-a-currentvaluesubject-on-onappear-replays-the-old-value-as-if-it-were-new]].
+**Fix:** all four route through one `snapCameraToDevice(_:animated:)` that stands down when a destination is set. **One guard rather than four patches** — patching each would have left the next "snap to me" line free to reintroduce it. Commit `7f4113c`.
+**Verified** with a destination set and the device in Cupertino:
+```
+📍 returning to 台北市 — camera was reset by the tab switch
+📍 ignoring device-location snap — showing 台北市      ×4
+```
+**Also removed a log that lied:** the location sink announced *"centering on <device>"* **before** the guard refused the move, so the console claimed the camera had gone somewhere it had not.
+**Status:** fixed, merged to `main` in `42ed13b`.
+**Files:** `hootowl/Municipalities/Nbs/NbsScreen.swift` — `snapCameraToDevice`, `wire0`.
+
 ## 2026-09-19 — Search only matched capitals, so `tpe0155` found nothing (fixed)
 **Symptom:** typing a lot id in lower case returned an empty list. `TPE0155` worked; `tpe0155` did not. Reported by Jim in June ([[Jim's backlog]] item 1) and lived as a usability nicety until the App Store review notes started telling reviewers to search for `TPE`.
 **Root cause:** `MncplAllScreen.filtered(avMap:)` used a plain `String.contains`, which is case-sensitive. The haystack is `"\(id) \(name) \(address) \(area)"` and **every Taipei id is capitalised** (`TPE0001`…), so any lower-case English query matched zero rows out of 1,773.

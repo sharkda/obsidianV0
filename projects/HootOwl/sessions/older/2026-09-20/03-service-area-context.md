@@ -90,4 +90,4 @@ So New Taipei is the outer boundary and a single test against it answers "is thi
 | Strings | jump, and the "no data here yet" message, en + 中文 |
 
 ## Related
-[[destination-mode]] · [[sessions/2026-09-20/02-destination-mode-design|02 — the original design]] · [[00-state-of-play]]
+[[destination-mode]] · [[sessions/older/2026-09-20/02-destination-mode-design|02 — the original design]] · [[00-state-of-play]]

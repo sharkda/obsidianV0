@@ -60,7 +60,7 @@ Spec (2026-08-31) said the 5–30 min freshness state should be **white**; it sh
 
 ---
 
-- [ ] ⚠️ **CORRECTED 2026-09-19: `SubscriptionStoreScreen` is NOT unreferenced.** It is live via `AppScreen.swift:89 → MncplCyclopsScreen → toolbar0 → ToolbarPrinciple → SubButtons → NavigationLink`. The 09-08 note was written from `AppScreen.swift:112`, where a *direct* call is commented out, and missed the toolbar route. **The cost was real:** its bare English `Link("Privacy Policy")` stayed English on a Chinese device for eleven days while this note said the screen was dead — fixed in `327bf08`. **`EntitledView` has not been re-checked the same way; do that before E-16 deletes anything.** [[sessions/2026-09-19/01-terms-of-use|the trace]]
+- [ ] ⚠️ **CORRECTED 2026-09-19: `SubscriptionStoreScreen` is NOT unreferenced.** It is live via `AppScreen.swift:89 → MncplCyclopsScreen → toolbar0 → ToolbarPrinciple → SubButtons → NavigationLink`. The 09-08 note was written from `AppScreen.swift:112`, where a *direct* call is commented out, and missed the toolbar route. **The cost was real:** its bare English `Link("Privacy Policy")` stayed English on a Chinese device for eleven days while this note said the screen was dead — fixed in `327bf08`. **`EntitledView` has not been re-checked the same way; do that before E-16 deletes anything.** [[sessions/older/2026-09-19/01-terms-of-use|the trace]]
 - [ ] **`EntitledView.swift` is unreferenced** (2026-09-08, unverified since). Kept deliberately — `EntitledView` is a usable debug surface (receipt dump + tier state) and Jim asked for it to stay in the tree. If a debug entry point is ever wanted again, wire it somewhere `#if DEBUG`, not into a shipping tab.
 
 ## 🔵 Documentation / hygiene

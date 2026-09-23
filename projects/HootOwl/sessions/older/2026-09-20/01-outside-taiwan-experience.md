@@ -108,4 +108,4 @@ This is the difference between an out-of-coverage user being a **dead end** and 
 **Stop treating "not in Taipei" as a failure to explain, and start treating it as a state the app can do something useful in** — by surfacing the Taipei data already on the device (#1), and by making the city request answerable (#2).
 
 ## Related
-[[sessions/2026-09-19/02-reviewer-scope-and-testing|02 — how a reviewer tests it]] · [[release-strategy#the-one-risk-i-would-bet-money-on]] · [[decisions#2026-09-15-a-city-request-goes-to-a-url-not-a-mailto]] · [[00-state-of-play]]
+[[sessions/older/2026-09-19/02-reviewer-scope-and-testing|02 — how a reviewer tests it]] · [[release-strategy#the-one-risk-i-would-bet-money-on]] · [[decisions#2026-09-15-a-city-request-goes-to-a-url-not-a-mailto]] · [[00-state-of-play]]

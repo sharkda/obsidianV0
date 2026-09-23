@@ -123,4 +123,4 @@ Jim: *"we can review our schema so the emulator is set in CA."* Done — `Cupert
 **So every Xcode run now starts out of zone**, which is the scenario that was least exercised and most wrong. To go back in-zone for a run: **scheme → Run → Options → Default Location → `Wanli34.gpx`** (or `sanfu77.gpx`). Both are still in the repo.
 
 ## Related
-[[sessions/2026-09-20/01-outside-taiwan-experience|01 — the experience today]] · [[sessions/2026-09-19/02-reviewer-scope-and-testing|the reviewer routes]] · [[00-state-of-play]]
+[[sessions/older/2026-09-20/01-outside-taiwan-experience|01 — the experience today]] · [[sessions/older/2026-09-19/02-reviewer-scope-and-testing|the reviewer routes]] · [[00-state-of-play]]

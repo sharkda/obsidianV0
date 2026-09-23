@@ -24,7 +24,7 @@ Active focus across projects. Update at session END.
 
 > [!tip] Long-form reading lives in `projects/HootOwl/sessions/YYYY-MM-DD/`
 > This note stays short and current-state-only. Every session gets its own **dated working folder** — created by default, no need to ask — holding that day's briefings, investigations, and extended reasoning as numbered notes (`00-` is always the where-we-left-off note). Append-only, never edited after the fact.
-> Most recent: [[sessions/2026-09-20/00-state-of-play|sessions/2026-09-20/]]. Convention: [[decisions#2026-08-31-every-session-gets-a-dated-working-folder-created-by-default]].
+> Most recent: [[sessions/2026-09-23/00-state-of-play|sessions/2026-09-23/]]. Convention: [[decisions#2026-08-31-every-session-gets-a-dated-working-folder-created-by-default]].
 > **Anything older than two days lives in `sessions/older/`** (2026-09-17) — the top level shows only what is current. Wikilinks resolve by note name, so the move breaks nothing.
 
 > [!success] ✅ The macOS update is behind us — **re-verified 2026-09-17**
@@ -35,7 +35,7 @@ Active focus across projects. Update at session END.
 >
 > **It also covers what differs per machine.** The **vault is standardised at `~/obsidianV0` everywhere** (Jim's call, 2026-09-20), so `CLAUDE.md` is correct on both Macs. The **app repo's location still differs**, which is fine — every command runs from `git rev-parse --show-toplevel`. The one thing that does not sync is **`.claude/settings.local.json`**: it is gitignored, and without it every vault write stops for approval. → [[working-agreements#paths-differ-per-machine]]
 
-👉 **Resuming? Start at [[sessions/2026-09-20/00-state-of-play|sessions/2026-09-20/00-state-of-play]].** Every open item in one table, with a stable ID per row, checked against the repo rather than copied from these notes. The 09-15 handoff and its re-verify commands are still at [[sessions/2026-09-15/02-pick-up-here|sessions/2026-09-15/]].
+👉 **Resuming? Start at [[sessions/2026-09-23/00-state-of-play|sessions/2026-09-23/00-state-of-play]].** Every open item in one table, with a stable ID per row, checked against the repo rather than copied from these notes. The 09-15 handoff and its re-verify commands are still at [[sessions/older/2026-09-15/02-pick-up-here|sessions/2026-09-15/]].
 
 **`main` = `origin/main` = `42ed13b`. Working tree clean. Both repos pushed 2026-09-23.**
 ✅ **`destination-mode` is merged — it ships in build 1.** Jim's call: *"we need to let our potentional users test the app before they are in the zone."* Twelve commits, fast-forward; all four configurations build on `main` and a clean out-of-zone first run reaches the picker with the three default pins seeded. Outside Taipei the app no longer refuses: it asks *"where are you heading?"*, and choosing a city makes everything work from there. Five rounds of Jim's testing have since added service-area awareness, auto-search on settle, a 0.004 sweet-spot zoom, and a camera that survives tab switches. **Reversible by construction** — with no destination set, `effectiveCentre` *is* the GPS fix, so the old path is the default path. Each commit reverts independently; `git checkout main` drops all of it. → **[[destination-mode]]**
@@ -54,7 +54,7 @@ Latest: the **AdMob SDK went 13.3.0 → 13.10.0** (`5d4d794`). Checksum matched 
 
 **09-19 also closed R-21 (`9285a47`)** — search was case-sensitive, so `tpe0155` matched **0 of 1,773** lots while `TPE0155` matched one. Jim's June bug, and urgent because the review notes now tell reviewers to type `TPE`. Measured over the live feed rather than reasoned about; the Chinese terms are unchanged.
 
-**09-19 also answered the California reviewer question properly.** No code needed: the map screen's address search calls `search(mapMode: .mapTap, loc0:)`, which has **no reference to the user's location** and biases to Taiwan — verified against the live geocoder, and **English resolves** (`Taipei 101` → 25.0336, 121.5648). So a reviewer types an address and sees the real map with live pins. The review notes were rewritten to lead with that; the All tab is the second route. A *"Preview Taipei"* button was considered and **rejected as unnecessary**. → [[sessions/2026-09-19/02-reviewer-scope-and-testing|02]]
+**09-19 also answered the California reviewer question properly.** No code needed: the map screen's address search calls `search(mapMode: .mapTap, loc0:)`, which has **no reference to the user's location** and biases to Taiwan — verified against the live geocoder, and **English resolves** (`Taipei 101` → 25.0336, 121.5648). So a reviewer types an address and sees the real map with live pins. The review notes were rewritten to lead with that; the All tab is the second route. A *"Preview Taipei"* button was considered and **rejected as unnecessary**. → [[sessions/older/2026-09-19/02-reviewer-scope-and-testing|02]]
 
 **Next: R-01 (archive and upload), then R-20 (paste the review notes).** Every release blocker is Jim's; nothing is waiting on me — today's audit closed the last 🔴 that was mine (R-12, already shipped 09-15).
 

@@ -3,14 +3,14 @@
 > [!info] What this note is
 > **One table, every open item, with a stable ID.** Built by reading every note in this folder and then **checking each claim against the repo** — several items the notes still listed as open are in fact done, and they are called out below rather than silently dropped.
 >
-> Carried forward from [[sessions/2026-09-17/00-state-of-play|2026-09-17]]. The IDs do not change — only **State** and **Moved** move, so an item cannot quietly disappear and "didn't we fix that?" has an answer.
+> Carried forward from [[sessions/older/2026-09-17/00-state-of-play|2026-09-17]]. The IDs do not change — only **State** and **Moved** move, so an item cannot quietly disappear and "didn't we fix that?" has an answer.
 
 **Repo:** `main` = `origin/main` = **`e45051c`**, working tree clean, nothing unpushed. No code changed today.
 **Toolchain:** Xcode 27.0 (27A266a) / Swift 6.4, macOS 27.0.
 
 **Today:** a third privacy-policy review. **R-03 closed** — the page no longer contradicts its own ATT prompt. R-18 and R-19 added.
 **Then a question about the terms reference turned up a real one:** there is **no Terms of Use anywhere** — not on the page, not on the site, not in the app. **R-05 re-scoped 🟠 → 🔴**, and **E-28** added for the code half. Jim deleted the dead sentence; the code half remains.
-**Then: "how does a reviewer in California check the app with least work?"** Answer — **no code at all.** The All tab is not location-filtered, so the app already works anywhere; the reviewer just has to be told to type `TPE`. Notes rewritten and verified (**R-20**). Found in passing that `tpe` matches zero lots, which promotes Jim's June search bug to **R-21** — rejection insurance, one line. Full write-up: [[sessions/2026-09-18/01-reviewer-in-california|01]].
+**Then: "how does a reviewer in California check the app with least work?"** Answer — **no code at all.** The All tab is not location-filtered, so the app already works anywhere; the reviewer just has to be told to type `TPE`. Notes rewritten and verified (**R-20**). Found in passing that `tpe` matches zero lots, which promotes Jim's June search bug to **R-21** — rejection insurance, one line. Full write-up: [[sessions/older/2026-09-18/01-reviewer-in-california|01]].
 
 ---
 
@@ -42,7 +42,7 @@
 | **R-09** | **Privacy nutrition labels.** Location evidence is already gathered — precise, app functionality, foreground-only, never tracking. | 🔴 | Jim | open | 09-10 | [[sessions/older/2026-09-09/00-location-privacy-audit\|location audit]] |
 | **R-10** | **Screenshots + description**, and the App Store name `Find Parking TW` / subtitle. Promotional text is drafted and paste-ready. | 🔴 | Jim | open | 09-14 | [[app-store-connect]] |
 | **R-20** | **App Review Notes — written and verified, just needs pasting.** The whole answer to "how does a reviewer in California check this app": the **All tab is not location-filtered**, so it shows 3,162 live lots anywhere in the world. Instruction is *type `TPE` in capitals*. Paste-ready. | 🔴 | Jim | **ready to paste** | 09-18 | [[app-store-connect#34-beta-app-review-information--paste-ready]] |
-| **R-21** | **Make search case-insensitive** — was **J-01**, promoted. `tpe` matches **0** lots while `TPE` matches 1,773. A reviewer who types lowercase sees an empty list and concludes the app is broken. One line at `MncplAllScreen.swift:77`. **Cheapest rejection insurance available**, and it fixes Jim's own June bug report. | 🔴 | Claude | **new** | 09-18 | [[sessions/2026-09-18/01-reviewer-in-california\|the investigation]] |
+| **R-21** | **Make search case-insensitive** — was **J-01**, promoted. `tpe` matches **0** lots while `TPE` matches 1,773. A reviewer who types lowercase sees an empty list and concludes the app is broken. One line at `MncplAllScreen.swift:77`. **Cheapest rejection insurance available**, and it fixes Jim's own June bug report. | 🔴 | Claude | **new** | 09-18 | [[sessions/older/2026-09-18/01-reviewer-in-california\|the investigation]] |
 | **R-11** | **A TestFlight pass.** The only way to exercise sandbox purchases, the real ATT prompt, real ads, and the actual `tel:`/`mailto:` handoffs. | 🔴 | Jim | open | 09-10 | [[release-strategy]] |
 | **R-12** | **Credit the data sources.** 政府資料開放授權條款-第1版 **requires attribution** and the app credits them nowhere. Licence compliance, not App Review. | 🔴 | Claude | open | 09-10 | [[data-sources]] |
 | **R-13** | **Record the real tutorial video**, then set `tutorials.onboarding`. What is live now is a personal test clip. | 🔴 | Jim | open | 09-07 | [[jim-actions]] |
@@ -73,14 +73,14 @@
 | **E-11** | **Feed parsing runs on the main thread** — ~1,400 lots decoded per zone per poll. A hitch risk that grows per municipality. Do it when polling is next touched. | 🟡 | Claude | open | 09-02 | [[unfinished]] |
 | **E-12** | **`convexEnclosing` is integer-truncated and wrong.** Inert today; left alone pending the fence-activation design call. | 🟡 | Claude | open | 09-15 | [[unfinished]] |
 | **E-13** | **Duplicate parkIds in the NTPC feed** (11 today, `060085`, `170120`, …). Handled first-wins in `CyclopsModel`; the feed itself is wrong and other consumers may not be defensive. | 🟡 | Claude | open | 09-17 | [[unfinished]] |
-| **E-14** | **`hoot_test_ui` does not build.** Proven pre-existing, no scheme, in no verification. Wire it or delete it — it blocks nothing. | 🐢 | Claude | open | 09-15 | [[sessions/2026-09-15/01-session-wrap\|09-15 wrap]] |
+| **E-14** | **`hoot_test_ui` does not build.** Proven pre-existing, no scheme, in no verification. Wire it or delete it — it blocks nothing. | 🐢 | Claude | open | 09-15 | [[sessions/older/2026-09-15/01-session-wrap\|09-15 wrap]] |
 | **E-15** | **The privacy-policy URL is hardcoded in two Swift files** — `SubscriptionStoreView.swift` and `SubscriptionScreen.swift`. The only remote-configurable thing not in the Gist. *Confirmed today.* | 🟡 | Claude | open | 09-17 | [[privacy-policy]] |
 | **E-16** | **Delete three unreferenced files** (`UserGuide`, `OnboardTab0`, `OnboardDebug`) + their 6 pbxproj entries each. **`OnboardDebug` was Jim's quick route to the IAP receipt and options screens** — that shortcut goes with it. | 🐢 | Claude | open | 09-06 | [[unfinished]] |
 | **E-17** | **`uiKick` hack in `MncplCyclopsScreen0000.swift`** — workaround for a bug now properly fixed. Likely removable; check that screen is even reachable first. | 🐢 | Claude | open | 09-01 | [[unfinished]] |
 | **E-18** | **Toolbar squeeze on device** — Subscribe is icon + label next to the `.principal` search field on All/Nbs. If it squeezes, `.labelStyle(.iconOnly)` on that screen. | 🐢 | Jim | verify | 09-08 | [[unfinished]] |
 | **E-19** | **Map pins fade with age** — 0.45 beyond 30 min. Judgement call on legibility over busy map detail; one number in `CustomButton.badgeOpacity`. | 🟡 | Jim | verify | 09-14 | [[jim-actions]] |
 | **E-20** | **Dynamic Type** — fixed `.system(size:)` in onboarding/subscription. Mostly icons; the app name at 34 and 50 is what a large-text user notices. | 🐢 | Claude | open | 09-10 | [[jim-actions]] |
-| **E-21** | **Two latent Swift-6-mode warnings** — `AVAudio.swift` attribute whitespace, `any Mu1Proto` existentials. Not urgent. | 🐢 | Claude | open | 09-15 | [[sessions/2026-09-15/01-session-wrap\|09-15 wrap]] |
+| **E-21** | **Two latent Swift-6-mode warnings** — `AVAudio.swift` attribute whitespace, `any Mu1Proto` existentials. Not urgent. | 🐢 | Claude | open | 09-15 | [[sessions/older/2026-09-15/01-session-wrap\|09-15 wrap]] |
 | **E-22** | **Docs: `CLAUDE.md` / `AGENTS.md` claim park IDs are `tpe_`/`ntpc_` prefixed.** No code does this; the helper has zero callers. Cost a full investigation cycle once. Jim's files to correct. | 🟡 | Jim | open | 08-20 | [[bugs]] |
 | **E-23** | **Docs: `CLAUDE.md` `fileprivate(set)` guidance** only holds for same-file writes. `Municipal` is written from four extension files. Half a sentence. | 🐢 | Jim | open | 09-10 | [[unfinished]] |
 | **E-24** | **`onb_s1_body` hardcodes the city list.** When a third municipality ships this string must change in **en and 中文**, or onboarding understates coverage on screen 1. Pair it with the `loadOnStart()` change. | 🟡 | Claude | open | 09-07 | [[onboarding#screen-1--what-it-is]] |
@@ -122,7 +122,7 @@
 
 ## 🧹 Stale rows
 
-None found today. The five corrected on 09-17 are recorded there: [[sessions/2026-09-17/00-state-of-play|2026-09-17 § Stale rows]].
+None found today. The five corrected on 09-17 are recorded there: [[sessions/older/2026-09-17/00-state-of-play|2026-09-17 § Stale rows]].
 
 ## How to keep this going
 
@@ -132,4 +132,4 @@ None found today. The five corrected on 09-17 are recorded there: [[sessions/202
 4. Sessions older than two days live in `sessions/older/`. Wikilinks resolve by note name, so moving a folder does not break them — the one exception is a **duplicated** note name (`01-session-wrap` exists three times), which is why the two links pointing at older copies now spell out their full path.
 
 ## Related
-[[jim-actions]] · [[bugs]] · [[unfinished]] · [[decisions]] · [[data-sources]] · [[privacy-policy]] · [[release-strategy]] · [[INDEX]] · [[sessions/2026-09-17/00-state-of-play|yesterday]] · [[sessions/2026-09-15/02-pick-up-here|the 09-15 handoff]]
+[[jim-actions]] · [[bugs]] · [[unfinished]] · [[decisions]] · [[data-sources]] · [[privacy-policy]] · [[release-strategy]] · [[INDEX]] · [[sessions/older/2026-09-17/00-state-of-play|yesterday]] · [[sessions/older/2026-09-15/02-pick-up-here|the 09-15 handoff]]
