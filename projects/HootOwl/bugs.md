@@ -13,6 +13,22 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 **Files:** path:line references.
 -->
 
+## 2026-09-24 — `Municipal` mutated off the main thread; the app aborted on the second city's feed (fixed)
+**Symptom:** reliable abort a few seconds after launch, once the **second** city's daily data arrived.
+```
+*** 'NSInvalidArgumentException': -[__NSTaggedDate count]: unrecognized selector
+    Municipal.actDaily(p0:)   Municipal.swift:134
+```
+That line is one statement: `actParkInfos[p0.mncplt] = p0`.
+**The tell that it was not a type error:** the stack ran `Dictionary._Variant.setValue` → `___forwarding___` → `doesNotRecognizeSelector`, and the selector landed on **`__NSTaggedDate` on one run and `__NSCFNumber` on the next**. **A different random type each time is memory corruption, not a wrong type** — a genuine type mistake fails identically every time.
+**Root cause:** `dailyVbj` is sent from `dailyRetrieveFlow` inside an async `Task` with **no hop to main** (`Mu1Base.swift:290`), and `Municipal.actWire`'s sink mutated `Municipal` straight from that thread. `Municipal` is `@Observable` and `actParkInfos` is a plain Swift `Dictionary` with no synchronisation, so two cities landing close together raced into the same storage.
+**Why it survived this long:** `minuteFlow()` was given exactly this hop on **2026-09-01**, after the same class of failure, with a comment explaining why. **The fix went to that one flow.** `dailyVbj` kept the bug, and `actWire` — where the mutation actually happens — was never guarded at all. It only became fatal now because both cities' daily feeds reliably land together on a clean install.
+**Fix:** all three `actWire` sinks `.receive(on: DispatchQueue.main)`. **Guarding the boundary rather than the caller** — a future proto that publishes from its own thread cannot reintroduce it. Commit `80a792a`.
+**Proved pre-existing before touching it:** stashed the working tree, rebuilt at `ea9ce8f` and watched it abort identically. Worth the two minutes — the crash first appeared right after an unrelated UI change, and the obvious suspect was wrong.
+**Verified:** clean install, both feeds land, `actParkInfos` holds taipei and newTaipeiCity together, zero uncaught exceptions.
+**This was E-10.** [[unfinished]] filed it on 2026-09-02 as *"mark `Municipal` `@MainActor` before the next municipality is added"* — **structural, not present.** It was present; it just needed both feeds to arrive at once. The full `@MainActor` change is still worth doing.
+**Files:** `hootowl/Municipalities/framework/Municipal+Ext.swift:80-100`, `Municipal.swift:134`, `Mu1Base.swift:290`.
+
 ## 2026-09-22 — The map dropped the user's destination on every tab return (fixed)
 **Symptom:** jump to Taipei, switch to the watch list or the All tab, switch back — **the map is in Cupertino again**, while the bar still says *"Showing 台北市 — you're not there"*. The destination itself survived; only the camera forgot.
 **First fix, which did not work:** restoring the camera in `onAppear` (`ca3d85e`). It ran, and was overruled a beat later. That is what made it look like the restore was broken.

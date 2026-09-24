@@ -419,3 +419,15 @@ Insert the block as **text**, at the right alphabetical position, matching the s
 **Trace before trusting** — `grep` for the type name, then for each caller, then for *its* callers, until you reach a screen the tab list actually returns. It takes two minutes. Doing exactly that on 09-19 also proved which of three `contains(searchText)` sites ships: `.allTpe` appears in no array `AppScreen.sorted()` returns, and `zzParkInfoScreen` has no callers at all.
 
 **Seen:** 2026-09-19 (`327bf08`, `9285a47`).
+
+## `doesNotRecognizeSelector` on a *different* type each run means a data race, not a type bug
+
+HootOwl aborted on launch with `-[__NSTaggedDate count]: unrecognized selector`, and on the next run with `-[__NSCFNumber count]`. Same line, same stack, different receiver.
+
+**That difference is the diagnosis.** A genuine type mistake fails identically every time. A selector arriving at whatever happened to be at that address is **memory corruption** — here, two Combine sinks mutating the same Swift `Dictionary` on a cooperative concurrency pool.
+
+The stack shape is the other half of the tell: `Dictionary._Variant.setValue` → `___forwarding___` → `doesNotRecognizeSelector`. A plain Swift dictionary should never reach ObjC forwarding at all.
+
+**Fix at the boundary, not the caller.** `minuteFlow()` had been given a main-thread hop for this exact reason in September; `dailyRetrieveFlow` had not, and the place where the mutation *actually happened* was unguarded either way. Hopping in the sink that mutates the observable covers every publisher, present and future.
+
+**Seen:** 2026-09-24 (`80a792a`).

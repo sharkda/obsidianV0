@@ -37,7 +37,9 @@ Active focus across projects. Update at session END.
 
 👉 **Resuming? Start at [[sessions/2026-09-23/00-state-of-play|sessions/2026-09-23/00-state-of-play]].** Every open item in one table, with a stable ID per row, checked against the repo rather than copied from these notes. The 09-15 handoff and its re-verify commands are still at [[sessions/older/2026-09-15/02-pick-up-here|sessions/2026-09-15/]].
 
-**`main` = `origin/main` = `42ed13b`. Working tree clean. Both repos pushed 2026-09-23.**
+**`main` = `origin/main` = `2ad1fbf`. Working tree clean. Both repos pushed 2026-09-24.**
+🔴 **A launch crash was found and fixed today** — `Municipal` was being mutated off the main thread, and the app aborted every clean launch once the second city's daily feed landed. **Pre-existing, proved by stashing and rebuilding at `ea9ce8f`.** It is the structural risk [[unfinished]] filed as E-10 on 09-02 and called *not yet present*. → [[bugs#2026-09-24--municipal-mutated-off-the-main-thread-the-app-aborted-on-the-second-citys-feed-fixed]]
+✂️ **Options is gone and the app is down to five tabs** — Map, Cyclops, All, Subscribe, Onboard. Six forced iOS's "More" list, which is what produced the stray back button Jim spotted in onboarding.
 ✅ **`destination-mode` is merged — it ships in build 1.** Jim's call: *"we need to let our potentional users test the app before they are in the zone."* Twelve commits, fast-forward; all four configurations build on `main` and a clean out-of-zone first run reaches the picker with the three default pins seeded. Outside Taipei the app no longer refuses: it asks *"where are you heading?"*, and choosing a city makes everything work from there. Five rounds of Jim's testing have since added service-area awareness, auto-search on settle, a 0.004 sweet-spot zoom, and a camera that survives tab switches. **Reversible by construction** — with no destination set, `effectiveCentre` *is* the GPS fix, so the old path is the default path. Each commit reverts independently; `git checkout main` drops all of it. → **[[destination-mode]]**
 
 > [!tip] 🔄 Picking this up again
