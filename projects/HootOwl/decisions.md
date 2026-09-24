@@ -5,6 +5,26 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-09-24 — No ad banner on onboarding
+
+**Decision (Jim):** suppress the AdMob banner while the onboarding tab is showing, rather than reflowing onboarding around it.
+
+> *"onboarding top is clipped by Google AdBanner, either we can easily adapt it to the realstate, or if we can temporarily disable the ADBanner when in options/onboarding, I prefered we disable the ADBanner while in onboarding/option."*
+
+**The mechanical reason:** the banner is a top `safeAreaInset`, so it pushes every screen down by its own height. Onboarding is one full-height page per tab, so it was the screen that lost its top.
+
+**The product reason, which is the better one.** Onboarding is where the app explains itself — *including where the ad switch lives* (`onb_ads_note`, last page). **The one screen that talks about the ads should not be carrying one.** The user meets the explanation first and the banner immediately after, which reads as a deal rather than as a bait.
+
+**Implementation note — `Interconnect` was the wrong object.** Jim suggested it, and it does coordinate screen state, but what it actually holds is **tab-bar visibility** and **`lastScreen`** — the screen you came *from*. Neither is "what is on screen now". `ContentView` already has `selection`, the live tab binding, which is exactly that.
+
+**The environment value moves with it.** `\.adBannerHeight` follows the same condition, not just the banner view: screens pad themselves by it (`MncplCyclopsScreen` and friends), so leaving the old height in place while the banner is gone would hold the gap open.
+
+**Verified both directions** — fresh install on onboarding builds no banner at all; with `screen_selection` on the map, `🪧 AdBannerView appeared` → `🟢 bannerViewDidReceiveAd`, with `NbsScreen` rendering and no tab switch logged.
+
+**Revenue cost: near zero.** Onboarding is the default tab on a fresh install and effectively never revisited once the user switches away, so the suppressed impressions are the ones least likely to be worth anything.
+
+**Also this session:** the onboarding settings disclosure is labelled **"Advanced configuration"** rather than "Options" — Jim's wording, and it sets the expectation that a normal user can skip it, which is the point of it being collapsed.
+
 ## 2026-09-24 — Onboarding stays a tab, and has two ways out
 
 **Jim counted the exits** and asked whether they all do the same thing. Three of them did; one was an accident.
