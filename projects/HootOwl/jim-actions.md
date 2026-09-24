@@ -180,7 +180,7 @@ Say go and I will do these — listed so you know they are not forgotten, **not*
 - [ ] **Localise the two Info.plist prompts** — the location one and the new tracking one are **English-only**, so a Chinese-locale user reads English in both system alerts. Needs an `InfoPlist.xcstrings`; best done in one pass, and the location string is blocked on the app-name decision anyway.
 - [ ] **Delete the three now-unreferenced files** (`UserGuide`, `OnboardTab0`, `OnboardDebug`) and their project entries. Note: `OnboardDebug` was your quick route to the IAP receipt + options screens.
 - [ ] **Reject placeholder config values** — treat an `@example.com` address or a `1234-5678` phone as absent, so this class of mistake cannot ship again. ~4 lines.
-- [ ] **`OnboardScreen.swift:26`** still uses the deprecated `NavigationView`.
+- [x] ~~**`OnboardScreen.swift:26`** still uses the deprecated `NavigationView`.~~ — **removed 2026-09-24 (`ea9ce8f`)**, and it turned out to be the cause of the stray top-left "back" button Jim spotted in onboarding: it nested a second navigation container inside `LandingScreen`'s own. The eject button is a plain overlay now. [[decisions#2026-09-24-onboarding-stays-a-tab-and-has-two-ways-out]]
 
 ---
 

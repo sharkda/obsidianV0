@@ -5,6 +5,28 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-09-24 — Onboarding stays a tab, and has two ways out
+
+**Jim counted the exits** and asked whether they all do the same thing. Three of them did; one was an accident.
+
+| Affordance | What it actually did |
+|---|---|
+| **Eject, top right** | `onboardExit()` — restores the toolbar, sends `onboardExitRelay(lastScreen)`. The designed exit |
+| **Screen 3 "Enable Location"** | enables, then calls **the same `onExit`** |
+| **Screen 3 "Not now"** | calls **the same `onExit`** |
+| **Tab bar** | changes `selection` directly — same outcome, different path, the relay never fires |
+| **"Back", top left** | **not an exit.** Chrome from two nested navigation containers |
+
+**The ghost is gone.** `OnboardScreen` wrapped everything in a **deprecated `NavigationView`** — already on the backlog as such — whose only job was hosting the eject button in a toolbar. `LandingScreen` has its *own* `NavigationStack` for the views it pushes, so onboarding ran **two nested navigation containers**, and the outer one contributed a top-left button that exited nothing. Eject is a plain overlay now; the `NavigationView` went with it. `ea9ce8f`.
+
+**Decision: onboarding stays a tab.** It is not a first-run gate — it is simply the **default value of the persisted `screen_selection`**, so a fresh install lands there and switching away once is permanent.
+
+**Why keep it:** the screen explains coverage and pinning, and a user who wants that answer later has somewhere to go. A first-run cover would give exactly one exit, but nothing could ever bring it back.
+
+**The cost, accepted:** while onboarding is a tab, **the tab bar is permanently a second way out.** No tidying removes that. Two is the floor.
+
+**Alternatives rejected:** a `fullScreenCover` on first launch (one exit, but unrevisitable — *"what does the fading mean"* would have nowhere to be answered); cover-plus-tab (two ways in as well as two ways out, more moving parts than the problem).
+
 ## 2026-09-23 — Destination mode ships in build 1
 
 **Decision (Jim):** merge `destination-mode` into `main` and ship it in the first release rather than as a later update.
