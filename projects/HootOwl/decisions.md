@@ -5,6 +5,24 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-09-29 — `Municipal` and `NbsObsM` are main-actor isolated
+
+**This closes E-10**, filed 2026-09-02 as *structural, not present*, which stopped being structural on 09-24 when the app aborted on every clean launch. That crash was patched at the boundary (`80a792a`); this is the part that remained — **making the rule the compiler's business rather than a convention held in comments.**
+
+**Two annotations.** Both classes are `@Observable` state read by SwiftUI and mutated from Combine sinks fed by async work, and **neither had any isolation at all**. `DocDirFenceFolder` is `nonisolated` because it reads no instance state — it derives a path and creates a folder, and isolating it would drag callers onto the main actor for filesystem work that never touches `Municipal`.
+
+> [!note] The measurement, and two wrong estimates on the way to it
+> **First estimate: "3 sites."** Wrong — that build aborted early and never got deeper.
+> **Second: "36 errors, a real refactor."** Also wrong, as a conclusion: nearly every one of those 36 was `NbsObsM` reaching into `Municipal` from outside the actor. **Annotating `NbsObsM` too — which it wanted anyway, being the other observable the map reads — took it to zero.**
+>
+> The lesson is not about actors. **A build that fails stops counting**, so an error total from a failed build is a lower bound and nothing more. Fix the first wave before quoting a number.
+
+**Tried and reverted:** `nonisolated static let shared`. It does not compile — `init(repository:)` is itself isolated — and it was the wrong instinct regardless: silencing every `Municipal.shared` would have hidden exactly the call sites the annotation exists to surface.
+
+**What it does and does not buy, today.** The project builds in **Swift 5 language mode**, where crossing isolation is a warning rather than an error. As it turns out there are **no remaining diagnostics at all**, so there is no Swift 6 to-do list left behind either — but the enforcement only becomes hard on a language-mode move, which is a separate and much larger job and is **not** being done before the release.
+
+**Verified at runtime**, which matters more than compilation for a concurrency change: clean install, both cities' daily feeds land, cyclops rebuilds 3 of 3 across 3,162 lots, search runs, zero uncaught exceptions.
+
 ## 2026-09-24 — No ad banner on onboarding
 
 **Decision (Jim):** suppress the AdMob banner while the onboarding tab is showing, rather than reflowing onboarding around it.
