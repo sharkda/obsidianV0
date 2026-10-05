@@ -1,6 +1,8 @@
 # The floating tab-restore pill — a defect and an open decision
 
-**Open. Waiting on Jim.** Found 2026-10-01 when Jim looked at the map with the tab bar hidden; written up as its own page 2026-10-05 because it is a design call, not a bug fix.
+> [!success] ✅ **Decided and done — 2026-10-05, `7afc3fa`.** Jim: *"stop mirroring the tab entirely."* The pill now carries **one fixed symbol, `chevron.up`**, and `systemImageName` — the table it mirrored — is deleted. All four configurations build; verified running on a clean install.
+
+Found 2026-10-01 when Jim looked at the map with the tab bar hidden. Kept as a page because the reasoning outlived the fix: it is a worked example of **a derived value that drifted twice and should never have been derived.**
 
 ---
 
@@ -66,7 +68,7 @@ Setting the map's pill to `location.fill` — matching its tab, honouring the st
 
 ## The options
 
-### 1. ⭐ Stop mirroring — one fixed glyph *(recommended)*
+### 1. ⭐ Stop mirroring — one fixed glyph ✅ **CHOSEN**
 
 The pill's job never changes: **bring the tab bar back.** A single glyph that says that — a chevron, or a grid — says it better than any tab icon can.
 
@@ -87,6 +89,22 @@ Correct both entries, then shift the re-centre/search pair so they are not level
 
 - Removes the collision rather than tolerating it
 - Costs: most work, and the sync burden remains
+
+## What shipped
+
+```swift
+/// One fixed symbol, never the current tab's.
+fileprivate static let restoreGlyph = "chevron.up"
+```
+
+**`chevron.up` because that is literally what tapping it does** — the tab bar comes back up from the bottom. It shares nothing with the map's own circles, which is the half of Jim's report a glyph swap would not have fixed.
+
+`systemImageName` is gone, with a comment left where it stood. **A lookup table that drifts twice will drift again**, and this one had exactly one reader.
+
+> [!note] The general lesson, worth more than the icon
+> The table existed to keep two things in sync that **did not need to be in sync at all**. The pill's job never changes, so neither should its icon — deriving it from the tab created an obligation to maintain, and the obligation was not met twice over.
+>
+> **Before deriving one value from another, ask whether it actually tracks it.** Here it only looked like it did.
 
 ## Also answered in the same pass
 

@@ -5,6 +5,22 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-10-05 — The tab-restore pill stops mirroring the tab
+
+**Decision (Jim):** *"stop mirroring the tab entirely."* The floating pill that brings back the auto-hidden tab bar now carries **one fixed symbol** — `chevron.up` — and `AppScreen.systemImageName`, the per-tab table it mirrored, is **deleted**. `7afc3fa`.
+
+**Why mirroring failed, twice over:**
+
+1. **It drifted.** Two of five tabs disagreed with their own pill. The map showed a **`tortoise`**, left over from the deleted `nbsCook0` screen. Subscribe showed **`cart.fill`**, against Jim's own 2026-09-08 choice of `creditcard.circle` — *"a card rather than a cart: this is a recurring charge, not a shop with items in it."* That decision reached `SubscribeAffordance.icon` and the tab label and **never reached the mirror table.**
+2. **It was the wrong idea even when correct.** The map's tab icon is `location.fill`, which would have sat directly opposite the overlay's blue `location.circle.fill` — two location glyphs, one each side of the screen, doing different things. **A better table would not have fixed that.**
+
+**The deeper half of the report, which a glyph swap would not have touched.** Jim read the pill as a second search button, and the reason is form rather than glyph: it is the **same size, same dark circle, same visual family** as the map's own overlay buttons. It said *"another one of those"* whatever was drawn on it. One distinct glyph that means "bring the bar back" answers that; a different tab icon would not have.
+
+**Alternatives rejected:** fixing the two stale entries (keeps the sync burden and creates the map collision); fixing them and moving the overlay pair (most work, sync burden remains).
+
+> [!note] The general lesson
+> The table kept two things in sync that **did not need to be in sync.** The pill's job never changes, so neither should its icon. **Before deriving one value from another, ask whether it actually tracks it** — here it only looked like it did, and the obligation to maintain it went unmet twice.
+
 ## 2026-09-29 — `Municipal` and `NbsObsM` are main-actor isolated
 
 **This closes E-10**, filed 2026-09-02 as *structural, not present*, which stopped being structural on 09-24 when the app aborted on every clean launch. That crash was patched at the boundary (`80a792a`); this is the part that remained — **making the rule the compiler's business rather than a convention held in comments.**

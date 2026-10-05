@@ -33,7 +33,7 @@
 | **[[zh-review]]** | The 中文 review table you edit in place; I read your corrections back into the catalogue |
 | **[[Admob]]** | Your paste of the ads findings, with status added under each |
 | **[[cyclops-first-run]]** | The 🕐 investigation — the ancestor of most of what followed |
-| **[[tab-restore-pill]]** | *What is that stray button on the map?* The floating tab-restore pill shows a stale icon on two of five tabs, and why matching the tab collides with the map's own location button. Three options, one recommendation. **Open — waiting on a decision** |
+| **[[tab-restore-pill]]** | *Why does the restore pill not show the tab's icon?* Because mirroring it drifted on two of five tabs and would have put a second location glyph opposite the map's own. **Fixed 2026-10-05** — a worked example of a derived value that should never have been derived |
 | **[[destination-mode]]** | *What is destination mode, and how would I undo it?* The out-of-zone rework — seven rounds, what it rests on, what was verified, and the commit-by-commit revert table. **Merged 2026-09-23; ships in build 1** |
 | **[[working-agreements]]** | *How do I work on this project?* **Read this first on a new machine.** How Jim works, the project conventions not visible in the code, verification standards, and the two-repo push rule. Written 2026-09-20 because Claude Code's own memory does not sync with this vault |
 | **[[admob-sdk]]** | *How is the ad SDK wired, and how do I update it?* A vendored XCFramework committed to git rather than SPM — the four pbxproj entries, why not SPM, and a step-by-step update runbook with checksums. Written 2026-09-20 to be followed on a second machine |
