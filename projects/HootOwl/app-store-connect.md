@@ -86,11 +86,100 @@ Every parking app claims "real-time". Almost none admit that a feed goes quiet, 
 - **Nothing the app does not do.** No routing, no reservations, no payment, no prediction.
 - **No emoji.** Inconsistent across locales, and noise on a utility app.
 
-## 2.3 Description — not written yet
+## 2.3 Description — English · paste-ready
+
+**Drafted 2026-10-05.** **1707 / 4,000 characters.** Every claim below was checked against the source or the vault, not written from imagination — see *What each claim rests on* after the text.
+
+> [!important] The first paragraph is doing the most work on this page
+> App Store collapses the description after a couple of lines, so **the opening sentence is the only part most people read** — and it is **the one place a reviewer learns the coverage before installing.** The app is called `Find Parking TW`; it covers **Greater Taipei**. The subtitle carries that correction and so must this.
+
+```text
+Live space counts for public car parks across Taipei City and New Taipei City, straight from the two city governments' own open data.
+
+See where there is room before you set off, instead of after you have circled the block twice.
+
+
+WHAT IT DOES
+
+• Live space counts on a map of what is near you, closest first
+• Pin the car parks you actually use — open the app and every count is already there
+• Numbers fade as they age, so you can always tell a fresh count from one that has stopped moving
+• Search any address, or browse every car park by name, district or ID
+• Planning a trip? Choose the city and the whole app works before you arrive
+
+
+COVERAGE
+
+Taipei City and New Taipei City today — more than 3,000 public car parks between them. Other cities will follow as their open data becomes available, and you can tell us which one you need from inside the app.
+
+
+ABOUT THE NUMBERS
+
+Counts come straight from the city feeds and are only ever as fresh as the feeds themselves. Some car parks do not publish live availability yet; the app says so rather than guessing, and a count that has stopped updating is shown as old rather than as current. Nothing is estimated and nothing is invented.
+
+
+PRIVACY
+
+Your location is used on your device, to find the car parks nearest you and to centre the map. It stays there. The app has no servers of its own and never receives where you are.
+
+
+FREE, WITH ADS
+
+Find Parking TW is free and shows a banner advert. An optional subscription removes the banner; every other part of the app works exactly the same either way.
+
+
+DATA SOURCES
+
+Parking data from the Taipei City and New Taipei City open data platforms, used under the Open Government Data License, version 1.0.
+```
+
+### What each claim rests on
+
+| Claim | Basis |
+|---|---|
+| *"straight from the two city governments' own open data"* | `TaipeiObs` / `NewTaipeiCityObs` fetch the city portals directly. [[data-sources]] |
+| *"more than 3,000 public car parks"* | **3,124** in the quadtree on 2026-10-05. Deliberately "more than 3,000" rather than a precise figure — the feeds move daily |
+| *"closest first"* | the nearby search sorts by distance from the search centre |
+| *"Numbers fade as they age"* | `5048976` — solid under 5 min, 0.7 at 5–30 min, 0.45 beyond |
+| *"browse every car park by name, district or ID"* | the All tab searches `"\(id) \(name) \(address) \(area)"`, and is **not** location-filtered |
+| *"Choose the city and the whole app works before you arrive"* | destination mode, [[destination-mode]] |
+| *"Some car parks do not publish live availability yet"* | New Taipei's own portal: lots mid-operator-change report `-9`. Saying so is more honest than hiding them — [[data-sources]] |
+| *"no servers of its own and never receives where you are"* | **verified by grep over every `URLRequest`/`dataTask` site**: whole-city datasets are downloaded and filtered on-device; no coordinate is ever put in a request. [[privacy-policy]] |
+| *"removes the banner; every other part works exactly the same"* | true today and stated on the purchase screen. **If subscriber-only features are ever added, this line must change** — see D-01 |
+| the **Data sources** paragraph | **word-for-word the app's own `opt_attribution_body`**, so the listing and the app cannot drift. 政府資料開放授權條款－第1版 requires the credit |
+
+### Deliberately not said
+
+- **No "real-time".** The feeds publish every 1–3 minutes; "live" is fair, "real-time" oversells it.
+- **No count of cities "coming soon"**, and no dates. Keelung is the intended next zone ([[decisions]]) but nothing is promised.
+- **No mention of bus tracking.** It is in the project's description but not in this build.
+- **Nothing about ads beyond the one factual line.** The in-app note already pre-frames it; the listing does not need to argue.
+
+## 2.3b Description — 中文 · not written yet
+
+**The one that matters more**, for a Taipei-primary app. It is a separate localisation in App Store Connect, and a translation of the English above will read worse than copy written in Chinese — so it wants its own pass alongside [[zh-review]], not a machine translation of this. Tracked as **R-17**.
+
 
 Must carry the data-source attribution: **臺北市政府交通局停車管理工程處** and **新北市政府交通局**, published under **政府資料開放授權條款-第1版**. That is a licence obligation, not an App Review one — [[release-strategy#a-licence-obligation-nobody-has-noticed]].
 
-## 2.4 Keywords — not written yet
+## 2.4 Keywords — paste-ready
+
+**58 / 100 characters.** Comma-separated, no spaces — App Store counts the spaces.
+
+```text
+停車場,車位,停車位,即時車位,公有停車場,路邊停車,找停車,停車,parking,car park,空位,停車資訊
+```
+
+**Why these.** Apple already indexes the **app name and subtitle**, so nothing here repeats *Find Parking TW*, *Taipei* or *New Taipei* — that space would be wasted. What is left is what a driver in Taiwan actually types:
+
+- **停車場 · 車位 · 停車位 · 停車** — the plain words, in the forms people search
+- **即時車位** — the thing that makes this app different from a static map
+- **公有停車場** — matches the feeds' own framing (公有路外停車場)
+- **路邊停車** — on-street, which users search for even where coverage is car parks
+- **找停車 · 空位 · 停車資訊** — intent phrasings
+- **parking · car park** — for visitors searching in English, and the only English worth the characters
+
+**Revisit after the first release**, not before: App Store Connect reports actual search terms, and guessing twice is cheaper than guessing once and leaving it.
 
 The field that actually affects search. Do not repeat the name or subtitle in it; Apple already indexes those.
 
@@ -235,8 +324,8 @@ DATA SOURCES: 臺北市政府交通局停車管理工程處 and 新北市政府�
 
 # Part 4 — Still owed on this page
 
-- [ ] **Description** (4,000, English) — with the attribution line.
-- [ ] **Keywords** (100).
+- [x] ~~**Description** (4,000, English)~~ — **drafted 2026-10-05, §2.3**, attribution line included verbatim from the app's own string.
+- [x] ~~**Keywords** (100)~~ — **drafted 2026-10-05, §2.4.**
 - [ ] **中文 for everything above.** A separate localisation in ASC, and a translation of the English will read worse than copy written in Chinese. Its own pass, alongside [[zh-review]].
 - [ ] **What to Test for build 2** — rewritten as *what changed*, not the whole app again.
 - [x] ~~**App Review Notes** for the real submission~~ — **done 2026-09-18**: §3.4 needs no edit, see §3.5. Still owed: the demo-video link once R-13 exists.
