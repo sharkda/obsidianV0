@@ -165,3 +165,15 @@ Screen 2 exists to sell the pinned watch list. The body still carries it (`直�
 **5. ~~The paywall no longer says what stays the same~~ — restored as 目前免費版本功能齊全.** `sub_paywall_body` dropped 即時車位、釘選的停車場和搜尋，訂不訂閱都一樣. That clause was doing honesty work — it is what stops the paywall implying features are locked. The English keeps it.
 
 *(Your 之後 → 可能 change in the same string is an improvement and stays: "ads **may** increase" is a weaker commitment than "ads **will** increase", and easier to live with later.)*
+
+---
+
+## 🀄 App Store listing, 繁體中文 — awaiting your pass (2026-10-06)
+
+**All five listing fields are drafted** in [[app-store-connect#25-繁體中文--every-field-paste-ready]]: name, subtitle, promotional text, description, keywords. Written *as* Chinese rather than translated from the English.
+
+**The vocabulary came from the app**, not from me — 台北市 for the city and 臺北市政府 for the institution (as the portals themselves do), 釘選, 即時車位, 訂閱, and 你 throughout with `App` in Latin letters. So the listing should sound like the product.
+
+**Nothing has been pasted.** Read it the way you read the string table: the wording is mine and you have corrected my Chinese before.
+
+**The line I would check first:** the description's opening sentence. It is the only part most people see before App Store collapses the text, and it has to carry the coverage.

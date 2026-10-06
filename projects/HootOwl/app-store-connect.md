@@ -155,7 +155,7 @@ Parking data from the Taipei City and New Taipei City open data platforms, used 
 - **No mention of bus tracking.** It is in the project's description but not in this build.
 - **Nothing about ads beyond the one factual line.** The in-app note already pre-frames it; the listing does not need to argue.
 
-## 2.3b Description — 中文 · not written yet
+## 2.3b Description — 中文 · ✅ drafted 2026-10-06, see §2.5 (every field, not just the description)
 
 **The one that matters more**, for a Taipei-primary app. It is a separate localisation in App Store Connect, and a translation of the English above will read worse than copy written in Chinese — so it wants its own pass alongside [[zh-review]], not a machine translation of this. Tracked as **R-17**.
 
@@ -167,8 +167,11 @@ Must carry the data-source attribution: **臺北市政府交通局停車管理�
 **58 / 100 characters.** Comma-separated, no spaces — App Store counts the spaces.
 
 ```text
-停車場,車位,停車位,即時車位,公有停車場,路邊停車,找停車,停車,parking,car park,空位,停車資訊
+parking,car park,parking lot,parking space,availability,live,garage,taiwan,find parking,open data
 ```
+
+> [!warning] Corrected 2026-10-06
+> This field held mostly **Chinese** terms when first drafted. Keywords are **per-localisation**, so Chinese belongs in the zh-Hant field (§2.5) and this one should spend its 100 characters on English. Swapped.
 
 **Why these.** Apple already indexes the **app name and subtitle**, so nothing here repeats *Find Parking TW*, *Taipei* or *New Taipei* — that space would be wasted. What is left is what a driver in Taiwan actually types:
 
@@ -182,6 +185,124 @@ Must carry the data-source attribution: **臺北市政府交通局停車管理�
 **Revisit after the first release**, not before: App Store Connect reports actual search terms, and guessing twice is cheaper than guessing once and leaving it.
 
 The field that actually affects search. Do not repeat the name or subtitle in it; Apple already indexes those.
+
+---
+
+## 2.5 繁體中文 — every field, paste-ready
+
+**Drafted 2026-10-06.** Written *as* Chinese rather than translated from §2.3 — a translation of English marketing copy reads like translated English marketing copy, and this is the primary market.
+
+> [!warning] 🀄 Needs Jim's pass before it goes in
+> Same standing as the `needs_review` strings: the wording is mine, and Jim has corrected my Chinese before. **Nothing here should be pasted until he has read it.** → [[zh-review]]
+
+### The voice came from the app, not from me
+
+Every choice below matches what the app already says, so the listing and the product sound like one thing:
+
+| | The app's own usage | Followed |
+|---|---|---|
+| the city | **台北市** (`city_taipei`) | ✅ |
+| the government | **臺北市政府** (`opt_attribution_body`) | ✅ — 台 for the city, 臺 for the institution, which is what the portals themselves do |
+| pinning | **釘選** (`onb_s2_body`) | ✅ |
+| live counts | **即時車位** (`onb_s1_title`) | ✅ |
+| subscribing | **訂閱** — decided over 課金, 2026-09-09 | ✅ |
+| the fading | **「隨著時間，未更新的數字顏色越淡」** | ✅ paraphrased, not re-invented |
+| address | **你** throughout, and `App` in Latin letters | ✅ |
+
+### Name — 3 characters
+
+```text
+找車位
+```
+
+Already live in `InfoPlist.xcstrings` as `CFBundleDisplayName`. Decided 2026-09-10.
+
+### Subtitle — 15 / 30 characters
+
+```text
+台北・新北 公有停車場即時車位
+```
+
+Carries the coverage, as the English one does. **公有** is deliberate — it matches the feeds' own framing (公有路外停車場) and quietly sets the expectation that this is not private or on-street.
+
+### Promotional text — 52 / 170 characters
+
+```text
+台北市與新北市公有停車場的即時剩餘車位。數字會隨時間變淡，一眼就能分辨哪些是剛更新的、哪些已經停止回報。
+```
+
+**The one listing field that can change any time without a build.** Safe to paste now and rethink whenever.
+
+### Description — 608 / 4,000 characters
+
+Shorter than the English, and that is not laziness: Chinese says the same thing in fewer characters, and padding it would only bury the opening.
+
+```text
+台北市與新北市公有停車場的即時剩餘車位，資料直接來自兩市政府的開放資料。
+
+出門前就知道哪裡還有位子，不用繞到現場才發現繞第二圈。
+
+
+功能
+
+• 地圖顯示你附近的停車場，最近的排在最前面，車位數即時更新
+• 把常用的停車場釘選起來，打開 App 就直接看到，不用再找
+• 數字會隨時間變淡，一眼就能分辨哪些是剛更新的、哪些已經停止回報
+• 可以搜尋任何地址，也可以用名稱、行政區或編號查全部停車場
+• 要去台北？先選城市，人還沒到，整個 App 就已經可以用了
+
+
+涵蓋範圍
+
+目前是台北市與新北市，兩市合計超過三千個公有停車場。其他縣市會隨著開放資料到位陸續加入——你也可以在 App 裡直接告訴我們你需要哪一個。
+
+
+關於這些數字
+
+車位數直接來自各市的資料來源，資料有多新，App 就有多新。有些停車場目前還沒有提供即時車位，App 會直接說明，不會猜；已經停止更新的數字也會標示成舊資料，而不是假裝還是即時的。不推估，不編造。
+
+
+隱私
+
+定位只在你的裝置上使用，用來找出最近的停車場、把地圖對到你的位置，而且就留在裝置上。這個 App 沒有自己的伺服器，也從來不會收到你在哪裡。
+
+
+免費，有廣告
+
+「找車位」免費，畫面上會有一則橫幅廣告。訂閱可以把廣告關掉；除此之外，App 的其他部分完全一樣。
+
+
+資料來源
+
+停車資料來自臺北市政府與新北市政府開放資料平臺，依「政府資料開放授權條款－第1版」使用。
+```
+
+**The final paragraph is `opt_attribution_body` word for word** — the app's own Chinese attribution string, so the listing and the app cannot drift on a licence obligation.
+
+### Keywords, 繁體中文 — 52 / 100 characters
+
+```text
+停車場,車位,停車位,即時車位,公有停車場,路邊停車,找停車,停車,空位,停車資訊,車位查詢,停車位查詢
+```
+
+> [!important] ⚠️ This corrects yesterday's §2.4
+> **Keywords are per-localisation**, and yesterday I put mostly *Chinese* terms in the **English** field. That spends the English listing's 100 characters on words its readers are not typing, and leaves the zh-Hant field — the one Taiwanese users actually hit — to be filled separately anyway. **The Chinese terms belong here; the English field should spend its characters on English.** §2.4 is corrected to match.
+
+Added beyond the English set: **車位查詢 · 停車位查詢** — query phrasings people actually type, and there was room.
+
+### Keywords, English — 97 / 100 characters
+
+```text
+parking,car park,parking lot,parking space,availability,live,garage,taiwan,find parking,open data
+```
+
+Repeats neither the app name nor the subtitle, since Apple indexes both. **taiwan** is in because an English-language searcher is almost certainly a visitor, and that is the word they would use.
+
+### Still owed for the 中文 listing
+
+- [ ] **Jim's wording pass** on everything above
+- [ ] **Screenshots** — separate from this, and they need Chinese captions if captioned at all
+- [ ] **App Information localisation** in ASC is a *third* thing again, separate from both the listing and the app's own strings
 
 ---
 
@@ -326,7 +447,7 @@ DATA SOURCES: 臺北市政府交通局停車管理工程處 and 新北市政府�
 
 - [x] ~~**Description** (4,000, English)~~ — **drafted 2026-10-05, §2.3**, attribution line included verbatim from the app's own string.
 - [x] ~~**Keywords** (100)~~ — **drafted 2026-10-05, §2.4.**
-- [ ] **中文 for everything above.** A separate localisation in ASC, and a translation of the English will read worse than copy written in Chinese. Its own pass, alongside [[zh-review]].
+- [x] ~~**中文 for everything above**~~ — **drafted 2026-10-06, §2.5**: name, subtitle, promotional text, description and keywords, written as Chinese rather than translated. **Awaiting Jim's wording pass** before anything is pasted.
 - [ ] **What to Test for build 2** — rewritten as *what changed*, not the whole app again.
 - [x] ~~**App Review Notes** for the real submission~~ — **done 2026-09-18**: §3.4 needs no edit, see §3.5. Still owed: the demo-video link once R-13 exists.
 
