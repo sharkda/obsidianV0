@@ -5,6 +5,20 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-10-07 — Promotional text points at the city data
+
+**Decision (Jim):** option **C** for the App Store promotional text, in both languages.
+
+> *"I prefer C, straight forward and also finger point to city data!"*
+
+**Why the reasoning holds.** C says what the app does in one clause with no setup, and it **attributes the numbers to the city governments** — which is the credibility claim this app genuinely has and most parking apps do not. It also pre-frames the likeliest complaint: a user who knows the counts come from the city reads a stale number as **the city's feed being quiet**, not as the app being wrong.
+
+**My recommendation was different, and the disagreement is narrower than it looks.** I argued for the freshness-fading line, and against C on one ground: **"New:" is wasted on a launch where everything is new** — that framing is what this editable field is *for*, on the day a city is added. Neither quality Jim named depends on the word "New", so both forms are drafted and **the prefix is one phrase to drop**. The natural use of it is 「全新上線：基隆市」 when Keelung lands.
+
+**The Chinese is not a translation of the English.** English says *"straight from city data"*; Chinese had room to name both governments outright — **「資料直接來自臺北市政府與新北市政府的開放資料平臺」** — at 70 of 170 characters. Spelling the pointer out costs nothing and is the entire point of the line. **臺** for the institutions, matching the app's own attribution string.
+
+**Still true of this field:** it is the only listing text that changes **without a build**, so it is the cheapest thing on the page to get wrong.
+
 ## 2026-10-05 — The tab-restore pill stops mirroring the tab
 
 **Decision (Jim):** *"stop mirroring the tab entirely."* The floating pill that brings back the auto-hidden tab bar now carries **one fixed symbol** — `chevron.up` — and `AppScreen.systemImageName`, the per-tab table it mirrored, is **deleted**. `7afc3fa`.

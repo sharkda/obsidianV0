@@ -60,7 +60,22 @@ Because the subtitle already says *where*, nothing else on the page has to open 
 
 ## 2.2 Promotional Text — English · 170 characters
 
-### Recommended · 159/170
+### ✅ Chosen — C · 159/170 · Jim's call, 2026-10-07
+
+```text
+New: live car park availability for Taipei and New Taipei City. Pin the lots you use and watch their space counts update on their own, straight from city data.
+```
+
+> Jim: *"I prefer C, straight forward and also finger point to city data!"*
+
+**The two qualities he named are the right read of it.** It says what the app does in one clause with no setup, and it **attributes the numbers to the cities** — which is the credibility claim this app actually has and most parking apps do not. A user who knows the counts come from the city government reads a stale number as the city's feed being quiet, not as the app being wrong.
+
+> [!note] My own recommendation was different, and it is worth keeping on the page
+> I argued for the freshness-fading line below, and against C on the grounds that **"New:" is wasted on a launch where everything is new** — save that framing for the day a city is added, which is what this editable field is for.
+>
+> That objection still stands **about the prefix only**, not about C. Jim named straightforwardness and the data pointer, and neither depends on the word "New". **Both forms are drafted below; the prefix is one phrase to drop.**
+
+### Previously recommended — the freshness angle
 
 ```text
 Live space counts for car parks across Taipei and New Taipei City. Numbers fade as they age, so you can always tell a fresh count from one that stopped moving.
@@ -70,14 +85,13 @@ Every parking app claims "real-time". Almost none admit that a feed goes quiet, 
 
 ### Alternatives
 
-| | Text | Chars |
-|---|---|---|
-| **B — plain benefit** | `Know whether there's a space before you drive there. Live counts for public car parks across Taipei and New Taipei City, straight from the city open data feeds.` | 160 |
-| **C — launch framing** | `New: live car park availability for Taipei and New Taipei City. Pin the lots you use and watch their space counts update on their own, straight from city data.` | 159 |
-| **D — short and blunt** | `Stop circling the block. Live space counts for Taipei and New Taipei City car parks, every number showing how recent it is.` | 123 |
-| **E — watch-list angle** | `Pin the car parks you actually use and watch their free spaces update on their own. Live open data for Taipei and New Taipei City, with a freshness clock on every count.` | 169 |
+|                          | Text                                                                                                                                                                        | Chars |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| **B — plain benefit**    | `Know whether there's a space before you drive there. Live counts for public car parks across Taipei and New Taipei City, straight from the city open data feeds.`          | 160   |
+| **D — short and blunt**  | `Stop circling the block. Live space counts for Taipei and New Taipei City car parks, every number showing how recent it is.`                                               | 123   |
+| **E — watch-list angle** | `Pin the car parks you actually use and watch their free spaces update on their own. Live open data for Taipei and New Taipei City, with a freshness clock on every count.` | 169   |
 
-**B** is the safest and the most forgettable — it describes the category, not this app. **C** wastes "New" on a launch where everything is new; save that framing for the day a city is added, which is exactly what this field is for. **D** has the only real voice here, but "stop circling the block" promises an outcome the data cannot always deliver. **E** says the most and reads like a feature list.
+**B** is the safest and the most forgettable — it describes the category, not this app. **C is now the chosen text, above.** **D** has the only real voice here, but "stop circling the block" promises an outcome the data cannot always deliver. **E** says the most and reads like a feature list.
 
 ### Rules this copy stays inside
 
@@ -225,13 +239,23 @@ Already live in `InfoPlist.xcstrings` as `CFBundleDisplayName`. Decided 2026-09-
 
 Carries the coverage, as the English one does. **公有** is deliberate — it matches the feeds' own framing (公有路外停車場) and quietly sets the expectation that this is not private or on-street.
 
-### Promotional text — 52 / 170 characters
+### Promotional text — 70 / 170 characters
+
+**Rewritten 2026-10-07 to match the English C**, on Jim's call. The earlier Chinese followed the freshness angle; this one is straightforward and points at the city data, which is what he asked for.
 
 ```text
-台北市與新北市公有停車場的即時剩餘車位。數字會隨時間變淡，一眼就能分辨哪些是剛更新的、哪些已經停止回報。
+全新上線：台北市與新北市公有停車場的即時剩餘車位。釘選你常用的停車場，車位數會自己更新——資料直接來自臺北市政府與新北市政府的開放資料平臺。
 ```
 
-**The one listing field that can change any time without a build.** Safe to paste now and rethink whenever.
+**Without the launch prefix** — 65 / 170, and the form I would ship on a *first* release, since 「全新上線」 has nothing to be new against:
+
+```text
+台北市與新北市公有停車場的即時剩餘車位。釘選你常用的停車場，車位數會自己更新——資料直接來自臺北市政府與新北市政府的開放資料平臺。
+```
+
+**Why the pointer is spelled out rather than implied.** The English says *"straight from city data"*; Chinese has room for **「資料直接來自臺北市政府與新北市政府的開放資料平臺」**, naming both governments outright. At 170 characters that costs nothing and it is the whole credibility claim — a reader who knows the numbers come from the city reads a quiet feed as the city's quiet feed, not as a broken app. Note **臺** for the institutions, matching the app's own attribution string.
+
+**This is the one listing field that changes without a build.** Safe to paste and rethink any time — and the natural place for 「全新上線：基隆市」 on the day Keelung lands.
 
 ### Description — 608 / 4,000 characters
 
