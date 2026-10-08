@@ -371,6 +371,26 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 >
 > **And therefore it must list every network used by *any* of those apps.** If another app — present or future — monetises through Tappx or any mediation partner, **that line comes back, or that app's inventory stops selling.** One line to add; the failure is silent, so it belongs on a checklist rather than in memory.
 
+### The two pages on `sharkda.github.io`, and why neither redirects
+
+Jim, looking at the new root: *"that is the support page, i thought we want the root to redirect to marketing page?"*
+
+**The root *is* the marketing page** — there is nothing to redirect *to*. Two pages, one job each:
+
+| URL | ASC field | Shows as | Its job |
+|---|---|---|---|
+| `https://sharkda.github.io/` | **Marketing URL** | *Developer Website* | 這個 App 做什麼 · coverage · where to get help |
+| `https://sharkda.github.io/findparkingtw/support/` | **Support URL** | *App Support* | 聯絡我們 · 希望加入你的城市 · 常見問題 · 回報資料有誤 |
+
+**Jim's misreading was a real finding, not a slip.** The two pages were structurally distinct but shared a visual system *and* a call to action — the root had its own *"告訴我們你需要的城市"* button, duplicating the card that is the support page's whole job. If the author of the project cannot tell them apart, a user cannot. Fixed: the root now **points at** support instead of competing with it, and the support page carries a **`← 找車位 首頁 / Home`** link opposite its language link, so which page you are on reads before any heading.
+
+> [!note] Could the root redirect instead — say, to the Wix site?
+> **Technically yes, and it would not break ad crawling.** A redirect on `/` does not touch `/app-ads.txt`, which is what gets fetched.
+>
+> **But it would undo what we just fixed.** A reviewer clicking *Developer Website* would land on a page branded **Tataro / Readie / ©2023** that never names *Find Parking TW* — the exact problem that made the old Support URL a risk. The reason to own this domain was to stop depending on pages that describe something else.
+>
+> **And the domain is fixed regardless**, redirect or not: `app-ads.txt` must sit at the root of whatever domain the listing names, so the Marketing URL stays `https://sharkda.github.io` either way.
+
 ### 📋 The three URL fields — paste-ready, all three verified live 2026-10-08
 
 > [!tip] Copy these straight into App Store Connect
