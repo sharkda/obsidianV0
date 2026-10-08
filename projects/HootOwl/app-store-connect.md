@@ -374,25 +374,29 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 ### 📋 The three URL fields — paste-ready, all three verified live 2026-10-08
 
 > [!tip] Copy these straight into App Store Connect
+> **One URL per block, nothing before it on the line** — deliberately. The first version of this note aligned the three in columns, and on 2026-10-08 that cost a round trip: selecting a line picked up the padding, and ASC rejected the **leading space** as a malformed URL. Alignment is not worth a field that cannot be trimmed.
+>
+> **Support URL** — per localisation, so **en** and **zh-Hant**:
 > ```text
-> Support URL         https://sharkda.github.io/findparkingtw/support/
-> Marketing URL       https://sharkda.github.io
-> Privacy Policy URL  https://jimhsuyc.wixsite.com/tataro/privacy-policy
+> https://sharkda.github.io/findparkingtw/support/
 > ```
-> **Support URL and Marketing URL are per localisation** — fill both **en** and **zh-Hant**. The privacy policy URL is set once, at app level.
+> **Marketing URL** — per localisation, so **en** and **zh-Hant**:
+> ```text
+> https://sharkda.github.io
+> ```
+> **Privacy Policy URL** — app level, set once:
+> ```text
+> https://jimhsuyc.wixsite.com/tataro/privacy-policy
+> ```
 
-> [!warning] ⚠️ If App Store Connect says *"The URL is formatted incorrectly. URLs must be formatted as: http://example.com"*
-> **That is a format check on the characters in the field — ASC never fetched anything**, so the page is not the problem and neither is the server. It also does **not** mean `https` is disallowed: `http://example.com` is just their placeholder text, and every Support and Privacy URL on the Store is `https`.
+> [!success] ✅ Resolved 2026-10-08 — *"The URL is formatted incorrectly. URLs must be formatted as: http://example.com"*
+> **Cause: a leading space in the paste.** Nothing to do with the URL, the page, the host, or `https` — Jim's first guess was that `https` was disallowed, and it is not. `http://example.com` is Apple's placeholder text, and every Support and Privacy URL on the Store is `https`.
 >
-> Checked 2026-10-08: the string in this note is **pure ASCII, 48 bytes, no hidden characters**, and all three forms of it resolve (`/support/` → direct `200`; `/support` → `301` to it; `http://` → `301` to `https`). So the fault is in **what landed in the field**, and the ladder below isolates it in about a minute:
+> **The canonical URL is unchanged**, trailing slash included: `https://sharkda.github.io/findparkingtw/support/`. Accepted as-is once the space was gone.
 >
-> | Try | Paste exactly | What it tells you |
-> |---|---|---|
-> | **1** | `https://sharkda.github.io/findparkingtw/support` | **Most likely fix.** No trailing slash — crude validators often expect the `http://example.com` shape literally, path-and-no-slash. It `301`s to the real page, which is invisible to a reviewer. |
-> | **2** | **Type it by hand**, do not paste | Catches a **stray space or newline**, the classic cause. The paste-ready block in this note is space-aligned for reading, so selecting the line picks up padding. |
-> | **3** | `https://sharkda.github.io` | **The control.** A known-simple shape. If *this* is also rejected, the problem is the paste, the browser or the field — **not the URL** — and nothing about the page needs changing. |
+> **What made this diagnosable in one step** was reading the error for what it says: *formatted* incorrectly is a **check on the field's characters**, and ASC never fetched anything — so the page and the host were out of scope before any testing. Measured at the time: the string is pure ASCII, 48 bytes, and all three forms resolve (`/support/` direct `200`, `/support` `301`, `http://` `301`). That left only *what landed in the box*.
 >
-> **Tell me which one it accepts and I will make that the canonical form** here, in the Gist line below, and in the page's own `<link rel="canonical">`.
+> **The fix is upstream, in this note:** the paste block above no longer column-aligns the three URLs, because that alignment is what put a space in front of one. **Generalisable:** a value destined for a form field that cannot trim gets its own line with nothing before it.
 
 | Field | Status |
 |---|---|
