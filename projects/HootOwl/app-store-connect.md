@@ -334,6 +334,9 @@ Repeats neither the app name nor the subtitle, since Apple indexes both. **taiwa
 
 Jim's question: *"these seem to be app agnostic, or I can tune them to be."* **Both can be, and one of them already is by design.**
 
+> temp for me : support  https://sharkda.github.io/findparkingtw/support/
+> 
+
 | Field             | Value                                                | App-agnostic?                                                                                                                      |
 | ----------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | **Support URL**   | `https://jimhsuyc.wixsite.com/tataro/support`        | **Not yet** — Jim's note: *"need to add action so that this page is app agnostic."* His to do. 200 logged-out, checked 2026-09-16. |
@@ -377,6 +380,19 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 > Privacy Policy URL  https://jimhsuyc.wixsite.com/tataro/privacy-policy
 > ```
 > **Support URL and Marketing URL are per localisation** — fill both **en** and **zh-Hant**. The privacy policy URL is set once, at app level.
+
+> [!warning] ⚠️ If App Store Connect says *"The URL is formatted incorrectly. URLs must be formatted as: http://example.com"*
+> **That is a format check on the characters in the field — ASC never fetched anything**, so the page is not the problem and neither is the server. It also does **not** mean `https` is disallowed: `http://example.com` is just their placeholder text, and every Support and Privacy URL on the Store is `https`.
+>
+> Checked 2026-10-08: the string in this note is **pure ASCII, 48 bytes, no hidden characters**, and all three forms of it resolve (`/support/` → direct `200`; `/support` → `301` to it; `http://` → `301` to `https`). So the fault is in **what landed in the field**, and the ladder below isolates it in about a minute:
+>
+> | Try | Paste exactly | What it tells you |
+> |---|---|---|
+> | **1** | `https://sharkda.github.io/findparkingtw/support` | **Most likely fix.** No trailing slash — crude validators often expect the `http://example.com` shape literally, path-and-no-slash. It `301`s to the real page, which is invisible to a reviewer. |
+> | **2** | **Type it by hand**, do not paste | Catches a **stray space or newline**, the classic cause. The paste-ready block in this note is space-aligned for reading, so selecting the line picks up padding. |
+> | **3** | `https://sharkda.github.io` | **The control.** A known-simple shape. If *this* is also rejected, the problem is the paste, the browser or the field — **not the URL** — and nothing about the page needs changing. |
+>
+> **Tell me which one it accepts and I will make that the canonical form** here, in the Gist line below, and in the page's own `<link rel="canonical">`.
 
 | Field | Status |
 |---|---|
