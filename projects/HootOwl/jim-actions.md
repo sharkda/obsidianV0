@@ -166,6 +166,9 @@ Steps if you need them: [[operations#how-to-edit-it--step-by-step]]. **Validate 
 - [ ] 🔴 **Privacy nutrition labels** — location, and whatever the AdMob decision lands on. **Location evidence is already gathered:** precise, app functionality, **foreground-only**, never used for tracking — six checks in [[00-location-privacy-audit]] back it.
 - [ ] 🔴 **Screenshots and description.** Coverage (Taipei + New Taipei City) belongs here: it is what people read *before* installing, which is why onboarding does not have to carry the whole disclosure.
 - [ ] ❓ Privacy policy URL and support URL — App Store Connect requires both.
+- [ ] 🆕 **Set the Marketing URL to `https://sharkda.github.io`** — in **both** localisations, en and zh-Hant; it is a per-localisation field. **Why it matters beyond the listing:** that domain is where ad crawlers look for `app-ads.txt`, and the file is now live there (`https://sharkda.github.io/app-ads.txt`, verified `200`/`text/plain` on 2026-10-08). If the Marketing URL still points at the old Tappx host, the file on GitHub is never read. → [[decisions#2026-10-08--app-adstxt-is-hosted-on-our-own-github-pages-site]]
+- [ ] 🆕 ⚠️ **Decide what that link shows a user.** The Marketing URL is the **Developer Website** link on your public product page, and `sharkda.github.io` is currently the single word **`hello world`**. Still better than the ad-tech hostname it replaces, but a one-page site for the app would beat both. **I offered to write one — say the word.**
+- [ ] 🆕 **After the app is live, check AdMob's own app-ads.txt status** for it. That is the authoritative check: it reports what Google actually crawled. It cannot be run yet — there is no listing for the crawler to read the developer URL from. `curl` already proves the file is reachable; only AdMob proves it is *found*.
 - [ ] ❓ Confirm version/build. Currently `MARKETING_VERSION = 1.0`, build `1`.
 
 ---

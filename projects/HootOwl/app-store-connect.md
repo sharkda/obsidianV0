@@ -330,16 +330,49 @@ Repeats neither the app name nor the subtitle, since Apple indexes both. **taiwa
 
 ---
 
-## miscellaneous
+## 2.6 The two URLs that are not per-app
 
-to claude-code: these seems to be app agnostic, or I can tune them to be. 
+Jim's question: *"these seem to be app agnostic, or I can tune them to be."* **Both can be, and one of them already is by design.**
 
-support Url :
-https://jimhsuyc.wixsite.com/tataro/support
-need to add action so that this page is app agnostic 
+| Field | Value | App-agnostic? |
+|---|---|---|
+| **Support URL** | `https://jimhsuyc.wixsite.com/tataro/support` | **Not yet** — Jim's note: *"need to add action so that this page is app agnostic."* His to do. 200 logged-out, checked 2026-09-16. |
+| **Marketing URL** | `https://sharkda.github.io` ← **changed 2026-10-08** | **Yes, inherently.** See below. |
 
-marking url 
-https://n90287707.app-ads-txt.com
+### app-ads.txt moved to GitHub Pages — done 2026-10-08
+
+**Live now:** `https://sharkda.github.io/app-ads.txt` → `200`, `text/plain`, one line:
+
+```text
+google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
+```
+
+`pub-9528408865218303` matches `GADApplicationIdentifier` in `hootowl/Info.plist`. Committed as `5845d7e` in `sharkda/sharkda.github.io`.
+
+> [!warning] First, the correction — **the old URL was never broken**
+> `https://n90287707.app-ads-txt.com/app-ads.txt` returns **200** with the correct content, measured 2026-10-08. Whatever blocked Jim was on his side — a browser, a network, or the **Tappx dashboard** rather than the file. So this move is a matter of **ownership, not repair**, and nothing was at risk while it was decided.
+
+**Why GitHub Pages works, and why most hosts do not.** Crawlers take the developer website from the store listing and fetch `app-ads.txt` **at the root of that domain**. A subdirectory is not read. That single rule decides the whole question:
+
+| Host | Verdict |
+|---|---|
+| **`sharkda.github.io`** (user Pages site) | ✅ The repo *is* the domain root, so the file lands at exactly the required path. Already existed, serving `index.html`. |
+| A **project** Pages site | ❌ `sharkda.github.io/hootOwl/app-ads.txt` is a subdirectory. Never crawled. |
+| **`jimhsuyc.wixsite.com`** | ❌ The site lives at `/tataro`; the **domain root belongs to Wix**, not to Jim. Confirmed: `/app-ads.txt` there is `404` and not his to change. This is why the Tappx host existed at all. |
+| `raw.githubusercontent.com` | ❌ Wrong domain from the listing's point of view. |
+
+**One line, not two — the Tappx entry was dropped.** The old file also carried `tappx.com, n90287707, DIRECT, …`. There is **no Tappx SDK, unit id, or mediation anywhere in the app** — the only linked ad framework is `GoogleMobileAds.xcframework`. Authorising a seller you do not use is the precise thing this file exists to prevent, so it went.
+
+> [!important] 🔁 But app-ads.txt is **per domain, not per app** — and that cuts both ways
+> This is what makes it app-agnostic: **one file covers every app whose listing points at this domain.** Jim's next app needs no new hosting, just the same Marketing URL.
+>
+> **And therefore it must list every network used by *any* of those apps.** If another app — present or future — monetises through Tappx or any mediation partner, **that line comes back, or that app's inventory stops selling.** One line to add; the failure is silent, so it belongs on a checklist rather than in memory.
+
+### What Jim still has to do
+
+- [ ] **Set the Marketing URL to `https://sharkda.github.io`** in App Store Connect — it is **per localisation**, so both **en** and **zh-Hant**.
+- [ ] ⚠️ **Decide what that link shows.** It is the *Developer Website* link on the public product page, and the site is currently the single word **`hello world`**. Today's Marketing URL points at an ad-tech hostname, so this is an improvement either way — but a one-page app site would be better than both. **Offered, not written: say the word.**
+- [ ] **Verify after the app is live**, in the AdMob console's own app-ads.txt status for the app. That is the authoritative check, because it reports **what Google actually crawled**. It cannot run before submission — there is no listing to read the developer URL from yet. The `curl` above proves the file is reachable; only AdMob proves it is *found*.
 
 
 # Part 3 — TestFlight

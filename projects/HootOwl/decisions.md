@@ -5,6 +5,26 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-10-08 — app-ads.txt is hosted on our own GitHub Pages site
+
+**Decision (Jim):** move `app-ads.txt` off Tappx's domain onto `https://sharkda.github.io/app-ads.txt`. Live, `text/plain`, `5845d7e` in `sharkda/sharkda.github.io`. The App Store **Marketing URL** becomes `https://sharkda.github.io` in both localisations.
+
+**The prompt was a false alarm, and that is worth recording.** Jim could not reach `https://n90287707.app-ads-txt.com`. **Measured: it returns 200 with the correct content.** So the file was never down — what was unreachable was something on his side, most likely the Tappx dashboard. The move still stands on its own, but as **ownership, not repair**, and nothing was ever at risk.
+
+**Why GitHub Pages is the right host, where almost nothing else is.** Crawlers read the developer website from the store listing and fetch `app-ads.txt` **at that domain's root**; a subdirectory is never read. That one rule eliminates the alternatives:
+
+- **A user Pages site works because the repo is the domain root.** `sharkda.github.io` already existed and already served a file.
+- **A project Pages site does not** — `sharkda.github.io/hootOwl/app-ads.txt` is a subdirectory.
+- **The Wix site cannot** — it lives at `jimhsuyc.wixsite.com/tataro`, so the domain **root belongs to Wix**. `/app-ads.txt` there is 404 and not Jim's to change. **This is why the Tappx host existed in the first place**, and it is the constraint any future answer has to clear.
+
+**The Tappx line was dropped, deliberately.** The old file authorised `tappx.com` as well as Google. There is no Tappx SDK, unit id or mediation anywhere in the app — the only linked ad framework is `GoogleMobileAds.xcframework`. **Authorising a seller you do not use is exactly what this file exists to prevent**, so carrying the line "just in case" would have inverted its purpose.
+
+**The trap to remember: the file is per *domain*, not per app.** That is what makes it app-agnostic — one file covers every app pointing at this domain, so the next app needs no new hosting. **It also means the file must list every network used by *any* of those apps.** If a future app uses Tappx or any mediation partner, that line must come back or that app's inventory quietly stops selling. Silent failure, so it belongs on the release checklist.
+
+**Verification is only partly possible now.** `curl` proves the file is reachable and correctly typed. Only the **AdMob console's app-ads.txt status** proves Google *found* it, and that cannot run until the app is live, because there is no listing to read the developer URL from yet.
+
+**Left alone:** the site's `index.html` is the single word `hello world`, and it is what the product page's *Developer Website* link will show. Still better than pointing at an ad-tech hostname, and offered as a one-page app site rather than written unasked. See [[app-store-connect#26-the-two-urls-that-are-not-per-app]].
+
 ## 2026-10-08 — The map pin and the Cyclops cell may disagree about colour
 
 **Decision (Jim):** *"map pin and cyclops serves different purpose, their differences are acceptable."* **D-07 closed as accepted.** `06dc918` writes the reasoning next to `CustomButton.badgeColor` so it reads as a decision rather than drift.
