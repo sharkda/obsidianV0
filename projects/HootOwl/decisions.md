@@ -5,6 +5,25 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-10-08 — The map pin and the Cyclops cell may disagree about colour
+
+**Decision (Jim):** *"map pin and cyclops serves different purpose, their differences are acceptable."* **D-07 closed as accepted.** `06dc918` writes the reasoning next to `CustomButton.badgeColor` so it reads as a decision rather than drift.
+
+**The state being accepted.** After `b907798` the two surfaces spend their channels differently:
+
+| | Colour | Second channel |
+|---|---|---|
+| **Cyclops cell** | freshness | **size** → scarcity |
+| **Map pin** | **scarcity** (maroon ≤3 / dodger >3) | **alpha** → age |
+
+**Why this is right and not just tolerable.** The pin has no size channel to spend — it is ~12pt on a map that can hold hundreds of markers, and shrinking it further to encode scarcity would cost legibility before it bought information. More to the point, they are **different reading tasks**: you scan pins to decide *which one*, and you read a Cyclops cell to decide *how many, and can I trust it*. Freshness is a question you ask of a number you have already chosen to rely on; scarcity is the question that gets you there. Each surface put colour on the question its user is actually asking.
+
+**The real risk was never user confusion — it was a future edit.** An inconsistency that looks accidental invites someone to unify it. Unifying in the obvious direction (one colour on the pin, alpha for age) would delete the at-a-glance "nearly full" signal that is most of what a pin does. So the decision is recorded **in the code**, at the property a reader would change, not only here.
+
+**Alternatives considered:** make the pin match the cell — rejected above. Undo `b907798` so the cell matches the pin — rejected; that is the version that read as stale data. Add a legend — rejected by omission: a map that needs a key to read its own pins has already lost the glance.
+
+See [[sessions/2026-10-08/00-state-of-play|D-07]] and the sibling decision below.
+
 ## 2026-10-08 — On the Cyclops cell, colour means freshness and nothing else
 
 **Decision (Jim):** every availability count renders in **one green** (`.fern`). `normalModeView`'s colour override is gone; **size** keeps carrying scarcity. `b907798`.

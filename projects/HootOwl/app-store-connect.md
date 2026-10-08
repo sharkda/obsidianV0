@@ -330,7 +330,18 @@ Repeats neither the app name nor the subtitle, since Apple indexes both. **taiwa
 
 ---
 
-## misilinous 
+## miscellaneous
+
+to claude-code: these seems to be app agnostic, or I can tune them to be. 
+
+support Url :
+https://jimhsuyc.wixsite.com/tataro/support
+need to add action so that this page is app agnostic 
+
+marking url 
+https://n90287707.app-ads-txt.com
+
+
 # Part 3 — TestFlight
 
 ## 3.1 What to Test — build 1 · paste-ready

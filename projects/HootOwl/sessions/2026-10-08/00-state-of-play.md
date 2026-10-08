@@ -34,7 +34,7 @@ Jim's call — *"change them to green too"* — leaves the cell with one meaning
 
 Nothing was lost — size already carried scarcity across the whole range, not one band in the middle. → [[decisions#2026-10-08--on-the-cyclops-cell-colour-means-freshness-and-nothing-else]]
 
-> [!question] ❓ D-07 — opened by that change, deliberately not resolved
+> [!success] ✅ D-07 — opened by that change, and **closed the same day: accepted**
 > **The map pins still encode scarcity in colour.** `CustomButton.badgeColor` is **maroon ≤3 / dodger >3**, with **alpha** carrying age (0.9 fresh / 0.7 aging / 0.45 stale). So from today the two surfaces use colour for different things: on the Cyclops cell colour means freshness, on a map pin it means scarcity.
 >
 > **I have not changed it, because the pin's constraint is real.** That badge is ~12pt on a potentially crowded map — it has no size channel to spare the way the Cyclops hero number does, and its own comment already reasons about this: *"colour on this badge already carries scarcity (maroon ≤3 / dodger >3) and no-signal (gray). A third meaning would collide."*
@@ -44,7 +44,7 @@ Nothing was lost — size already carried scarcity across the whole range, not o
 > 2. **Make the pin match** — one colour, with alpha for age and scarcity dropped or moved. Consistent, but deletes the at-a-glance "nearly full" signal that is the pin's whole job on a busy map.
 > 3. **Make the cell match the pin instead** — i.e. undo today's change. Not recommended; it is the version Jim just rejected, for good reason.
 >
-> **My recommendation is 1, with the reasoning written down** — which is what this row is. Related: **E-19**, which is the same badge's alpha floor awaiting a device look.
+> **Jim chose 1, agreeing with the recommendation:** *"map pin and cyclops serves different purpose, their differences are acceptable."* The reasoning now lives **in the code**, next to `CustomButton.badgeColor` (`06dc918`) — because the risk here was never a confused user, it was a future edit unifying an inconsistency that looked accidental and deleting the pin's "nearly full" signal in the process. Related: **E-19**, the same badge's alpha floor, still awaiting a device look.
 
 ## E-10 is closed
 
@@ -160,7 +160,7 @@ All four re-checked against the live page today; all still present. None of thes
 | **D-04** | **iOS 26.0 minimum** — worth pricing deliberately for a commuter utility, where some of the audience is on older hardware. *(Related: today something bumped this to 26.6 in the project file and it was reverted — E-26.)* | ❓ | open | 09-10 | [[jim-actions]] |
 | **D-05** | **Full corrected privacy policy, English + 中文?** Offered twice, deliberately not written — it is Jim's document to own. Say the word. | ❓ | open | 09-16 | [[privacy-policy]] |
 | **D-06** | **Watch early reviews for the ad-expectation line.** "There will be more of them over time" is deliberate pre-framing but can read as a threat. One string to soften. | ⚠️ | open | 09-10 | [[jim-actions]] |
-| **D-07** | **Colour now means two different things on two screens.** As of `b907798` the Cyclops cell uses colour for **freshness** only; the map pin still uses it for **scarcity** (maroon ≤3 / dodger >3) with alpha for age. Three options, reasoning above — **recommendation: leave the pin alone and keep the reasoning recorded.** Not urgent; nothing is wrong on either screen taken by itself. | 🟡 | open — **new** | 10-08 | § D-07 above · `CustomButton.swift:34` · [[decisions#2026-10-08--on-the-cyclops-cell-colour-means-freshness-and-nothing-else]] |
+| **D-07** | ~~Colour means two different things on two screens.~~ ✅ **Accepted, same day.** The Cyclops cell uses colour for freshness, the map pin for scarcity — *"different purpose, their differences are acceptable"*. Reasoning recorded at `CustomButton.badgeColor` so a later edit does not unify them. `06dc918`. | 🟡 | ✅ **done** | 10-08 | [[decisions#2026-10-08--the-map-pin-and-the-cyclops-cell-may-disagree-about-colour]] |
 
 ## 🐛 Jim's own backlog — not yet worked
 
@@ -183,6 +183,7 @@ All four re-checked against the live page today; all still present. None of thes
 | **The Cyclops hero number read as stale when spaces were plentiful** | `b907798`. One green for every count. The cause was a single `.primaryM` override on the 10–19 band, a shade from the colour `AvailFreshness.heroColor` uses for aging data — so the screen was spending its freshness channel on scarcity. **Size keeps scarcity; colour keeps freshness.** → [[decisions#2026-10-08--on-the-cyclops-cell-colour-means-freshness-and-nothing-else]] |
 | **The floating restore pill showed the wrong glyph** | `7afc3fa`. The 10-05 open question, answered by Jim: *"stop mirroring the tab entirely."* One fixed `chevron.up`, and `AppScreen.systemImageName` — the table that had drifted twice — is deleted. → [[tab-restore-pill]] |
 | **App Store listing copy** | All five fields in English **and** 繁體中文, written as Chinese rather than translated; promotional text option C in both. Folded into **R-10**, which is now screenshots + Jim's wording pass. → [[app-store-connect]] |
+| **D-07 — the two surfaces spend colour differently** | Opened and closed the same day. Jim accepted the difference; `06dc918` records why at the property a future reader would change. → [[decisions#2026-10-08--the-map-pin-and-the-cyclops-cell-may-disagree-about-colour]] |
 
 ## ✅ Closed earlier, kept one more day for context
 
@@ -211,11 +212,12 @@ Earlier corrections: [[sessions/older/2026-09-17/00-state-of-play|09-17 § Stale
 
 # Session wrap — saved 2026-10-08
 
-**Code:** `main` = **`b907798`**, working tree clean, pushed. One commit this session:
+**Code:** `main` = **`06dc918`**, working tree clean, pushed. Two commits this session:
 
 | Commit | What |
 |---|---|
 | `b907798` | Cyclops: one green for every count — colour now means freshness only |
+| `06dc918` | Record why the map pin's colour channel differs from Cyclops' (comment only) |
 
 **Verified before committing:** iOS Debug · iOS Release · macOS Debug · macOS Release all build; the app ran on the iPhone simulator with the location set to Taipei, rebuilt the Cyclops cells twice (`👁 cyclops rebuilt: 3 of 3 watched`), and took **zero** uncaught exceptions. `grep` confirms `.primaryM` is gone from every scarcity path.
 
@@ -223,4 +225,4 @@ Earlier corrections: [[sessions/older/2026-09-17/00-state-of-play|09-17 § Stale
 
 **Noticed, not touched:** `app-store-connect.md` has a stray `## misilinous` heading above *Part 3 — TestFlight*, added outside this session. Left as-is — it is Jim's file and his word.
 
-**Where to pick up:** the 🔴 table — **R-01, archive and upload**, then **R-20, paste the review notes**. Every 🔴 is Jim's; nothing is waiting on me. **D-07** is the only thing I opened and it is not urgent.
+**Where to pick up:** the 🔴 table — **R-01, archive and upload**, then **R-20, paste the review notes**. Every 🔴 is Jim's; nothing is waiting on me. **D-07**, the only thing I opened today, closed the same day.
