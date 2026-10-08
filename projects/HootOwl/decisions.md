@@ -5,6 +5,28 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-10-08 — 繁體中文 leads wherever both languages share a surface
+
+**Decision (Jim):** *"since this is Taiwan Taipei focusing, in any pages where English and Chinese co-exist, please show the Chinese one instead... most chinese users will confused, and they are like 90%."* Applied to the support page the same day.
+
+**The reasoning is a majority argument, and it is the right one.** A page that opens in English makes ~90% of its readers work out whether the page is even meant for them. That cost is paid by the many to serve the few, and the few in question — essentially one App Review reviewer — can be served another way.
+
+**Which is what was done: ordering, not cutting.** English stays complete, below a rule, with a visible **English ↓** link at the top right. The things that protect the reviewer are cheap and all survive:
+
+| Kept | Why |
+|---|---|
+| `Find Parking TW` in the `<h1>`, under 找車位 | The app name is **Latin script either way**, so it identifies the app above the fold in both languages. This was always the actual Guideline 1.5 requirement — *support for the app under review*, not *in English*. |
+| A one-tap `English ↓` anchor | No JavaScript, no toggle, no interaction needed to discover it. |
+| `lang="zh-Hant"` on `<html>`, `lang="en"` on the English section | Assistive tech and browser translation get the right language per region rather than one wrong guess for the page. |
+
+**Scope — what this does *not* touch.** Checked before applying, so the rule does not get over-generalised:
+
+- **The app's own `.xcstrings` are not co-existence.** They are per-device localisations; a user sees one language. Audited: the only strings mixing scripts are loanwords — `App`, `Apple`, `YouTube` inside Chinese sentences — which is correct Taiwanese usage and was left alone.
+- **Per-localisation App Store Connect fields are not co-existence either.** Each locale is filled separately, so there is no ordering question.
+- The two hardcoded `contactSubjectDefaultZh` / `contactBodyDefaultZh` literals are already Chinese-only.
+
+So the rule bites on **web pages we publish**, which today means one page — and any landing page that follows.
+
 ## 2026-10-08 — app-ads.txt is hosted on our own GitHub Pages site
 
 **Decision (Jim):** move `app-ads.txt` off Tappx's domain onto `https://sharkda.github.io/app-ads.txt`. Live, `text/plain`, `5845d7e` in `sharkda/sharkda.github.io`. The App Store **Marketing URL** becomes `https://sharkda.github.io` in both localisations.

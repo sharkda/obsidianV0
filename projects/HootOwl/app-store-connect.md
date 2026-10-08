@@ -404,6 +404,9 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 | **Marketing URL** → `https://sharkda.github.io` | ✅ `200`. **This is also where `app-ads.txt` is crawled from**, so it is not a cosmetic field. ⚠️ Still serves the single word `hello world` — see the open item below. |
 | **Privacy Policy URL** → `https://jimhsuyc.wixsite.com/tataro/privacy-policy` | ✅ `200` logged-out, re-checked today. Unchanged; Apple accepts a `wixsite.com` URL. |
 
+> [!important] 🀄 繁體中文 leads on this page — Jim's call, 2026-10-08
+> *"in any pages where English and Chinese co-exist, please show the Chinese one instead... they are like 90%."* 中文 is now first; **English is complete and unchanged below**, with a one-tap `English ↓` link top right. `Find Parking TW` stays in the `<h1>` under 找車位, so the app is named in Latin script above the fold whichever language you read — which was always the real Guideline 1.5 requirement. → [[decisions#2026-10-08--繁體中文-leads-wherever-both-languages-share-a-surface]]
+
 **The new support page in one line:** it is the thing the old one was not — a page that **names *Find Parking TW* / 找車位**, says what the app covers, and offers a way to reach you, for a stranger who is not logged into anything.
 
 What is on it, and why each part is there:
