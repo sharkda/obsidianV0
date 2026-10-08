@@ -184,6 +184,7 @@ All four re-checked against the live page today; all still present. None of thes
 | **The floating restore pill showed the wrong glyph** | `7afc3fa`. The 10-05 open question, answered by Jim: *"stop mirroring the tab entirely."* One fixed `chevron.up`, and `AppScreen.systemImageName` — the table that had drifted twice — is deleted. → [[tab-restore-pill]] |
 | **App Store listing copy** | All five fields in English **and** 繁體中文, written as Chinese rather than translated; promotional text option C in both. Folded into **R-10**, which is now screenshots + Jim's wording pass. → [[app-store-connect]] |
 | **D-07 — the two surfaces spend colour differently** | Opened and closed the same day. Jim accepted the difference; `06dc918` records why at the property a future reader would change. → [[decisions#2026-10-08--the-map-pin-and-the-cyclops-cell-may-disagree-about-colour]] |
+| **The Support URL never named the app** | Built a real one: `https://sharkda.github.io/findparkingtw/support/`, live and verified. Jim's premise was wrong in a useful way — the old page **does not** redirect to Facebook and its form works; what it never did was mention *Find Parking TW*, which is the Guideline 1.5 risk. **Also unblocks R-02** — the same URL is the Gist's `support.url`, and the page has a card written for that arrival. → [[operations#-settled-2026-10-08--jim-chose-option-1-and-it-is-built]] |
 | **`app-ads.txt` was on a domain we do not own** | Moved to `https://sharkda.github.io/app-ads.txt`, live and `text/plain` (`5845d7e` in `sharkda/sharkda.github.io`). The Tappx line dropped — no Tappx anywhere in the app. **Jim owes one ASC field:** Marketing URL → that domain, or the file is never crawled. → [[decisions#2026-10-08--app-adstxt-is-hosted-on-our-own-github-pages-site]] |
 
 ## ✅ Closed earlier, kept one more day for context
@@ -227,5 +228,7 @@ Earlier corrections: [[sessions/older/2026-09-17/00-state-of-play|09-17 § Stale
 **Noticed, not touched:** `app-store-connect.md` has a stray `## misilinous` heading above *Part 3 — TestFlight*, added outside this session. Left as-is — it is Jim's file and his word.
 
 **Also today, outside the code:** `app-ads.txt` moved off Tappx's domain onto Jim's own GitHub Pages site. **The reported fault was a false alarm** — the old URL returns 200 with the correct content, so this was ownership rather than repair; worth writing down, because "I can't reach it" and "it is down" are different claims and only one of them was true. Three new rows in [[jim-actions]] follow from it, the load-bearing one being **the Marketing URL** — the file is only ever found via the domain in the store listing.
+
+**Three URLs are now paste-ready for App Store Connect** — Support, Marketing and Privacy Policy, all three verified `200` today, in [[app-store-connect#-the-three-url-fields--paste-ready-all-three-verified-live-2026-10-08]]. Support and Marketing are **per localisation**, so each needs en *and* zh-Hant.
 
 **Where to pick up:** the 🔴 table — **R-01, archive and upload**, then **R-20, paste the review notes**. Every 🔴 is Jim's; nothing is waiting on me. **D-07**, the only thing I opened today, closed the same day.

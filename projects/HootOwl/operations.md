@@ -101,7 +101,16 @@ Jim: *"I think mine just redirects to facebook pages, are there better options?"
 | It still does not name this app | **Zero** matches for `Find Parking TW` / `找車位`, same as 09-15. The identity caveat above was never actioned. |
 | The site's nav lists **Contact**, and `/tataro/contact` is **404** | A dead item in the menu of the page a reviewer is inspecting. |
 
-### Better options, in the order I would consider them
+> [!success] ✅ Settled 2026-10-08 — Jim chose option 1, and it is built
+> **`https://sharkda.github.io/findparkingtw/support/`** — live, `200`, English first and always visible with 中文 below, naming the app five times in each language. The Wix form stays the primary channel; Facebook is named for screenshots and recordings.
+>
+> **This is now the answer to both fields at once:** the App Store Connect **Support URL**, and the Gist's **`support.url`** — which closes **R-02** and the two screens it gates:
+> ```json
+> "support": { "url": "https://sharkda.github.io/findparkingtw/support/" }
+> ```
+> The page carries a `#request-a-city` card for exactly that arrival, and surfaces it when the app appends `?src=onboarding` / `?src=coverage`.
+
+### Better options, in the order I would consider them — *kept for the reasoning; option 1 was taken*
 
 **The field wants one thing: a page that loads for a logged-out stranger, names the app, and offers a way to reach you.** Everything below clears that bar; they differ in what they cost.
 
@@ -195,7 +204,7 @@ To **remove** the video, delete that line (or the whole `"tutorials"` block). Th
 *Editable without a release, so these can be done last — but they must be done.*
 
 - [x] ~~Real municipal contact emails and phones~~ — **done 2026-09-09, live in the Gist.** Both cities carry real, sourced values; the fake numbers a user could dial are gone. Sources and re-check schedule: [[data-sources]].
-- [ ] 🔴 **A city-request destination — `support.url` (preferred) or `support.email`.** ⬆️ **Updated 2026-09-15: `support.url` now exists, so this no longer has to be an email address.** A hosted form is the better answer; see the transport section above. Until one of the two is set, the "Request a city" button does not render anywhere, and the outside-coverage screen degrades to *"We're not here yet / Right now we cover Taipei and New Taipei."* — honest, but with nothing to act on.
+- [ ] 🔴 **A city-request destination — `support.url`.** ✅ **The destination now exists, 2026-10-08:** paste `"support": { "url": "https://sharkda.github.io/findparkingtw/support/" }` into the Gist and this closes. The page is built, live, and has a *Request a city* card written for this arrival. Everything below is the original reasoning, kept because it explains why a URL beat a `mailto:`. ⬆️ **Updated 2026-09-15: `support.url` now exists, so this no longer has to be an email address.** A hosted form is the better answer; see the transport section above. Until one of the two is set, the "Request a city" button does not render anywhere, and the outside-coverage screen degrades to *"We're not here yet / Right now we cover Taipei and New Taipei."* — honest, but with nothing to act on.
 - [ ] ~~🔴 **Real `support.email`.**~~ superseded by the row above. ✅-checked: still the literal `REPLACE-you@your-domain.com`. This is worse than leaving it blank — blank hides the link, a placeholder ships a *working* button that opens a draft to a domain that does not exist, so every city request silently bounces.
 - [ ] 🔴 **The real tutorial video.** ✅-checked: `tutorials.onboarding` currently points at a personal test video, used to try the user experience. **Replace with the real how-it-works content before release.** Removing the key entirely is a safe fallback — the button just disappears.
 - [ ] ❓ Bump `version` so you can tell at a glance which edit is live.

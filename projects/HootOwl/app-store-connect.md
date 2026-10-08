@@ -368,6 +368,39 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 >
 > **And therefore it must list every network used by *any* of those apps.** If another app — present or future — monetises through Tappx or any mediation partner, **that line comes back, or that app's inventory stops selling.** One line to add; the failure is silent, so it belongs on a checklist rather than in memory.
 
+### 📋 The three URL fields — paste-ready, all three verified live 2026-10-08
+
+> [!tip] Copy these straight into App Store Connect
+> ```text
+> Support URL         https://sharkda.github.io/findparkingtw/support/
+> Marketing URL       https://sharkda.github.io
+> Privacy Policy URL  https://jimhsuyc.wixsite.com/tataro/privacy-policy
+> ```
+> **Support URL and Marketing URL are per localisation** — fill both **en** and **zh-Hant**. The privacy policy URL is set once, at app level.
+
+| Field | Status |
+|---|---|
+| **Support URL** → `https://sharkda.github.io/findparkingtw/support/` | ✅ **Built and live** — `200`, English first and always visible, 中文 below. Names the app five times in each language, which is the whole point of replacing the old one. `5845d7e`→`sharkda/sharkda.github.io`. |
+| **Marketing URL** → `https://sharkda.github.io` | ✅ `200`. **This is also where `app-ads.txt` is crawled from**, so it is not a cosmetic field. ⚠️ Still serves the single word `hello world` — see the open item below. |
+| **Privacy Policy URL** → `https://jimhsuyc.wixsite.com/tataro/privacy-policy` | ✅ `200` logged-out, re-checked today. Unchanged; Apple accepts a `wixsite.com` URL. |
+
+**The new support page in one line:** it is the thing the old one was not — a page that **names *Find Parking TW* / 找車位**, says what the app covers, and offers a way to reach you, for a stranger who is not logged into anything.
+
+What is on it, and why each part is there:
+
+- **The Wix form stays the primary channel.** It works, and a form gives countable rows — which is what ranking cities by demand needs. The page links it rather than embedding it: a 415 KB Wix page inside an iframe is a fragile thing to put in front of a reviewer.
+- **The Facebook page is named for what it is actually good at** — screenshots and screen recordings, which the form cannot accept and which are the single most useful thing a user can send about a wrong count. Secondary, never the destination.
+- **Five pre-answered questions**, chosen as the ones that would otherwise arrive as mail. The load-bearing one: *a frozen number is the city's feed being quiet, not the app being stuck* — and it explains the new colour rule from `b907798` in plain words (**colour = freshness, size = scarcity**).
+- **A `#request-a-city` card**, which is what lets this one page also be the Gist's `support.url`. The app appends `?src=onboarding` / `?src=coverage`; a few lines of optional JS surface that card when it does, and the page is complete without them.
+- **Attribution and 政府資料開放授權條款－第1版** in the footer, matching the in-app string.
+
+> [!important] 🔓 This also unblocks **R-02**, which has been 🔴 since 09-10
+> `support.url` in the Gist had **nothing** in it, so two screens — onboarding screen 1 and the outside-coverage notice — invited the user to say where they need the app and gave them nothing to tap. **The same URL closes both:**
+> ```json
+> "support": { "url": "https://sharkda.github.io/findparkingtw/support/" }
+> ```
+> One line in the Gist. **Offered — say the word and I will push it**, or it is a 30-second edit in the browser.
+
 ### What Jim still has to do
 
 - [ ] **Set the Marketing URL to `https://sharkda.github.io`** in App Store Connect — it is **per localisation**, so both **en** and **zh-Hant**.
