@@ -401,7 +401,7 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 | Field | Status |
 |---|---|
 | **Support URL** → `https://sharkda.github.io/findparkingtw/support/` | ✅ **Built and live** — `200`, English first and always visible, 中文 below. Names the app five times in each language, which is the whole point of replacing the old one. `5845d7e`→`sharkda/sharkda.github.io`. |
-| **Marketing URL** → `https://sharkda.github.io` | ✅ `200`. **This is also where `app-ads.txt` is crawled from**, so it is not a cosmetic field. ⚠️ Still serves the single word `hello world` — see the open item below. |
+| **Marketing URL** → `https://sharkda.github.io` | ✅ `200`, and **a real home page since 2026-10-08**. **This is also where `app-ads.txt` is crawled from**, so the field is not cosmetic — and the domain cannot be swapped for a prettier one without moving that file with it. |
 | **Privacy Policy URL** → `https://jimhsuyc.wixsite.com/tataro/privacy-policy` | ✅ `200` logged-out, re-checked today. Unchanged; Apple accepts a `wixsite.com` URL. |
 
 > [!important] 🀄 繁體中文 leads on this page — Jim's call, 2026-10-08
@@ -427,7 +427,8 @@ What is on it, and why each part is there:
 ### What Jim still has to do
 
 - [ ] **Set the Marketing URL to `https://sharkda.github.io`** in App Store Connect — it is **per localisation**, so both **en** and **zh-Hant**.
-- [ ] ⚠️ **Decide what that link shows.** It is the *Developer Website* link on the public product page, and the site is currently the single word **`hello world`**. Today's Marketing URL points at an ad-tech hostname, so this is an improvement either way — but a one-page app site would be better than both. **Offered, not written: say the word.**
+- [x] ~~⚠️ **Decide what that link shows.**~~ ✅ **Built 2026-10-08.** It had been the **12 bytes** `hello world` from commit `5dd93fd` — the Pages repo's *first* commit, predating any use of the domain. **Not an error; a placeholder nobody had revisited.** Now a real home page: 中文 first, English below, what the app does, the Taipei / New Taipei coverage stated as a **gap rather than hidden**, and a city request routed at the support page's `#request-a-city` anchor. **No App Store link and no claim the app is available** — it is not submitted, and a dead or invented link is worse than none; an HTML comment marks where it goes, in both languages.
+- [ ] 📎 **After launch, add the App Store link to the home page** — one `<a class="btn">` in the marked block of `index.html`. A minute's work once the URL exists; it just cannot be invented now.
 - [ ] **Verify after the app is live**, in the AdMob console's own app-ads.txt status for the app. That is the authoritative check, because it reports **what Google actually crawled**. It cannot run before submission — there is no listing to read the developer URL from yet. The `curl` above proves the file is reachable; only AdMob proves it is *found*.
 
 

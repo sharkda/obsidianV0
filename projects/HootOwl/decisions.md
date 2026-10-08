@@ -45,7 +45,7 @@ So the rule bites on **web pages we publish**, which today means one page — an
 
 **Verification is only partly possible now.** `curl` proves the file is reachable and correctly typed. Only the **AdMob console's app-ads.txt status** proves Google *found* it, and that cannot run until the app is live, because there is no listing to read the developer URL from yet.
 
-**Left alone:** the site's `index.html` is the single word `hello world`, and it is what the product page's *Developer Website* link will show. Still better than pointing at an ad-tech hostname, and offered as a one-page app site rather than written unasked. See [[app-store-connect#26-the-two-urls-that-are-not-per-app]].
+**Left alone at the time, built later the same day:** the site's `index.html` was the single word `hello world` — the whole of the Pages repo's first commit — and it is what the product page's *Developer Website* link shows. It was offered rather than written unasked; Jim asked, and it is now a real home page. See the entry for that below. See [[app-store-connect#26-the-two-urls-that-are-not-per-app]].
 
 ## 2026-10-08 — The map pin and the Cyclops cell may disagree about colour
 
