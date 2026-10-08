@@ -82,6 +82,42 @@ The `mailto:` fallback carries the same marker as a trailer in the body (`src: c
 > [!warning] Not the same thing as the App Store Connect **Support URL**
 > That is a separate field you fill in by hand in ASC, and it should point at something you own that renders for a logged-out stranger. A social page behind a login prompt is a bad answer to a field a reviewer will click.
 
+### The ASC Support URL — what is actually there, measured 2026-10-08
+
+Jim: *"I think mine just redirects to facebook pages, are there better options?"*
+
+**It does not redirect.** `https://jimhsuyc.wixsite.com/tataro/support` returns **200 with zero redirects** and serves a real page carrying a **working Wix form** (*"Ask Us Anything!"* → Submit → *"Thanks for submitting!"*). Facebook is the *second* channel on it, offered for attachments: *"use facebook pages to submit video, screenshots or any attachment."* So the transport is fine — **better than fine, because a form gives countable rows.**
+
+> [!danger] 🟠 The real problem is identity, not transport
+> **The page never mentions this app.** Measured: **zero** occurrences of `Find Parking TW`, `找車位`, or even `停車` in the served HTML. What a reviewer reads instead is **READIE**, **Tataro**, *"our Apps"*, and **©2023 by Readie**.
+>
+> That is the thing Guideline 1.5 is about — the Support URL has to provide support **for the app under review**. A reviewer clicking through from *Find Parking TW* lands on a 2023 page for a different product and cannot tell they are in the right place. This is a **larger risk than the Facebook link**, and it is the one nobody had looked at.
+
+**Three smaller findings from the same check:**
+
+| Finding | Detail |
+|---|---|
+| The Facebook page's logged-out state has **changed since 09-15** | `facebook.com/tataroApp` still returns 200, but the logged-out HTML is now **full of login prompts** (10+ `login` strings) — Facebook's overlay treatment. The 09-15 note recorded *"no login wall"*; that is no longer a safe assumption. Whether it hard-blocks depends on Facebook's own rollout, which is **exactly why it should not be the primary destination for a field a reviewer clicks.** |
+| It still does not name this app | **Zero** matches for `Find Parking TW` / `找車位`, same as 09-15. The identity caveat above was never actioned. |
+| The site's nav lists **Contact**, and `/tataro/contact` is **404** | A dead item in the menu of the page a reviewer is inspecting. |
+
+### Better options, in the order I would consider them
+
+**The field wants one thing: a page that loads for a logged-out stranger, names the app, and offers a way to reach you.** Everything below clears that bar; they differ in what they cost.
+
+| Option | Why | Against |
+|---|---|---|
+| **1. A support page on `sharkda.github.io`** ⭐ | **One owned domain already doing two jobs** — it must stay the Marketing URL root for `app-ads.txt`, so support there means one domain for the whole listing. Free, static, version-controlled, no expiry, and it renders for anyone. | **No native form** — GitHub Pages is static. Needs an embedded third-party form, or a `mailto:`. |
+| **2. Fix the Wix page's copy** | **Cheapest possible fix** — the form already works and Jim already maintains the site. Put *Find Parking TW* in the title and first line, add a sentence saying what it is, drop the ©2023, delete the dead *Contact* nav item. | Still branded under *Tataro / Readie*, so it reads as a company page that mentions the app rather than the app's own page. |
+| **3. Either of the above + Facebook as the stated attachments channel** | This is the current design and it is **sound** — a form for countable text, Messenger for screenshots and video, which a form handles badly. | Only as a **secondary**, named as such. Never the destination itself. |
+| **4. `mailto:` only** | Permitted. | Publishes an address, and **a device with no Mail account does nothing when tapped** — the same dead affordance the placeholder was pulled for. |
+| **5. The Facebook page alone** | — | **Do not.** Login overlay, no app identity. This is the shape that gets the field rejected. |
+
+> [!tip] 💡 One page can close **R-02** at the same time
+> The in-app **"Request a city"** button needs `support.url` in the Gist and currently has **nothing**, which is why two screens — onboarding screen 1 and the outside-coverage notice — invite a user to speak and give them nothing to tap. **The same page can be both** the ASC Support URL and that destination, since the app appends `?src=onboarding` / `?src=coverage` and anything that ignores the parameter ignores it harmlessly.
+>
+> So the work is one page and two fields, and it closes a 🔴 that has been open since 09-10.
+
 ### Why `tutorials` is keyed by name, not numbered
 
 Videos are keyed by **where the button appears**, not `tutorial1` / `tutorial2`. A number tells neither you nor the app which video it is — and this file gets edited months apart. `"onboarding"` says exactly where it shows up.

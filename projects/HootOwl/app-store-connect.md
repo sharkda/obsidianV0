@@ -334,10 +334,10 @@ Repeats neither the app name nor the subtitle, since Apple indexes both. **taiwa
 
 Jim's question: *"these seem to be app agnostic, or I can tune them to be."* **Both can be, and one of them already is by design.**
 
-| Field | Value | App-agnostic? |
-|---|---|---|
-| **Support URL** | `https://jimhsuyc.wixsite.com/tataro/support` | **Not yet** — Jim's note: *"need to add action so that this page is app agnostic."* His to do. 200 logged-out, checked 2026-09-16. |
-| **Marketing URL** | `https://sharkda.github.io` ← **changed 2026-10-08** | **Yes, inherently.** See below. |
+| Field             | Value                                                | App-agnostic?                                                                                                                      |
+| ----------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Support URL**   | `https://jimhsuyc.wixsite.com/tataro/support`        | **Not yet** — Jim's note: *"need to add action so that this page is app agnostic."* His to do. 200 logged-out, checked 2026-09-16. |
+| **Marketing URL** | `https://sharkda.github.io` ← **changed 2026-10-08** | **Yes, inherently.** See below.                                                                                                    |
 
 ### app-ads.txt moved to GitHub Pages — done 2026-10-08
 
