@@ -111,4 +111,4 @@ fileprivate static let restoreGlyph = "chevron.up"
 **"Enable Location" on onboarding screen 3 is a real `Button`**, not an image that looks like one — `Button(action: enableLocation)` with `.borderedProminent`. It also **retargets itself to "Open Settings"** when permission is already blocked, and "Not now" beside it is a real button too.
 
 ## Related
-[[decisions]] · [[sessions/2026-10-05/00-state-of-play|today's state of play]] · `AppTabView.swift:80` · `AppScreen.swift` → `systemImageName` · `NbsScreen.swift:558`
+[[decisions]] · [[sessions/older/2026-10-05/00-state-of-play|today's state of play]] · `AppTabView.swift:80` · `AppScreen.swift` → `systemImageName` · `NbsScreen.swift:558`

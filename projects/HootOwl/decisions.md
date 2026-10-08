@@ -5,6 +5,29 @@ Architectural and design decisions, with brief rationale. Newest at top.
 ---
 
 <!-- Template:
+## 2026-10-08 — On the Cyclops cell, colour means freshness and nothing else
+
+**Decision (Jim):** every availability count renders in **one green** (`.fern`). `normalModeView`'s colour override is gone; **size** keeps carrying scarcity. `b907798`.
+
+> *"the color of the cyclops changed, when the available seats is more than enough, that color is a bit like telling the data is out-dated, confusing… let's just make it simple, change them to green too. so there is no difference as long as the data is up-to-dated."*
+
+**Jim was reading the screen correctly.** `CyclopsView.normalModeView` overrode `fontColor` to `.primaryM` for **10–19 spaces only** — alone among the ranges, with 0–9 and 20+ both left green. And `.primaryM` sits a shade from `.primary`, which is exactly what `AvailFreshness.heroColor` returns for **aging** data (`CyclopsModel.swift:68`). So two colours a shade apart were saying *"this lot has 10–19 spaces"* and *"this number is going stale"* — and **the second is the one a user has to be able to trust.** The screen was not merely ambiguous; it was spending its freshness channel on scarcity.
+
+**What makes the fix clean rather than merely simpler.** The cell has two channels and now one meaning each:
+
+| Channel | Means | Values |
+|---|---|---|
+| **Colour** | **freshness** | fresh → `.fern` · aging → `.primary` · stale → `.secondary` |
+| **Size** | **scarcity** | ×1.2 under 10 · ×1.1 for 10–19 and 20–99 · ×1.0 for 100–999 · ×0.6 over 1000 |
+
+Nothing was lost: size was already the stronger scarcity signal on that cell, and it covers the whole range rather than one band in the middle. The freshness overlay at `CyclopsView.swift:115` is untouched and is now unambiguous.
+
+**Alternatives considered:** Jim's own first instinct was *"change it to blue or something"* — a third colour that still means up-to-date. Rejected by Jim mid-sentence, and he was right: any colour spent on scarcity re-opens the collision, because the reader has to know which channel a given hue belongs to before they can read either. A distinct hue would have been a *less confusable* collision, not an absent one.
+
+**Verified:** iOS Debug/Release and macOS Debug/Release all build; a simulator run rebuilt the Cyclops cells twice with zero uncaught exceptions; `.primaryM` no longer appears in any scarcity path (only a `.tint` on `CyclopsScreen2`).
+
+**Opened by this change — [[sessions/2026-10-08/00-state-of-play|D-07]]:** the **map pins still encode scarcity in colour** (maroon ≤3 / dodger >3, `CustomButton.swift:34-38`) and age in **alpha**. So after today the two surfaces use colour for different things. Flagged for Jim, deliberately not resolved — the pin's constraint is real (a 12pt badge on a busy map has little room for a size channel) and it may be the right local answer even at the cost of cross-screen consistency.
+
 ## 2026-10-07 — Promotional text points at the city data
 
 **Decision (Jim):** option **C** for the App Store promotional text, in both languages.

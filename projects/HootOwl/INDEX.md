@@ -45,7 +45,7 @@
 `sessions/YYYY-MM-DD/`, one folder per day, append-only. Long-form reasoning that would bury the notes above.
 
 > [!tip] 📋 **Every day now opens with `00-state-of-play.md`** (from 2026-09-17)
-> One table, every open item, **a stable ID per row** (`R-` release · `E-` engineering · `J-` Jim's backlog · `D-` decision). The next day copies the table forward and only the **State** column moves, so nothing falls off quietly. Latest: [[sessions/2026-10-05/00-state-of-play|2026-10-05]].
+> One table, every open item, **a stable ID per row** (`R-` release · `E-` engineering · `J-` Jim's backlog · `D-` decision). The next day copies the table forward and only the **State** column moves, so nothing falls off quietly. Latest: [[sessions/2026-10-08/00-state-of-play|2026-10-08]].
 >
 > **Anything older than two days moves to `sessions/older/`**, so the top level shows only what is current. Wikilinks resolve by note name, not path, so nothing breaks — the one exception is a duplicated name (`01-session-wrap` exists three times), where the link spells out the full path.
 
