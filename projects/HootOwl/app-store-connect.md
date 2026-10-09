@@ -408,7 +408,7 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 
 **"All rights reserved" was dropped rather than carried forward.** It has had no legal effect anywhere for decades, and Apple's own field example omits it.
 
-### Categories — `Travel` + `Navigation` is fine, and the worry it raises is unfounded
+### Categories — **Navigation primary, Travel secondary**
 
 Jim: *"in the app connect category, I used Travel, Navigation, will that be a problem?"*
 
@@ -431,10 +431,14 @@ Jim: *"in the app connect category, I used Travel, Navigation, will that be a pr
 
 So the listing promises **live parking availability** and the app delivers exactly that. A plausible category plus honest copy is not misleading metadata; **promising turn-by-turn and not having it would be**, and we do not.
 
-> [!tip] 💡 One optimisation worth considering — the **order**, not the choice
-> `Travel` as primary skews toward **booking, itineraries and tourism**. This app is a **daily utility for local drivers**, and Jim's own read was that *tourists will not drive in Taipei*. Someone browsing **Navigation** is closer to the intent of "I need a space, now".
+> [!success] ✅ Settled 2026-10-09 — **set these two, in this order**
+> ```text
+> Primary category     Navigation
+> Secondary category   Travel
+> ```
+> Jim's call, taking the recommendation. **The reasoning, so it does not get re-litigated:** `Travel` as primary skews toward **booking, itineraries and tourism**, while this is a **daily utility for local drivers** — and Jim's own read was that *tourists will not drive in Taipei*. Someone browsing **Navigation** is closer to the intent of *"I need a space, now"*.
 >
-> **So I would put `Navigation` primary and `Travel` secondary.** This is a **discovery** judgement, not a compliance one — the current order carries no risk, and plenty of parking apps sit in Travel because they are reservation products. Set it to whatever you want before submitting rather than planning to change it after; whether a later category edit needs a fresh version submission is not something I can confirm from here.
+> **This was a discovery judgement, not a compliance one.** The original order carried no risk either; plenty of parking apps sit in Travel because they are reservation products, which this is not. Worth setting deliberately **before** submitting rather than planning to change it after — whether a later category edit needs a fresh version submission is not something I can confirm from here.
 
 **Side finding, unrelated to the category:** `AppScreen.navToPark` (`AppScreen.swift:27`) is a **dead enum case** — its only sender is the uncompiled `NbsCookScreen0 copy.swift`, and its catalogue entry has **empty localizations**. One more item for the **E-16** dead-weight sweep, alongside that file itself.
 

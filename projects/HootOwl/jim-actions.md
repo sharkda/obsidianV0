@@ -184,6 +184,9 @@ Steps if you need them: [[operations#how-to-edit-it--step-by-step]]. **Validate 
 - [x] ~~🆕 ⚠️ **Decide what that link shows a user.**~~ ✅ **Done 2026-10-08.** The answer to *why it said* **`hello world`**: that was the whole of `index.html`, 12 bytes, committed in `5dd93fd` before the domain was used for anything. It is now a real home page — 中文 first, English below, coverage stated plainly, linking the support page. **Nothing left for you here.**
 - [ ] 📎 **Once the app is live, send me the App Store URL** and I will add the download button to the home page — one line. It is deliberately absent rather than invented, so nothing on that page claims the app is available yet.
 - [ ] 🆕 **After the app is live, check AdMob's own app-ads.txt status** for it. That is the authoritative check: it reports what Google actually crawled. It cannot be run yet — there is no listing for the crawler to read the developer URL from. `curl` already proves the file is reachable; only AdMob proves it is *found*.
+- [ ] 🆕 🗂️ **Categories — set `Navigation` primary, `Travel` secondary.** Your call 2026-10-09, swapping the order you first entered. Navigation matches the intent (*"I need a space, now"*); Travel skews to booking and tourism, and tourists do not drive in Taipei. **Pure discovery, no compliance angle** — but do it before submitting rather than after. → [[app-store-connect#categories--navigation-primary-travel-secondary]]
+- [ ] 🆕 ©️ **Copyright field — paste `2026 Yu-Ching Hsu`.** Year first; Apple adds the ©. Already wired into the app and both web pages, so this is the last place it is missing.
+- [x] ~~**Routing app coverage file**~~ — ✅ **nothing to do: leave it empty.** The app hands destinations to Apple Maps; it does not provide turn-by-turn, so no coverage file applies.
 - [ ] ❓ Confirm version/build. Currently `MARKETING_VERSION = 1.0`, build `1`.
 
 ---
