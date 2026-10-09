@@ -5,6 +5,49 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 ---
 
 <!-- Template:
+## 2026-10-09 — The iOS build ships three permission strings it never uses, one of them placeholder text
+
+**Found while answering an unrelated question** (whether changing App Store Connect's primary language affects the binary — it does not). Reading the built `Release-iphoneos` `Info.plist` turned up three keys that should not be there.
+
+**What ships in the iOS binary today** (`project.pbxproj:2180-2182`, `2228-2230`):
+
+| Key | Value as shipped | Verdict |
+|---|---|---|
+| `NSLocationAlwaysUsageDescription` | `App requires Location Info` | ❌ **Never used on iOS** |
+| `NSLocationAlwaysAndWhenInUseUsageDescription` | `App requires Location Info` | ❌ **Never used on iOS** |
+| `NSDocumentsFolderUsageDescription` | `"hereDocument"` — **including the literal quotes** | ❌ **Placeholder, and a macOS-only key** |
+
+**Why the Always strings are dead on iOS — verified, not assumed.** Both `requestAlwaysAuthorization()` calls sit inside the **`#else` branch of `#if os(iOS)`**, so they compile only for macOS:
+
+- `Municipal+Loc.swift:39` — *"🥸.whenInUse4 — granted (no Always escalation per #9)"* on iOS; escalates on macOS only.
+- `Municipal+Loc.swift:84` — same shape in `requestLocationPermission()`.
+
+The reason is legitimate: `locAuthorized` on macOS requires `.authorizedAlways`, because macOS has no WhenInUse equivalent. **So macOS genuinely needs those two keys and iOS genuinely does not.**
+
+`UIBackgroundModes` is **absent**, which corroborates it — there is no background location capability at all.
+
+> [!warning] Why this is worth fixing before the archive
+> 1. **It contradicts what the app tells users.** The shipped `NSLocationWhenInUseUsageDescription` says *"only while the app is open"*, onboarding screen 3 says 「只在使用 App 時取用，切入背景就停止」 — and then the same binary declares two **Always** purpose strings. That is the same shape as the ATT contradiction closed on 09-18: the words and the declaration disagree.
+> 2. **It undercuts the privacy nutrition labels (R-09)**, where the evidence gathered is *precise location, app functionality, **foreground-only***. True of the code; not of the declarations.
+> 3. **Guideline 5.1.1** dislikes declaring more access than the app needs, and *"App requires Location Info"* is exactly the generic purpose string Apple tells you not to write.
+> 4. **`"hereDocument"` is junk**, carries literal quote characters, and `NSDocumentsFolderUsageDescription` is a **macOS** key — meaningless in an iOS bundle.
+
+**The macOS side has its own version of the problem** — the keys are *needed* there, but the text is poor and **English-only**:
+
+| macOS key (`pbxproj:1996-1997`, `2031-2032`) | Value |
+|---|---|
+| `NSLocationAlwaysAndWhenInUseUsageDescription` | `"please share location information, this app"` — literal quotes, not a sentence |
+| `NSLocationAlwaysUsageDescription` | `"app requires location information"` — literal quotes, generic |
+
+Neither has a **zh-Hant** translation, so a Chinese-speaking Mac user reads English in a system alert. That is the **other half of E-05**, which the vault has been calling open since 09-10 — ⚠️ **and E-05's iOS half is already done**: `InfoPlist.xcstrings` has zh-Hant for both prompts the iOS app actually uses, and `zh-Hant.lproj/InfoPlist.strings` ships them (`用來顯示離你最近的停車場，只在使用 App 時取用。` and the tracking one). **E-05 should be re-scoped to macOS, not closed and not left as written.**
+
+**Proposed fix — tracked as E-30, not applied yet** because it changes what the App Store and the privacy labels see, and that is Jim's call:
+
+1. **iOS target:** delete all three keys.
+2. **macOS target:** keep the two Always keys, replace the text with a real purpose sentence, and add **zh-Hant**.
+3. **`NSDocumentsFolderUsageDescription`:** almost certainly unnecessary on macOS too — a sandboxed app's `URL.documentsDirectory` is its own container, which prompts for nothing. Verify, then delete rather than reword.
+
+
 ## YYYY-MM-DD — Short title
 **Symptom:** What goes wrong.
 **Root cause:** Why it happens (if known).

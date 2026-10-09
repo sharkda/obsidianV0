@@ -511,11 +511,11 @@ Jim, looking at the new root: *"that is the support page, i thought we want the 
 >
 > **The fix is upstream, in this note:** the paste block above no longer column-aligns the three URLs, because that alignment is what put a space in front of one. **Generalisable:** a value destined for a form field that cannot trim gets its own line with nothing before it.
 
-| Field | Status |
-|---|---|
-| **Support URL** → `https://sharkda.github.io/findparkingtw/support/` | ✅ **Built and live** — `200`, English first and always visible, 中文 below. Names the app five times in each language, which is the whole point of replacing the old one. `5845d7e`→`sharkda/sharkda.github.io`. |
-| **Marketing URL** → `https://sharkda.github.io` | ✅ `200`, and **a real home page since 2026-10-08**. **This is also where `app-ads.txt` is crawled from**, so the field is not cosmetic — and the domain cannot be swapped for a prettier one without moving that file with it. |
-| **Privacy Policy URL** → `https://jimhsuyc.wixsite.com/tataro/privacy-policy` | ✅ `200` logged-out, re-checked today. Unchanged; Apple accepts a `wixsite.com` URL. |
+| Field                                                                         | Status                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Support URL** → `https://sharkda.github.io/findparkingtw/support/`          | ✅ **Built and live** — `200`, English first and always visible, 中文 below. Names the app five times in each language, which is the whole point of replacing the old one. `5845d7e`→`sharkda/sharkda.github.io`.                 |
+| **Marketing URL** → `https://sharkda.github.io`                               | ✅ `200`, and **a real home page since 2026-10-08**. **This is also where `app-ads.txt` is crawled from**, so the field is not cosmetic — and the domain cannot be swapped for a prettier one without moving that file with it. |
+| **Privacy Policy URL** → `https://jimhsuyc.wixsite.com/tataro/privacy-policy` | ✅ `200` logged-out, re-checked today. Unchanged; Apple accepts a `wixsite.com` URL.                                                                                                                                            |
 
 > [!important] 🀄 繁體中文 leads on this page — Jim's call, 2026-10-08
 > *"in any pages where English and Chinese co-exist, please show the Chinese one instead... they are like 90%."* 中文 is now first; **English is complete and unchanged below**, with a one-tap `English ↓` link top right. `Find Parking TW` stays in the `<h1>` under 找車位, so the app is named in Latin script above the fold whichever language you read — which was always the real Guideline 1.5 requirement. → [[decisions#2026-10-08--繁體中文-leads-wherever-both-languages-share-a-surface]]
