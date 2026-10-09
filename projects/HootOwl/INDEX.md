@@ -38,6 +38,7 @@
 | **[[working-agreements]]** | *How do I work on this project?* **Read this first on a new machine.** How Jim works, the project conventions not visible in the code, verification standards, and the two-repo push rule. Written 2026-09-20 because Claude Code's own memory does not sync with this vault |
 | **[[admob-sdk]]** | *How is the ad SDK wired, and how do I update it?* A vendored XCFramework committed to git rather than SPM — the four pbxproj entries, why not SPM, and a step-by-step update runbook with checksums. Written 2026-09-20 to be followed on a second machine |
 | **[[app-icon]]** | *Why did the icon break again?* The alpha rule, the iOS mask, the Icon Composer workflow, and the **wiring step that makes a `.icon` actually take effect**. Two silent failures in two days live here |
+| **[[roadmap]]** | *What do we want to build next?* Features we want but have not built, `F-` ids. **The third list** — deliberately not [[unfinished]] (debt) or [[Jim's backlog]] (bugs). Started 2026-10-09 |
 | **[[Jim's backlog]]** | Yours. Bugs you want to work on with me |
 
 ## Sessions — the narrative
