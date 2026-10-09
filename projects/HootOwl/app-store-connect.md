@@ -387,23 +387,48 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 
 **On the year — 2026.** It is the year of first publication, which is what a reader of a store listing takes it to mean. ⚠️ Worth knowing the codebase is older than that: the earliest `Created by` header is **2021/6/4**, so `2021–2026` is also defensible if Jim wants to assert the longer authorship. No practical difference to review; **2026 is the simpler claim** and the one I would file.
 
-> [!question] ❓ **D-08 — whose name goes in it?** This one is Jim's and I will not guess.
-> It has to be **the actual rights owner**, which in practice is whoever the **Apple Developer account is registered to** — the same name Apple shows as the seller on the product page.
+> [!success] ✅ **Settled 2026-10-09 — `2026 Yu-Ching Hsu`**
+> Jim's call. He first offered it as `YuChing Hsu 2026`; two corrections followed and both were his:
 >
-> - **Individual account** → Jim's legal name, as the account holder.
-> - **Organization account** → the registered company name, exactly as registered.
+> 1. **Order.** Apple wants the year first. `YuChing Hsu 2026` renders as *"© YuChing Hsu 2026"*, which reads as though the name itself were "YuChing Hsu 2026" — not legally wrong, just looks like a typo.
+> 2. **Spelling.** Jim revised to the hyphenated **`Yu-Ching Hsu`**. Use it exactly as the Developer account spells it, so the copyright and the seller name Apple displays agree.
 >
-> ⚠️ **Do not use a brand that is not a legal entity.** Three names are already in circulation around this project — **`Readie`** (the Wix footer says *"©2023 by Readie"*), **`Tataro`** (described on Facebook as *"the software company that created the Bobomofo Application"*), and **`sharkda`** (the bundle prefix `com.sharkda.*` and the GitHub account). If one of those *is* the registered entity, use it. If it is only a trade name, the copyright line names nobody.
->
-> **And a mismatch is visible.** If the product page's seller reads one name while the copyright reads another, that is a question a reviewer or a user can ask and you would rather not have to answer.
+> **Paste this:**
+> ```text
+> 2026 Yu-Ching Hsu
+> ```
 
-**The same string belongs in three other places** — tell me the name and I will do all three in one pass:
+**The same owner is now in every other place it belonged** — done in `1a2f935` and in the Pages repo, so the listing, the app and the site all credit one name spelled one way:
 
-| Where | State today |
+| Where | Was | Now |
+|---|---|---|
+| `INFOPLIST_KEY_NSHumanReadableCopyright` (both hootmac configs) | **empty string** — the Mac build credited nobody in *About* and Get Info | `Copyright © 2026 Yu-Ching Hsu`, verified in the built Release `.app` with the **©** intact as one UTF-8 character |
+| `hootowl/iAp/ids/hootmac.plist:8` | the unreplaced template `Copyright (c) 2024 ___ORGANIZATIONNAME___. All rights reserved.` — **shipping**, since that file is in a Resources build phase | `Copyright (c) 2024 Yu-Ching Hsu`; year kept at 2024 to match the file's own *Created by* line. Zero `ORGANIZATIONNAME` left in the built bundle |
+| Both web page footers | data attribution only | `© 2026 Yu-Ching Hsu` added — a different claim from the attribution above it: that credits *whose data*, this credits *whose app* |
+
+**"All rights reserved" was dropped rather than carried forward.** It has had no legal effect anywhere for decades, and Apple's own field example omits it.
+
+### Routing app coverage file — **no, and the field should stay empty**
+
+Jim: *"should I specify my routing app coverage file? right now I don't do navigation, I connect to 3rd party like google Map to do so."*
+
+**Correct instinct, and the project agrees.** That upload exists only for apps that **provide turn-by-turn directions themselves** and register as a routing app via `MKDirectionsApplicationSupportedModes`, so Maps can offer them as a directions provider. The GeoJSON then tells Apple which regions those directions cover.
+
+**Verified in the binary, not assumed:**
+
+| Check | Result |
 |---|---|
-| `INFOPLIST_KEY_NSHumanReadableCopyright` | ⚠️ **Empty string in both configurations** (`project.pbxproj:1995,2030`). This is what the **macOS** app shows in *About* and in Finder's Get Info, so the Mac build currently credits nobody. |
-| The footers of both web pages | They carry the **data attribution** but no copyright line of Jim's own. |
-| `hootowl/iAp/ids/hootmac.plist:8` | ⚠️ Still the **unreplaced Xcode template**: `Copyright (c) 2024 ___ORGANIZATIONNAME___. All rights reserved.` It is inside an XML comment, so it is cosmetic — but the file **is in a Resources build phase**, so that placeholder ships inside the app bundle. |
+| `MKDirectionsApplicationSupportedModes` in any plist | **absent** |
+| `MKDirections` / `MKDirectionsRequest` in any source | **zero** references |
+| `.geojson` anywhere in the repo | **none** |
+| `MKDirections*` keys in the **built** iOS `Info.plist` | **0** |
+
+**Declaring coverage would claim a capability the binary does not have** — and an app that registers as a routing app but cannot answer a directions request is a worse review risk than one that never claimed to.
+
+> [!note] 📌 One correction to the premise: the handoff goes to **Apple** Maps, not Google
+> `NbsObsM+Ext.swift:117` opens `http://maps.apple.com/?daddr=<lat>,<lon>&dirflg=d`, and there is no `comgooglemaps://` path anywhere. Worth knowing because it is what a reviewer will see when they tap *directions*, and because it is the better default on iOS — Apple Maps is always present, whereas a Google Maps scheme needs the app installed and a `LSApplicationQueriesSchemes` entry to even test for.
+>
+> Handing a destination to another app is **not** routing, either way. It is the same category as opening a phone number or an address — which is exactly why no coverage file applies.
 
 ### The two pages on `sharkda.github.io`, and why neither redirects
 
