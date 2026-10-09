@@ -371,6 +371,40 @@ google.com, pub-9528408865218303, DIRECT, f08c47fec0942fa0
 >
 > **And therefore it must list every network used by *any* of those apps.** If another app — present or future — monetises through Tappx or any mediation partner, **that line comes back, or that app's inventory stops selling.** One line to add; the failure is silent, so it belongs on a checklist rather than in memory.
 
+### Copyright — the format is settled, the name is Jim's to pick
+
+**What Apple wants in that field:** the year the rights were obtained, then the person or entity that owns them.
+
+```text
+2026 <legal owner>
+```
+
+| Rule | Why |
+|---|---|
+| **No `©` symbol** | Apple renders it for you. Apple's own example is `2008 Acme Inc.` — adding one risks `© © 2026 …`. |
+| **No URL**, no "All rights reserved" | Apple says no URL outright; the rest is noise — the phrase has had no legal effect anywhere for decades. |
+| **A single app-level value** | Not per localisation, unlike the Support and Marketing URLs. One string, under *App Information*. |
+
+**On the year — 2026.** It is the year of first publication, which is what a reader of a store listing takes it to mean. ⚠️ Worth knowing the codebase is older than that: the earliest `Created by` header is **2021/6/4**, so `2021–2026` is also defensible if Jim wants to assert the longer authorship. No practical difference to review; **2026 is the simpler claim** and the one I would file.
+
+> [!question] ❓ **D-08 — whose name goes in it?** This one is Jim's and I will not guess.
+> It has to be **the actual rights owner**, which in practice is whoever the **Apple Developer account is registered to** — the same name Apple shows as the seller on the product page.
+>
+> - **Individual account** → Jim's legal name, as the account holder.
+> - **Organization account** → the registered company name, exactly as registered.
+>
+> ⚠️ **Do not use a brand that is not a legal entity.** Three names are already in circulation around this project — **`Readie`** (the Wix footer says *"©2023 by Readie"*), **`Tataro`** (described on Facebook as *"the software company that created the Bobomofo Application"*), and **`sharkda`** (the bundle prefix `com.sharkda.*` and the GitHub account). If one of those *is* the registered entity, use it. If it is only a trade name, the copyright line names nobody.
+>
+> **And a mismatch is visible.** If the product page's seller reads one name while the copyright reads another, that is a question a reviewer or a user can ask and you would rather not have to answer.
+
+**The same string belongs in three other places** — tell me the name and I will do all three in one pass:
+
+| Where | State today |
+|---|---|
+| `INFOPLIST_KEY_NSHumanReadableCopyright` | ⚠️ **Empty string in both configurations** (`project.pbxproj:1995,2030`). This is what the **macOS** app shows in *About* and in Finder's Get Info, so the Mac build currently credits nobody. |
+| The footers of both web pages | They carry the **data attribution** but no copyright line of Jim's own. |
+| `hootowl/iAp/ids/hootmac.plist:8` | ⚠️ Still the **unreplaced Xcode template**: `Copyright (c) 2024 ___ORGANIZATIONNAME___. All rights reserved.` It is inside an XML comment, so it is cosmetic — but the file **is in a Resources build phase**, so that placeholder ships inside the app bundle. |
+
 ### The two pages on `sharkda.github.io`, and why neither redirects
 
 Jim, looking at the new root: *"that is the support page, i thought we want the root to redirect to marketing page?"*
@@ -446,7 +480,7 @@ What is on it, and why each part is there:
 
 ### What Jim still has to do
 
-- [ ] **Set the Marketing URL to `https://sharkda.github.io`** in App Store Connect — it is **per localisation**, so both **en** and **zh-Hant**.
+- [x] **Set the Marketing URL to `https://sharkda.github.io`** in App Store Connect — it is **per localisation**, so both **en** and **zh-Hant**.
 - [x] ~~⚠️ **Decide what that link shows.**~~ ✅ **Built 2026-10-08.** It had been the **12 bytes** `hello world` from commit `5dd93fd` — the Pages repo's *first* commit, predating any use of the domain. **Not an error; a placeholder nobody had revisited.** Now a real home page: 中文 first, English below, what the app does, the Taipei / New Taipei coverage stated as a **gap rather than hidden**, and a city request routed at the support page's `#request-a-city` anchor. **No App Store link and no claim the app is available** — it is not submitted, and a dead or invented link is worse than none; an HTML comment marks where it goes, in both languages.
 - [ ] 📎 **After launch, add the App Store link to the home page** — one `<a class="btn">` in the marked block of `index.html`. A minute's work once the URL exists; it just cannot be invented now.
 - [ ] **Verify after the app is live**, in the AdMob console's own app-ads.txt status for the app. That is the authoritative check, because it reports **what Google actually crawled**. It cannot run before submission — there is no listing to read the developer URL from yet. The `curl` above proves the file is reachable; only AdMob proves it is *found*.
