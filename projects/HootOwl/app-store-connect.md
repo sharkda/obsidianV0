@@ -623,13 +623,68 @@ ASC wants an address here, and it is **separate from the `support.email` still m
 
 **Not needed until you invite an external tester.** When you do, the Notes field is what prevents the rejection [[release-strategy#the-one-risk-i-would-bet-money-on]] is about — a reviewer opens the app in California and sees nothing.
 
-> [!success] Rewritten again 2026-09-19 — **the map is testable too, and that is the better instruction**
-> The 09-18 version led with the All tab, which works but shows a *list*. The app's actual proposition is a live map, and it turns out a reviewer can drive that from California with **no setup at all**:
-> - The map screen carries an **address search bar** (`NbsScreen.swift:172`, `AddressSearchBar` in `.principal`), and resolving an address calls `nbs.search(mapMode: .mapTap, loc0: coord)` — **a search around an arbitrary point, with no reference to the user's location**.
-> - It biases to `AddressSearchObs.taiwanRegion`. **Verified against the live geocoder 2026-09-19 with that exact region**: `Taipei 101` → 25.0336, 121.5648 ✅ · `Taipei Main Station` → 25.0486, 121.5149 ✅ · `台北101` ✅ · `信義區` ✅. **English works**, so no IME is needed.
-> - The outside-coverage card is an **overlay, not a takeover** (`NbsScreen.swift:60-75` — *"the map stays pannable, so someone curious can still look at Taipei"*), so panning and tapping the map also work.
+> [!success] ⭐ Rewritten 2026-10-09 — **English only, and the 09-19 version was stale in four places**
+> **Yes, English only.** App Review Information goes to Apple's reviewers, not customers. It is **one non-localised set of fields** — unlike the listing, there is no zh-Hant version of it.
 >
-> So the notes now lead with the map, keep the All tab as the second route, and the simulator instructions are gone entirely — a reviewer has neither your simulator nor your Xcode.
+> **What changed under the old draft**, all verified in the code today:
+>
+> | The 09-19 notes said | Actually, now |
+> |---|---|
+> | Type `Taipei 101` into the map search — *the* first instruction | **Destination mode shipped in build 1.** Outside the zone the app now *offers* a city: **"You're not in a covered area yet / Where are you heading?"** with a **`Go to Taipei`** button. One tap, no typing, no geocoder. **This is the route to lead with — it was built for exactly this reviewer.** |
+> | *"Type **TPE**"*, and lowercase `tpe` matches nothing | **J-01 was fixed in `9285a47`** — the filter is `localizedStandardContains`, so **`tpe` and `TPE` both work** |
+> | *"Credited in the app under **Options > Data source**"* | ❌ **Wrong — and `OptionsScreen` now has zero call sites.** The attribution moved to **onboarding screen 1** (`LandingScreen.swift:82`), deliberately: the licence requires the credit to be somewhere everyone reaches. **A reviewer sees it on first launch.** |
+> | First tab called *"Nearby"* | The tab is labelled **`Near Me!`**. The others read `all`, `auto tracking`, `Subscription`, `onboard` |
+>
+> ⚠️ `OptionsScreen.swift` being unreferenced is a **new E-16 item**, alongside `NbsCookScreen0 copy.swift` and `AppScreen.navToPark`.
+
+- **Sign-in required:** No.
+- **Contact:** your name, email and phone.
+- **Notes** — paste this:
+
+```text
+Find Parking TW shows live public car-park availability for Taipei City and New Taipei City, Taiwan, taken from the two city governments' open data feeds. There is no account, no login and no sign-in of any kind.
+
+COVERAGE: Greater Taipei only - Taipei City and New Taipei City. The app is not intended for use elsewhere, including the United States. Outside those two cities it says so on screen and offers to show you Taipei instead, rather than showing an empty map.
+
+EASIEST WAY TO SEE IT WORKING FROM CALIFORNIA - one tap, no setup, no location changes:
+1. Launch the app and open the first tab, "Near Me!".
+2. Because you are outside the coverage area, the app shows: "You're not in a covered area yet - Where are you heading?"
+3. Tap "Go to Taipei".
+4. The map recentres on Taipei and fills with car parks. The number on each pin is that car park's live free-space count, refreshed from the city feed. Tap any pin for details.
+
+Everything then works from that destination - the map, the search, and the watch list - exactly as it would for a user standing in Taipei. A bar at the top reads "Showing Taipei - you're not there" so the context is never hidden from you.
+
+A SECOND ROUTE, IF YOU PREFER A LIST - works anywhere in the world:
+1. Open the "all" tab.
+2. Type tpe in the search field (either case works).
+3. About 1,700 Taipei car parks appear with live counts and total capacity. This list is NOT filtered by your location.
+
+You can also type an address into the search bar on the map tab - "Taipei 101", "Taipei Main Station" and "Taipei City Hall" all resolve - and tap anywhere on the map to search around that point.
+
+WHY THE MAP STARTS EMPTY: it shows car parks near you, and there are none within range outside Taiwan. Rather than a blank screen, the app names the cities it covers and offers the destination above. That is the designed behaviour for this case, not a failure.
+
+LOCATION: used only while the app is in the foreground, to sort and centre on what is nearby. It is never sent off the device, and never used for tracking. The app is fully usable with location denied - the destination picker and the "all" tab both work without it.
+
+APP TRACKING TRANSPARENCY: requested on the second launch, after the app has been seen working, and never as a gate to using it. It covers the advertising identifier used by Google AdMob.
+
+SUBSCRIPTION: removes the advertising banner and changes nothing else, which is stated plainly on the purchase screen. Restore Purchases appears on both the purchase and the subscribed screen, and the Privacy Policy and Terms of Use are linked there.
+
+DATA SOURCES: 臺北市政府交通局停車管理工程處 and 新北市政府交通局, published under the Open Government Data License version 1.0 (政府資料開放授權條款-第1版). Credited inside the app on the first onboarding screen, which is the first thing shown on a new install.
+
+SUPPORT: https://sharkda.github.io/findparkingtw/support/
+```
+
+**Why this ordering.** The old draft's address search still works and is kept as the second route — but it asked a reviewer to **type a query and trust a geocoder**. The destination picker is **one tap on a button the app puts in front of them**, and it is the only instruction that cannot go wrong. Leading with the app's own answer to *"I'm not there"* also demonstrates the thing most likely to be doubted: that an out-of-area user is handled deliberately.
+
+**Still worth adding when it exists:** the demo-video link (**R-13**). Apple accepts one here, and for a geo-restricted app it remains the strongest single artifact.
+
+
+---
+
+### Superseded — kept for the record
+
+> [!info] The 09-19 version led with the address search
+> It was correct and is now the *second* route in the draft above. The reasoning it recorded — that a reviewer has your binary and neither your simulator nor your Xcode — is what still drives the ordering.
 
 > [!info] The 09-18 rewrite, for the record
 > The 09-14 draft said *"the full list is not location-filtered"* and buried it as the **second** option, behind simulator and Xcode instructions. **The claim is true — checked in the code, not assumed** — and the ordering was backwards. A reviewer has your binary on a device; they have neither your simulator nor your Xcode project. **The All tab is the whole answer and now leads.**
@@ -676,9 +731,93 @@ DATA SOURCES: 臺北市政府交通局停車管理工程處 and 新北市政府�
 
 ## 3.5 App Review Notes — the real submission
 
-**Use §3.4 as written.** It needs no edit for the real submission: nothing in it is TestFlight-specific. **Do not skip this field even now that the empty state ships** — the empty state explains the map; only these notes tell a reviewer the All tab exists and works.
+**Use §3.4 as written.** It needs no edit for the real submission: nothing in it is TestFlight-specific. ✅ **Rewritten 2026-10-09** to lead with the destination picker and to correct four claims that had gone stale — see the callout at the top of §3.4. **Do not skip this field even now that the empty state ships** — the empty state explains the map; only these notes tell a reviewer the All tab exists and works.
 
 **Worth adding when it exists:** a link to the demo video (R-13). Apple accepts one in this field, and for a geo-restricted app it is the single strongest artifact — it shows the app working in Taipei without the reviewer having to reproduce anything.
+
+---
+
+# Part 5 — App Privacy — a click-through
+
+**Jim, 2026-10-09:** *"can you provide me a walkthrough… so I can click through it, on the app connect?"*
+
+> [!important] 🧮 The finding that makes this easy: **AdMob is the only thing that collects anything**
+> Audited in the code 2026-10-09, not assumed. Everything the app does with data either stays on the device or is an outbound `GET` of a whole-city dataset. **So every row below is either AdMob's or "Data Not Collected".**
+>
+> | What | Verified | Verdict |
+> |---|---|---|
+> | **Your location** | The user's coordinate **never enters a network request this app makes.** Grepped every `URLRequest` / `httpBody` / `dataTaskPublisher` — the feeds are parameterless `GET`s of whole-city files. The only coordinate in any URL is **the car park's**, handed to Apple Maps (`NbsObsM+Ext.swift:117`). | **Not transmitted by us** |
+| **Search / geocoding** | `CLGeocoder` and `MKLocalSearch` send the query to **Apple**, as any app using those frameworks does. That is Apple handling data on the user's behalf, not your collection. | **Not your collection** |
+> | **The watch list, search history, span settings** | All `@AppStorage` — `mncpl_watchList_data`, `mncpl_Park_SearchData`, `nbs_recent_addresses`, `nbs_min_span`… **on-device `UserDefaults`, nothing uploaded.** | **Not collected** |
+> | **Purchases** | ⚠️ **`verifyReceipt` is dead config.** `CloudFuncEnum.swift` holds the Cloud Function URL as a **string constant with no callers** — grepped, zero. **No receipt is ever posted anywhere.** | **Not collected** |
+> | **Analytics / crashes** | **No Firebase, Crashlytics, Sentry or any analytics SDK** — none in source, none linked. (This is **E-02**, a known gap, and here it is a simplification.) | **Not collected** |
+> | **Account** | There is none. No login, no email, no name. | **Not collected** |
+> | **Ads — AdMob** | The one real collector, and **ATT is requested** (`ATTWarmup.swift:91`), so tracking is in play. `PrivacyInfo.xcprivacy` already declares `NSPrivacyTracking = true`. | ✅ **Declare this** |
+
+---
+
+## The click-through
+
+**Where:** App Store Connect → your app → **App Privacy** (left sidebar, under *General*). It is **separate from the version**, so you can fill it before or after the build uploads — but it must be published before the app can go live.
+
+### Step 1 — Privacy Policy URL
+
+```text
+https://jimhsuyc.wixsite.com/tataro/privacy-policy
+```
+
+Required. *Privacy Choices URL* beside it is **optional — leave it blank**; it is for a page where users manage their data, and there is no stored data to manage.
+
+### Step 2 — Data Collection → **Get Started**
+
+> *"Do you or your third-party partners collect data from this app?"*
+
+**Answer: Yes.**
+
+⚠️ **Not "No", even though your own code collects nothing.** The question includes **third-party partners**, and AdMob is one. Answering No while shipping an ad SDK is the single most common way this section gets an app rejected or pulled later.
+
+### Step 3 — Pick the data types
+
+This is the long checklist. **Only the AdMob rows apply.** For each one Apple then asks three things, so the sub-steps below repeat per type.
+
+> [!warning] 🔴 Use **Google's own published AdMob disclosure list** as the authority for this step
+> Search Google's developer docs for *"AdMob · Prepare for Apple's App Store data disclosure requirements"*. **I am deliberately not reproducing their table from memory**: it is **their** data collection, it **changes between SDK versions** (you are on 13.10.0), and this questionnaire is a **legal declaration**. Open their page, tick what it says, and treat the shape below as a sanity check rather than the answer.
+>
+> What Google's list has typically covered, so you know what you are looking at: **Device ID** (the IDFA), **Product Interaction** / **Advertising Data**, **Other Diagnostic Data**, and — depending on configuration — **Coarse Location**. Expect *Device ID* to be the one that drives everything else.
+
+For each type you tick, Apple asks:
+
+| Question | Your answer for an AdMob row | Why |
+|---|---|---|
+| **Is it linked to the user's identity?** | Follow Google's page. For **Device ID**, normally **yes** | A persistent advertising identifier is treated as linked |
+| **Is it used for tracking?** | **Yes** | You request ATT, and `PrivacyInfo.xcprivacy` already says `NSPrivacyTracking = true`. Saying no here would contradict your own binary |
+| **What is it used for?** | **Third-Party Advertising** | Not *Developer's Advertising* — you do not run your own ad business — and **not Analytics**, because you have no analytics |
+
+### Step 4 — Everything else: leave unticked
+
+**Do not tick Location.** This is the one most people get wrong on an app like this, so the reasoning is worth keeping: Apple's definition of *collect* is **transmitting data off the device** in a way you can later access. This app uses location **entirely on-device** to sort and centre — it never sends it. The one exception to watch is if **Google's page says AdMob collects Coarse Location**; if it does, that row is **AdMob's**, under *Third-Party Advertising* — not yours, and not Precise.
+
+Also leave unticked: Contact Info · Health · Financial Info · Contacts · User Content · Search History · Browsing History · Identifiers *beyond* what Google lists · Purchases · Usage Data beyond Google's rows · Sensitive Info.
+
+### Step 5 — **Publish**
+
+Nothing takes effect until you hit Publish. It is editable afterwards.
+
+---
+
+## Two things worth having straight before you answer
+
+**1. Your three statements have to agree.** The nutrition labels, the privacy policy page, and the binary are read together, and a contradiction between them is what gets noticed:
+
+| | Says |
+|---|---|
+| **`PrivacyInfo.xcprivacy`** | `NSPrivacyTracking = true`, and two required-reason APIs — `UserDefaults` (CA92.1) and file timestamps (C617.1) |
+| **The permission strings** | *"only while the app is open"* — now true of the declarations too, since **E-30** removed the two unused Always strings |
+| **The policy page** | ⚠️ **Still has R-04** — the headline *"collects only 'name'"*, which is false for this app and is the first thing a reviewer reads |
+
+**R-04 is the loose end here.** You can publish accurate nutrition labels and still have the policy page contradict them.
+
+**2. One thing I would not put off.** `NSPrivacyCollectedDataTypes` in `PrivacyInfo.xcprivacy` is an **empty array**. That is the *app's* manifest, and it is defensible precisely because your own code collects nothing — AdMob ships its own privacy manifest inside its XCFramework and declares its own collection. Worth knowing the reasoning, because it looks like an omission and is not.
 
 ---
 
