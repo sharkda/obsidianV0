@@ -238,4 +238,40 @@ Earlier corrections: [[sessions/older/2026-09-17/00-state-of-play|09-17 § Stale
 
 **Three URLs are now paste-ready for App Store Connect** — Support, Marketing and Privacy Policy, all three verified `200` today, in [[app-store-connect#-the-three-url-fields--paste-ready-all-three-verified-live-2026-10-08]]. Support and Marketing are **per localisation**, so each needs en *and* zh-Hant.
 
+## 👋 Picking up — E-25, in plain words
+
+Jim asked for this as a novice user would see it, then had to go. Here it is, waiting.
+
+**What a first-time user actually experiences:**
+
+1. They install the app and open it. **Screen 1** appears — *"Live parking. Right now."*
+2. **Before they can read it**, iOS throws its own grey box on top: *"Allow Find Parking TW to use your location?"* — with **Allow Once / Allow While Using App / Don't Allow**. (This is in the 2026-10-12 screenshot: the alert sitting over screen 1, the pitch text greyed out behind it.)
+3. They have to answer it to get rid of it. **They have been given no reason yet** — the app has said nothing except its name and the two cities.
+4. They swipe to screen 2, then **screen 3**, which says:
+   > **Find what's near you**
+   > *Turn on location and the closest lots come first. Used only while the app is open — never in the background.*
+   > **[ Enable Location ]** · *Not now*
+
+**That is the problem: screen 3 is making a case for a decision the user made two screens ago.**
+
+And it plays out badly whichever way they answered:
+
+| They tapped… | What screen 3 does |
+|---|---|
+| **Allow** | The button does nothing. iOS will not ask twice. They press a button that is already done — it reads as broken. |
+| **Don't Allow** | **The button cannot undo it.** iOS only asks once. The app detects this and relabels it **"Open Settings"**, so the one screen written to *persuade* them now hands them a chore in another app. |
+
+**Why it matters commercially, not just cosmetically.** The permission dialog is the moment the app lives or dies — a parking app without location is much weaker. Right now it is asked at the **worst possible moment**: before the user knows what the app is for. Screen 3 exists precisely to earn that *yes*, and **it never gets the chance.** People say no to things they do not understand.
+
+**Cause:** the location manager asks as soon as it wires up (`Municipal+Loc.swift:31-33`), which happens at launch — long before screen 3.
+
+**Two ways out, and it is Jim's call:**
+
+1. **Move the ask** — do not request at launch; request only when the user taps **Enable Location** on screen 3. Screen 3 then works exactly as written, and it is the stronger product fix.
+2. **Rewrite screen 3** — accept that the prompt already happened and change the copy to *confirm* rather than *persuade* (*"Location is on — the closest lots come first"*, or an Open Settings route if it was declined). Cheaper, smaller change, but it gives up the pre-priming.
+
+**My recommendation is 1.** It is the reason screen 3 was written. 2 is the fallback if touching launch-time behaviour feels risky this close to submitting.
+
+---
+
 **Where to pick up:** the 🔴 table — **R-01, archive and upload**, then **R-20, paste the review notes**. Every 🔴 is Jim's; nothing is waiting on me. **D-07**, the only thing I opened today, closed the same day.
