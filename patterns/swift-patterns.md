@@ -4,6 +4,23 @@ Established Swift / SwiftUI conventions for Jim's projects. Append new patterns 
 
 ---
 
+## SwiftUI reports an ambiguous argument on the *previous* line
+
+**`.foregroundStyle(.tertiary)` on a `Text` fails to compile as `error: ambiguous use of 'font'` — pointing at `.font(...)` four lines earlier.** The argument is what is ambiguous; the modifier named in the error is innocent.
+
+```swift
+Text(versionBuild)
+    .font(.caption2.monospacedDigit())   // ← the error points HERE
+    .textSelection(.enabled)
+    .foregroundStyle(.tertiary)          // ← the actual cause
+```
+
+**Fix:** spell the type out — `.foregroundStyle(HierarchicalShapeStyle.tertiary)`. `.secondary` happens not to trip it, which makes the failure look arbitrary.
+
+**The method matters more than the fix.** On 2026-10-12 this cost **two wrong fixes in a row**, both built on reading the error message: first blaming `monospacedDigit()` for existing on `Text` and `View`, then blaming the `if let` shorthand. Both were plausible, both were wrong, and each cost a four-configuration build.
+
+**What worked was bisecting the chain** — rebuild with one modifier, then two, then three, until it breaks. Five builds, no theorising, and the answer was unambiguous. **When the type checker names a line, treat it as a hint about the *expression*, not the *line*, and bisect rather than reason.**
+
 ## Concurrency
 - Prefer `async`/`await` over callbacks.
 - Mark UI-mutating code with `@MainActor` explicitly.
