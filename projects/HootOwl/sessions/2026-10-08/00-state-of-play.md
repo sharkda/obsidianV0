@@ -293,7 +293,7 @@ And it plays out badly whichever way they answered:
 **Pages site** (`sharkda/sharkda.github.io`) — all three live and `200`: `app-ads.txt` at the domain root, a real Chinese-first home page replacing the 12-byte *"hello world"*, and the Chinese-first support page at `/findparkingtw/support/`.
 
 > [!todo] 🔖 Two items were waiting on Jim when he stepped away
-> 1. **E-25, in plain words** — written up in [[#-picking-up--e-25-in-plain-words]] just above. Still needs **his decision**: move the ask to screen 3's button (recommended) or rewrite screen 3's copy.
+> 1. **E-25, in plain words** — written up in [[#-picking-up--e-25-in-plain-words]] just above. **2026-10-13: Jim proposed a third and better option** — ask at the point of need on the map, and fall back to 台北車站 on a decline. The detailed back-and-forth lives in [[2026 10 13]]; it needs two small code changes first (the startup ask deleted, and `.denied` no longer short-circuiting a set destination).
 > 2. **The compile-error lesson** — `.foregroundStyle(.tertiary)` reported as *"ambiguous use of 'font'"* on an earlier line, which cost two wrong fixes before bisecting found it. Recorded in [[swift-patterns]]; it is about how the toolchain lies, not about the app. Jim has not had this explained in chat yet.
 
 **Where to pick up:** unchanged — the 🔴 table, **R-01 archive and upload**, then **R-20 paste the review notes**. Nothing is waiting on me.
