@@ -37,7 +37,7 @@ Active focus across projects. Update at session END.
 
 👉 **Resuming? Start at [[sessions/2026-10-08/00-state-of-play|sessions/2026-10-08/00-state-of-play]].** Every open item in one table, with a stable ID per row, checked against the repo rather than copied from these notes. The 09-15 handoff and its re-verify commands are still at [[sessions/older/2026-09-15/02-pick-up-here|sessions/2026-09-15/]].
 
-**`main` = `origin/main` = `06dc918`. Working tree clean. Both repos pushed 2026-10-08.**
+**`main` = `origin/main` = `7c5ef94`. Working tree clean. Both repos pushed 2026-10-13.**
 
 > [!success] 🖥️ **The OS update is behind us and everything was re-verified — 2026-10-08**
 > Toolchain unchanged: **Xcode 27.0 / 27A266a / Swift 6.4, macOS 27.0**. All four configurations build and the app was run on the iPhone simulator with the location in Taipei — Cyclops rebuilt its cells, zero uncaught exceptions. The standing rule still holds for next time: a toolchain upgrade expires every build verification written down here, and the worst breakage this project has had **compiled clean and crashed at launch** — [[swift-patterns#a-toolchain-upgrade-expires-every-build-verification-you-have-written-down]].
