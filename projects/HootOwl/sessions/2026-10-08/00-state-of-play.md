@@ -275,3 +275,25 @@ And it plays out badly whichever way they answered:
 ---
 
 **Where to pick up:** the 🔴 table — **R-01, archive and upload**, then **R-20, paste the review notes**. Every 🔴 is Jim's; nothing is waiting on me. **D-07**, the only thing I opened today, closed the same day.
+
+---
+
+# Session wrap — saved 2026-10-13
+
+**Code:** `main` = **`7c5ef94`** = `origin/main`, working tree clean, pushed. Three commits since the 10-08 wrap:
+
+| Commit | What |
+|---|---|
+| `1a2f935` | Credit an owner — `Copyright © 2026 Yu-Ching Hsu` into both `hootmac` configs and `hootmac.plist` (the `___ORGANIZATIONNAME___` placeholder was shipping) |
+| `aeeec4a` | **E-30** — removed three permission keys the **iOS** target declared but never asks for (`NSLocationAlwaysUsageDescription`, `NSLocationAlwaysAndWhenInUseUsageDescription`, `NSDocumentsFolderUsageDescription`). Guideline 5.1.1 exposure, iOS-only, so "I only submit iOS" was backwards |
+| `7c5ef94` | **Version and build on onboarding screen 1** — `v1.0 (1)`, under the title and icon per Jim, selectable so it can be quoted into a support message |
+
+**Vault:** `app-store-connect.md` (§2.6 the three URLs, §3.4 review notes rewritten, **new Part 5** — the App Privacy click-through), **new** `roadmap.md` (F-01 multi-vendor maps, F-02), `decisions.md`, `jim-actions.md`, `operations.md`, `bugs.md` (E-30), `INDEX.md`, `CURRENT.md`, `swift-patterns.md`.
+
+**Pages site** (`sharkda/sharkda.github.io`) — all three live and `200`: `app-ads.txt` at the domain root, a real Chinese-first home page replacing the 12-byte *"hello world"*, and the Chinese-first support page at `/findparkingtw/support/`.
+
+> [!todo] 🔖 Two items were waiting on Jim when he stepped away
+> 1. **E-25, in plain words** — written up in [[#-picking-up--e-25-in-plain-words]] just above. Still needs **his decision**: move the ask to screen 3's button (recommended) or rewrite screen 3's copy.
+> 2. **The compile-error lesson** — `.foregroundStyle(.tertiary)` reported as *"ambiguous use of 'font'"* on an earlier line, which cost two wrong fixes before bisecting found it. Recorded in [[swift-patterns]]; it is about how the toolchain lies, not about the app. Jim has not had this explained in chat yet.
+
+**Where to pick up:** unchanged — the 🔴 table, **R-01 archive and upload**, then **R-20 paste the review notes**. Nothing is waiting on me.
