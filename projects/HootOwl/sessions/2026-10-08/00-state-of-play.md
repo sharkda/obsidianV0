@@ -297,3 +297,6 @@ And it plays out badly whichever way they answered:
 > 2. **The compile-error lesson** — `.foregroundStyle(.tertiary)` reported as *"ambiguous use of 'font'"* on an earlier line, which cost two wrong fixes before bisecting found it. Recorded in [[swift-patterns]]; it is about how the toolchain lies, not about the app. Jim has not had this explained in chat yet.
 
 **Where to pick up:** unchanged — the 🔴 table, **R-01 archive and upload**, then **R-20 paste the review notes**. Nothing is waiting on me.
+
+
+
