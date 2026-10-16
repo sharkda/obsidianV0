@@ -4,7 +4,37 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 
 ---
 
-<!-- Template:
+## 2026-10-16 — `fatalError` on remote data: a renamed field, or one extra CSV column, crashes the shipping app (open)
+
+**Found while answering** *"if Taipei changes a field name, does that mean the data will not be processed any further?"* — the answer turned out to be worse than the question assumed. Full design in **[[when-field-name-changes]]**.
+
+**Symptom:** none today. Latent. The moment Taipei renames a field in the availability feed, the app crashes **every ~2 minutes, in Release, on device** — not "shows no data".
+
+**Root cause:** `fatalError` used as the handler for untrusted network input, in two families:
+
+| Site | Trigger | Guarded? |
+|---|---|---|
+| `Mu1Base+Ext.swift:222` | `keyNotFound` in the **live** availability decode | ❌ ships |
+| `Mu1Base+Ext.swift:225` | any other decode error, same path | ❌ ships |
+| `TaipeiObs.swift:91` | `keyNotFound` in the daily description decode | ❌ ships |
+| `TaipeiObs.swift:94` | any other decode error, same path | ✅ macOS/simulator only |
+| `TaipeiObs.swift:24` | stray `fatalError()` **after** a successful decode | dead today |
+| `NewTaipeiCityObs.swift:131` | CSV column count ≠ header count | ✅ `continue` in Release |
+| `NewTaipeiCityObs.swift:137` | CSV column count ≠ 2 | ❌ ships |
+
+**Two things make it bigger than it looks:**
+
+1. **A `Codable` default does not make a key optional.** `var availablemotor: Int = 0` still throws `keyNotFound` when the key is absent. Only `Int?` may go missing. So the mandatory decode surface for Taipei's live feed is **8 items** — including `availablemotor` and `availablebus`, which **grep proves are rendered nowhere**, and including the `UPDATETIME` date *format*, which is as fatal as a rename.
+2. **Array decode is all-or-nothing.** One malformed lot out of ~1,700 discards all 1,700.
+
+**Separately: New Taipei `:137` fires on an added column, not a rename.** The CSV parser compares column *count*, never names, so renames there are harmless — but a third column passes the `:131` header check and then hits the unguarded `fatalError` at `:137`. A city adding a column to its own export is ordinary.
+
+**Fix:** layered, designed in **[[when-field-name-changes]]**. Pre-submission set is Layers 0–2 + 4 + 5a, ~75 lines: never `fatalError` on remote input, delete the two unrendered mandatory fields, lossy per-item array decode with a 70% floor, keep-last-good so the existing `AvailFreshness` colours age the stale numbers, and raise the swallowed `.debug` logs to `.error`. Post-submission: normalised key matching and a Gist-hosted key-alias map that fixes a true rename without App Review.
+
+**Status:** open — designed, nothing applied. Awaiting Jim's call on the two open questions at the foot of the design page.
+
+**Files:** `Mu1Base+Ext.swift:221-226`, `TaipeiObs.swift:24,88-96`, `NewTaipeiCityObs.swift:106-150`, `model/AllAvailable.swift:16-150` (`:150` already carries `#warning("the data and metadata is chaning will break this ")`), `network/ContactConfig.swift`.
+
 ## 2026-10-09 — The iOS build ships three permission strings it never uses, one of them placeholder text
 
 **Found while answering an unrelated question** (whether changing App Store Connect's primary language affects the binary — it does not). Reading the built `Release-iphoneos` `Info.plist` turned up three keys that should not be there.
@@ -48,6 +78,7 @@ Neither has a **zh-Hant** translation, so a Chinese-speaking Mac user reads Engl
 3. **`NSDocumentsFolderUsageDescription`:** almost certainly unnecessary on macOS too — a sandboxed app's `URL.documentsDirectory` is its own container, which prompts for nothing. Verify, then delete rather than reword.
 
 
+<!-- Template:
 ## YYYY-MM-DD — Short title
 **Symptom:** What goes wrong.
 **Root cause:** Why it happens (if known).
