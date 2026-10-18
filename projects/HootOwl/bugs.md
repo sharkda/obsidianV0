@@ -29,7 +29,7 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 
 **Separately: New Taipei `:137` fires on an added column, not a rename.** The CSV parser compares column *count*, never names, so renames there are harmless — but a third column passes the `:131` header check and then hits the unguarded `fatalError` at `:137`. A city adding a column to its own export is ordinary.
 
-**Fix:** layered, designed in **[[when-field-name-changes]]**. Pre-submission set is Layers 0–2 + 4 + 5a, ~75 lines: never `fatalError` on remote input, delete the two unrendered mandatory fields, lossy per-item array decode with a 70% floor, keep-last-good so the existing `AvailFreshness` colours age the stale numbers, and raise the swallowed `.debug` logs to `.error`. Post-submission: normalised key matching and a Gist-hosted key-alias map that fixes a true rename without App Review.
+**Fix:** layered, designed in **[[when-field-name-changes]]**. Pre-submission set is Layers 0–2 + 4 + 5a, ~75 lines: never `fatalError` on remote input, delete the two unrendered mandatory fields, lossy per-item array decode with a 70% floor, keep-last-good so the existing `AvailFreshness` colours age the stale numbers, and raise the swallowed `.debug` logs to `.error`. **Revised 2026-10-18 after Jim raised the ceiling** ([[when-field-name-changes]]): detection moves *out of the app* — a scheduled job watches both public feeds and tells Jim before any user is affected, with no app code and no privacy-label change — and the Gist-hosted alias map is promoted from optional to planned, extended to cover the date format and the feed URL.
 
 **Status:** open — designed, nothing applied. Awaiting Jim's call on the two open questions at the foot of the design page.
 

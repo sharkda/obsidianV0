@@ -1,3 +1,147 @@
+
+# Jim's comment:
+first thing first, what kind of "solution are we looking at, the upperbound of our solution." 
+if the best we can do is the make sure the app does not crash, but the data is stalled, and this will not be fixed until 
+1. developer /us found out about this issue
+2. fixed it, release it.
+3. users took the time to download the revision
+I am afraid that is not good enough, 
+
+I am thinking:
+1. developer / us can be the first one to learn if the field name changed and the app will not work properly
+2. developer fix it and release it over the air. 
+3. users get the fix w/o downloading and upgrade.
+
+
+
+# Claude's answer — 2026-10-18
+
+**You're right, and the page was aimed too low.** I wrote it to the standard "the app must not crash," and you're asking for the standard "a break is a non-event." Those are different ceilings and the second one is reachable. What follows replaces the Layer 5 recommendation at the foot of this page.
+
+Your three steps turn out to have three different answers, so let me take them in your order.
+
+---
+
+## Your #1 — "we learn first." The app is the wrong place to look.
+
+This is the part I got wrong, and it's the part that makes everything else optional.
+
+I had put detection inside the app: raise the log levels, record it on the proto, show it on the DQI screen. That only works if **someone is already looking at a console**, which means it tells you after a user has already hit it. Useless for what you want.
+
+**But you don't need the app to tell you. The feed is public.** You can watch it yourself, from outside the app entirely:
+
+> A scheduled job — GitHub Actions, free tier, every 15 minutes — fetches both feeds, decodes them against the schema committed in the repo, and **opens a GitHub issue / emails you** the moment the shape stops matching.
+
+Compare the two honestly:
+
+| | In-app telemetry | **Scheduled job outside the app** |
+|---|---|---|
+| Detects a break when nobody is using the app | ❌ | ✅ |
+| Detects it **before** the first user sees it | ❌ | ✅ |
+| Detects it at 3am | only if someone is awake and using it | ✅ |
+| Needs a server | ✅ you'd have to run one | ❌ |
+| Needs app code | ✅ | ❌ **zero** |
+| Needs a privacy-label change | ✅ — see below | ❌ |
+| Can ship today, independent of the binary | ❌ | ✅ |
+
+> [!warning] Why in-app telemetry is actively the worse choice here
+> Reporting a schema break from the app means **collecting diagnostic data**, which is a declarable category in Apple's privacy nutrition labels. This app's labels commit to *precise location, app functionality, foreground-only* and nothing else. Adding a diagnostics channel means a label change, a new justification, and new App Review surface — on a first submission. For a signal you can get for free from a public URL with no user involved at all.
+
+**This is the first thing to build, and it is not Swift.** It's a ~40-line script and a cron YAML. It does not touch the app, does not need a build, does not need review, and can be running before the next archive.
+
+Once it exists, your #1 is solved completely and permanently — **and a break stops being an emergency**, because you find out while the app is still showing merely-stale numbers rather than when a user writes a review.
+
+---
+
+## Your #2 and #3 — the OTA fix. How far it actually reaches.
+
+Mostly achievable. Here is the honest table, because the ceiling is not the same for every kind of change:
+
+| What Taipei changes | Fixable without a release? | Heal time |
+|---|---|---|
+| A key renamed — `availablecar` → `carRemain` | ✅ **yes** — alias map | minutes |
+| A key recased — `availablecar` → `availableCar` | ✅ **yes** — and no config needed, Layer 3 handles it | instant |
+| `UPDATETIME`'s date **format** changes | ✅ **yes** — *if the format string is config too* | minutes |
+| A value's type changes — `203` → `"203"` | ✅ **yes** — and no config needed, tolerant decoder | instant |
+| The endpoint moves, or a v2 is published | ✅ **yes** — *if the URL is config too* | minutes |
+| Structure reshaped — `park` array becomes a nested object, or CSV becomes JSON | ❌ **no** | needs a release |
+
+Two of those rows are new to this page and both are cheap: **put the date format and the feed URL in the same config as the aliases.** `UPDATETIME` is already one of the eight fatal items precisely because its format is hardcoded at `AllAvailable.swift:47`, and a hardcoded URL means a deprecated endpoint costs a release for no reason. Same mechanism, same Gist, a few lines each.
+
+> [!note] Apple's actual limit, so we design inside it rather than discovering it at review
+> **Guideline 2.5.2:** an app may download and act on **data and configuration**; it may not download and execute **code** that changes its features.
+>
+> A key-alias map is data. A date format string is data. A URL is data. All fine — this is exactly what Firebase Remote Config does, and Apple ships that pattern themselves.
+>
+> What is *not* available is "push a code patch OTA." So the bottom row of that table genuinely needs a release. There is no way to buy it, which is why Layers 0–2 still matter: they decide whether those 1–3 days look like *stale numbers going grey* or *an app that crashes every two minutes*.
+
+---
+
+## Three things in today's code would stop your #3 from working
+
+Your step 3 is *"users get the fix w/o downloading and upgrade."* That is true of the design and **false of the current implementation**, for three specific reasons. These are the real work.
+
+### 1. The config is fetched once per process launch, ever
+
+```swift
+// ContactConfig.swift:264-270
+func fetchIfNeeded() async {
+    guard !hasFetched else { return }     // ← latched for the life of the process
+    hasFetched = true
+    …
+}
+```
+
+So a Gist edit reaches a user **only on a cold launch.** iOS keeps apps resident for days — someone who opened HootOwl on Monday and backgrounds it may not cold-launch again until Thursday. Your five-minute fix would take three days to reach them.
+
+**Fix, and this is the clever bit:** refetch on foreground with a floor (15 minutes, so it isn't chatty), **and refetch immediately when a schema break is detected.** The break becomes its own trigger. A broken app checks for its own cure every poll cycle, so the heal latency after you save the Gist is **one poll — about two minutes — not one launch.**
+
+That single detail is most of the difference between your #3 working and merely being true on paper.
+
+### 2. DEBUG builds never read the Gist at all
+
+`loadCached()` returns hardcoded scaffolding in DEBUG (`ContactConfig.swift:187-200`) and never consults the Gist. Sensible for contact emails; fatal for an alias map, because **you could not test the mechanism in the simulator** — the one place you'd want to rehearse it before trusting it in an emergency.
+
+Needs a DEBUG path that can opt into the real config, or the whole escape hatch is untested code you first exercise during an actual outage.
+
+### 3. The raw Gist URL is CDN-cached
+
+`gist.githubusercontent.com/…/raw` is served through GitHub's edge with cache headers. Your edit is not instantly visible, so "five minutes" is "five minutes plus however long the edge holds it." Needs a cache-buster (`?t=<epoch>`) or a `URLRequest` with `.reloadIgnoringLocalAndRemoteCacheData`.
+
+Small, but without it the mechanism's headline promise is wrong by an unpredictable amount, in the one situation where you are watching a clock.
+
+---
+
+## The actual upper bound — since you asked for it
+
+There is one more rung, and you should see it even though I don't think you should build it.
+
+The scheduled job from your #1 is **already fetching and decoding both feeds every 15 minutes.** So it could also *republish* them, normalised into the shape the app expects, at a static URL. Then the config flips the app to that mirror — and **even the bottom row of the table becomes an OTA fix**, because you'd be changing a script in a repo instead of a binary in the App Store.
+
+That is the real ceiling: **no schema change Taipei can make would require a release.**
+
+The cost is that you stop being an app developer and start also operating a data pipeline. Your app's data is then only as available as your job is — and a free cron that silently stops running is a much quieter failure than a crash. For two cities I think that trade is wrong today.
+
+**My recommendation: build the detector, write the mirror down as a documented escalation, don't build it.** If a third and fourth city arrive, or if Taipei turns out to churn more than twice a year, it stops being over-engineering and the detector is already 80% of it.
+
+---
+
+## Revised plan, in the order I'd do it
+
+| # | What | App code? | Size | Why this order |
+|---|---|---|---|---|
+| **1** | **Scheduled feed-shape detector** | **none** | ~40 lines + cron YAML | Solves your #1 outright. Needs no build, no review, no binary. **Makes everything below it optional rather than urgent** |
+| **2** | **Layers 0 + 1 + 2** — never `fatalError` on remote input, drop the two unrendered mandatory fields, lossy decode with a floor | yes | ~65 lines, 6 files | The OTA fix is worthless if the app dies before it can read the config. This is the foundation, not an alternative |
+| **3** | **Tolerant decoding** — Layer 3 casing/separators + type tolerance (`203` / `"203"`) | yes | ~70 lines | Two whole rows of the table fixed with **no config and no operator action**. Best value per line after #2 |
+| **4** | **Config-driven everything** — alias map, date format, feed URL, plus the three fixes above | yes | ~200 lines | Your #2 and #3, properly. The biggest piece, and the one with a schema to get right |
+| — | Mirror / republish | n/a | real infrastructure | Documented, not built |
+
+**What I'd change about my earlier advice:** I said ship Layers 0–2 and defer the alias map, and I'd now split that differently. **#1 and #2 before the archive** — one is free and outside the app, the other is ~65 lines and closes a shipping crash. **#3 is cheap enough to come along.** Whether **#4** makes build 1 is genuinely yours: deferring it is safe *once #1 exists*, because then a rename costs you a release you start the same hour, rather than a disaster you hear about from a user. But it is also cheapest to write now, while all of this is in your head rather than six months from now in an outage.
+
+If you want it all in build 1, say so and I'll start at #1 and work down.
+
+---
+
 # When a field name changes
 
 **Design note, 2026-10-16. Nothing shipped yet.** Written because the quick patch was the wrong instinct — Jim: *"no wait, this need to be a dedicated obsidian pages, 'When field name changes', and we need to design the best solution for it."*
@@ -290,6 +434,9 @@ It will be flaky — it's a network test against a government server — so it m
 
 ## What I recommend shipping
 
+> [!warning] Superseded 2026-10-18 by **Claude's answer** at the top of this page.
+> Jim raised the ceiling: detection must reach *him* first, and the fix must reach users without a download. The table below is kept because the per-layer sizing still holds — but the **order** and the verdict on Layer 5 are replaced by the revised plan above.
+
 | Layer | Ship | Size | Why |
 |---|---|---|---|
 | **0** — no `fatalError` on remote input | **before submission** | ~20 lines, 5 sites | Turns a crash into a non-event. Nothing else counts without it |
@@ -315,9 +462,13 @@ That is the gap worth closing this week. Layer 5 closes the remaining gap and ca
 
 ## Open for Jim
 
-1. **Layer 5 — in or out?** Not *whether* it's correct, but whether a two-city app earns the 150 lines. My answer above is "design now, ship after submission." Say if you'd rather it went in sooner, or never.
-2. **The 70% floor.** Alternative: any failure at all rejects the whole payload and keeps last-good. Simpler, more conservative, throws away good data when one lot is malformed. I prefer the floor; it's one constant either way.
-3. **New Taipei's `:137`** is a crash the moment that city adds a CSV column. It's inside Layer 0 and costs nothing extra. Flagging it because it's a *second* bug found while designing for the first, and it deserves its own line in [[bugs]].
+> [!done] Answered 2026-10-18
+> ~~**Layer 5 — in or out?**~~ **In.** Jim's comment settles it: *"users get the fix w/o downloading and upgrade."* It is now item **#4** of the revised plan, and the only remaining question is whether it lands in build 1 or build 2.
+
+1. **Does the config layer (#4) make build 1?** Yours. Deferring is safe **once the detector (#1) exists** — a rename then costs a release you start the same hour. Shipping it now is cheaper than writing it six months from now during an outage.
+2. **The 70% floor.** Alternative: any failure at all rejects the whole payload and keeps last-good. Simpler, more conservative, throws away good data when one lot is malformed. I prefer the floor; it's one constant either way. *(Still open.)*
+3. **Where should the detector shout?** A GitHub issue, an email, or both. An issue is free, dated, and already where the repo lives; email reaches you on a phone. Default if you don't say: **both** — issue for the record, email so you actually see it.
+4. **New Taipei's `:137`** is a crash the moment that city adds a CSV column. It's inside Layer 0 and costs nothing extra. Flagging it because it's a *second* bug found while designing for the first; it has its own line in [[bugs]] under 2026-10-16.
 
 ---
 
@@ -326,5 +477,5 @@ That is the gap worth closing this week. Layer 5 closes the remaining gap and ca
 - [[bugs]] — **2026-10-16** carries the short version of this as a bug entry, with the seven `fatalError` sites in one table
 - [[2026-10-15]] — the crash that started this: Taipei's daily payload truncated and spliced upstream, byte-identical across fetches. A corrupt payload, not a rename — but it reached the app through the same unguarded `fatalError`
 - [[data-sources]] — the two portals, their contacts, the re-check schedule
-- [[operations]] — where the Layer 6 release-checklist line goes, and the Gist runbook Layer 5 extends
+- [[operations]] — where the detector's runbook goes, and the Gist runbook that item #4 extends
 - [[decisions]] — this page's conclusion belongs there once Jim has chosen
