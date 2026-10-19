@@ -20,7 +20,74 @@ I am thinking:
 
 Your three steps turn out to have three different answers, so let me take them in your order.
 
+> [!info] Then you asked whether any of this has ever actually happened, and the answer reorders the plan.
+> The record is the section immediately below. Short version: **seven upstream incidents in 31 months, and not one was a rename.** It demotes the alias map and promotes something I had undersized.
+
 ---
+
+---
+
+## Has this ever actually happened? — the record, 2024-03 to 2026-10
+
+> [!question] Jim, 2026-10-19
+> *"so have we met any incident that the Taipei or New Taipei City column did change? or it never happen?"*
+
+**Yes — seven times in 31 months, about one every four or five months.** But I went looking in git rather than answering from memory, and the result is more useful than a yes: **not one of them was a field rename.** The thing we designed this page around is the one thing that has never happened.
+
+| When | Feed | What upstream did | How it reached us | Fix | Confidence |
+|---|---|---|---|---|---|
+| 2024-04-19 `9f1c9a8` | Taipei static | key **recased** — `EntranceCoordInfo` → `Entrancecoord**i**nfo` | key mismatch | renamed in Swift | ⚠️ low — app was 7 weeks old |
+| 2024-04-25 `ec15cd6` | Taipei live | socket list **reshaped** — `[String]` → `[{spot_abrv, spot_status}]` | decode break | new struct, **and the `#warning` still in the file** | ⚠️ low — same reason |
+| 2024-05-02 `bb70e07` | Taipei static | `Address` **went missing** on some lots | `keyNotFound` | → `String?` | 🟡 medium |
+| 2025-01-04 `f56c622` | Taipei static | `serviceTime` **went missing** on some lots | `keyNotFound` | → `String?` | 🟢 **high** |
+| **2026-03-05** `59ad77c` | Taipei static | `tel` **went missing** on some lots | `keyNotFound` | → `String?` | 🟢 **high** |
+| **2026-09-16** `e45051c` | NTPC live | bulk CSV endpoint **WAF-blocked** — an F5 "Request Rejected" page served with **HTTP 200** | availability dead city-wide | paginate, + a release | 🟢 **certain**, [[data-sources]] |
+| **2026-10-15** | Taipei static | payload **truncated and spliced** — chunk marker inside the body, cut at 128 KiB − 4, byte-identical across fetches | crash | **none yet** | 🟢 **certain**, [[2026-10-15]] |
+
+### Reading the evidence honestly
+
+**What I'm inferring, and from what.** The three `String` → `String?` rows are read from the *shape of the fix*, not from a report — the commit messages are literally `Mar05` and `jan4 AM`. But nobody makes a field optional for fun. You do it because the decode started throwing `keyNotFound`, which is the exact failure this whole page is about. I'm confident in the class, not in the details.
+
+**I'm discounting both April 2024 rows.** The app was six or seven weeks old and you were reverse-engineering these feeds from live responses — `scoketStatusList` is still misspelled in the shipping code, which is what reverse-engineering looks like. Those two are as likely to be *you correcting your own guess* as upstream changing. Keep them in the table, don't lean on them.
+
+**The strongest row is `tel`, 2026-03-05.** Two years in, the model long settled, no refactor around it — and the field quietly became optional. That one is upstream.
+
+### What the record does to this design
+
+This is the part worth your attention, because it argues against something I pushed for two days ago.
+
+| Failure mode | Times observed | Covered by |
+|---|---|---|
+| **A field we insisted on went missing** | **3** | Layers 1 + 2 |
+| Transport / access changed (endpoint blocked, moved, paginated) | 1, severe | config-driven URL (#4), detector (#1) |
+| Payload corrupted upstream | 1, severe, **open** | Layers 0 + 2 |
+| Structure reshaped | 1, discounted | **nothing — needs a release** |
+| **A field was renamed** | **0** | the alias map (#4) |
+
+Three things follow.
+
+**1. The detector would have caught all seven.** Including the two that are not schema changes at all — the WAF block and the truncation. That is the strongest possible argument for doing #1 first: it is the only item that covers failure modes we haven't thought of, and five of these seven were failure modes we hadn't thought of.
+
+**2. The alias map insures the one thing that has never happened.** Renames are the headline fear and the empirical non-event. I argued two days ago that it might belong in build 1; the record says it belongs last. I'd rather say that plainly than let an argument I already made stand on evidence I hadn't looked at yet.
+
+**3. The actual recurring bug is "we insisted on a field and it vanished" — and it is still wide open.** Three times the fix was *reactive* optionalisation: a user hits it, you find out, you demote the field, you ship. That is precisely the loop your comment says isn't good enough, and it's the loop we have actually been living in, roughly annually, for two years.
+
+So **Layer 1 should be bigger than I wrote it.** Not just "delete the two fields nothing renders" — that was the Taipei *live* feed, where the mandatory surface is 8. The static feed's `ParkDescItem` still has **15 mandatory fields** (`id, area, name, type, summary, address, payex, tw97x, tw97y, totalcar, totalmotor, totalbike, totalbus, FareInfo, EntranceCoord`), and unlike `availablemotor`/`availablebus` they are all genuinely used, so they can't be deleted.
+
+But they can be made **optional by default**, which costs a release-time decision each and buys immunity from the one failure that keeps recurring. And past-you already wrote the lesson at the head of that struct:
+
+> *"some fileds are optional, otherwise the parsing of complete JSON document will faile"*
+
+That comment is the scar from 2024-05-02. The fix has been applied one field at a time, after each incident, for two years. **Doing the remaining 15 at once, proactively, is the single highest-value change on this page** — and it is less work than the alias map.
+
+### Revised order, after the evidence
+
+1. **Detector** (#1) — unchanged, still first, still zero app code. Catches all seven classes.
+2. **Layer 0** — no `fatalError` on remote input. Unchanged.
+3. **Layer 1b — optional by default.** *New, and promoted above everything else in app code.* Audit both feeds; every field that is not load-bearing becomes optional with a sane default. Directly addresses 3 of the 7 observed incidents and the only class that has repeated.
+4. **Layer 2** — lossy decode + floor. Also covers the 10-15 corruption, which is still open.
+5. **Layer 3** — tolerant/normalised keys. Cheap, and the 2024-04-19 recasing is at least a weak precedent.
+6. **#4 config layer** — alias map, date format, feed URL. **Demoted to last.** The URL part has a real precedent (2026-09-16); the alias part has none. Keep it designed, build it when something forces it.
 
 ## Your #1 — "we learn first." The app is the wrong place to look.
 
@@ -127,6 +194,9 @@ The cost is that you stop being an app developer and start also operating a data
 ---
 
 ## Revised plan, in the order I'd do it
+
+> [!warning] Reordered 2026-10-19 by **the record** above — see *Revised order, after the evidence*.
+> The sizing below still holds. What changed: **optional-by-default is promoted** (3 of 7 observed incidents), and the **alias map is demoted to last** (0 observed incidents).
 
 | # | What | App code? | Size | Why this order |
 |---|---|---|---|---|

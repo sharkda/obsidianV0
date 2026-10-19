@@ -13,6 +13,25 @@
 
 ---
 
+## Incident log — every time a feed changed under us
+
+**Reconstructed from git on 2026-10-19**, when Jim asked whether this has ever actually happened. It has, about **once every four or five months**. Full reasoning, confidence notes and what it means for the code in [[when-field-name-changes]].
+
+| When | Feed | What upstream did | Fix | Confidence |
+|---|---|---|---|---|
+| 2024-04-19 `9f1c9a8` | Taipei static | key recased — `EntranceCoordInfo` → `Entrancecoord**i**nfo` | renamed in Swift | ⚠️ low — app was 7 weeks old, likely our own guess being corrected |
+| 2024-04-25 `ec15cd6` | Taipei live | socket list reshaped `[String]` → `[{spot_abrv, spot_status}]` | new struct; left the `#warning` that is still in `AllAvailable.swift:150` | ⚠️ low — same reason |
+| 2024-05-02 `bb70e07` | Taipei static | `Address` went missing on some lots | → `String?` | 🟡 medium |
+| 2025-01-04 `f56c622` | Taipei static | `serviceTime` went missing on some lots | → `String?` | 🟢 high |
+| 2026-03-05 `59ad77c` | Taipei static | `tel` went missing on some lots | → `String?` | 🟢 **high — the cleanest case; two years in, model settled** |
+| 2026-09-16 `e45051c` | NTPC live | bulk CSV endpoint WAF-blocked, F5 page served as **HTTP 200** | paginate + a release | 🟢 certain — diagnosed below |
+| 2026-10-15 | Taipei static | payload truncated and spliced upstream, byte-identical across fetches | **none yet** | 🟢 certain — [[2026-10-15]] |
+
+**The pattern, and it is not the one we feared.** Zero renames in 31 months. The recurring failure is **a mandatory field quietly going missing** (3×), and the severe ones were **transport** (the WAF block) and **corruption** (the truncation) — neither of which is a schema change at all.
+
+> [!tip] What I take from this for the re-check above
+> The contact-detail re-check this note already commits to is the right habit aimed at the wrong target. Contacts rot silently; **so do the feeds, and more consequentially.** The schema belongs in the same cadence — which is what the scheduled detector in [[when-field-name-changes]] automates, so neither Jim nor I has to remember it.
+
 ## 臺北市 (Taipei)
 
 **Source:** https://data.taipei/dataset/detail?id=d5c0656b-5250-4179-a491-c94daa56ef2c
