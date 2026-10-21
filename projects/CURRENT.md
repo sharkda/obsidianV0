@@ -1,7 +1,9 @@
 # Current Project Context
 
-> [!warning] 🔴 New 2026-10-21 — **a feed change crashes the shipping app, and there is a plan**
-> Taipei and New Taipei have changed their feeds **seven times in 31 months** — and `fatalError` is still the handler for untrusted network input, so the next one crashes Release every ~2 minutes. The crash surface, the six-stage plan and an **Actions** table splitting your steps from mine: **[[data-schema-lifecycle]]**. Your side is on [[jim-actions#Data schema lifecycle — new 2026-10-21]]; only **J1** actually blocks anything.
+> [!success] ✅ 2026-10-21 — **the feed-change crash is fixed; the release plan page is owed**
+> Taipei and New Taipei have changed their feeds **seven times in 31 months**, and `fatalError` was the handler for untrusted network input — so the next one would have crashed Release every ~2 minutes. **C1 fixed it (`9b957e6`); iOS Debug + Release build clean, not yet run.** GM 1.0 also already tells users when data stalls — `StaleDataBanner` was built and wired, it just could never be reached. The over-the-air half is **1.1**. Plan: **[[data-schema-lifecycle]]** · session: **[[2026-10-21]]**.
+>
+> **Owed:** the **1.0 / 1.1 / 1.2+ release plan page** Jim asked for — started, not written. Waiting on Jim: **J5** (is the repo public or private? it sets the detector's cadence).
 
 Active focus across projects. Update at session END.
 

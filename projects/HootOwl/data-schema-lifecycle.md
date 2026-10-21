@@ -64,7 +64,7 @@ Also unguarded and unrelated to renames: **`NewTaipeiCityObs.swift:137`** crashe
 
 ---
 
-### ② Survive — the app must not die *(mine)*
+### ② Survive — the app must not die *(mine)* ✅ **SHIPPED 2026-10-21, `9b957e6`**
 
 Three changes, ~65 lines, six files. **Nothing else on this page matters until these are in**, because an over-the-air fix is worthless if the app dies before it can read the config.
 
@@ -207,8 +207,8 @@ So J1 in those words: **does the over-the-air machinery ship in GM 1.0, or in 1.
 
 | | Action | Blocking? | My default if you say nothing |
 |---|---|---|---|
-| **J1** | **Decide: do ④ ⑤ ⑥ ship in GM 1.0, or in 1.1?** ② and ③ go in regardless | **Yes — the one real decision** | **1.1.** Once ③ exists, a break costs a release you start the same hour, not a disaster a user reports — and your exposure is at its lifetime minimum in the weeks after launch. But it is cheapest to write now, while it is all in your head |
-| **J2** | **The 70% floor**, or reject-everything-on-any-failure? | no | **70% floor** |
+| ~~**J1**~~ | ✅ **Answered 2026-10-21: 1.1.** Jim: *"I'd want GM 1.0 does not crash, and tell the users if the data update is stalled… 1.0 and C1 go."* Both of those are now in GM 1.0 — the crash fix shipped, and the stale banner was already built. ④ ⑤ ⑥ go to 1.1, **as a commitment to ship 1.1, not a trigger to wait for a break** | — | **1.1.** Once ③ exists, a break costs a release you start the same hour, not a disaster a user reports — and your exposure is at its lifetime minimum in the weeks after launch. But it is cheapest to write now, while it is all in your head |
+| ~~**J2**~~ | ✅ **Proceeded on the default: 70% floor**, rather than block C1 on it. One constant, `TCMSV_allavailavble.Data.decodeFloor` — say the word and it changes in one line | — |
 | **J3** | **Where should the detector shout** — GitHub issue, email, or both? | no | **Both.** Issue for the dated record, email so you actually see it |
 | **J4** | **Approve the user-facing copy** in ④ once I draft it properly, 繁中 + EN | before ④ ships | — |
 | **J5** | **Is `sharkda/hootOwl` public or private?** Decides the detector's cadence and whether minutes are billed | before ③ ships | assume **private**, 30-minute cadence |
@@ -219,7 +219,7 @@ So J1 in those words: **does the over-the-air machinery ship in GM 1.0, or in 1.
 
 | | Action | Depends on |
 |---|---|---|
-| **C1** | **② Survive** — 5 `fatalError` sites, optional-by-default audit across both feeds, lossy decode + floor. Build-verify all four configurations | J2 |
+| ~~**C1**~~ | ✅ **done 2026-10-21, `9b957e6`** — 5 `fatalError` sites, mandatory surface 4→2 per lot, `LossyArray` + 70% floor on both cities, tolerant `UPDATETIME`. **iOS Debug + Release build clean; not yet run.** Proceeded on the 70% default for J2 | — |
 | **C2** | **③ Detect** — the script, the workflow, the committed schema fixtures, the heartbeat | J3, J5 |
 | **C3** | **⑥ Heal** — foreground refetch + refetch-on-break + cache-buster + the DEBUG config path | J1 |
 | **C4** | **④ Tell** — the `feedStatus` struct, the banner, and a proper copy draft for J4 in 繁中 + EN | J1, then J4 |
@@ -244,8 +244,8 @@ So J1 in those words: **does the over-the-air machinery ship in GM 1.0, or in 1.
 
 ## Still open
 
-1. **J1** — **GM 1.0 or 1.1** for ④ ⑤ ⑥. Everything else is sequencing.
-2. **J2** — the floor value.
+1. ~~**J1**~~ — answered: **1.1**, with GM 1.0 getting the crash fix and the existing stale banner.
+2. ~~**J2**~~ — proceeded on 70%.
 3. Whether the 2026-10-15 corruption is still happening. ②c covers it either way, but [[2026-10-15]] has no closing entry.
 
 ---

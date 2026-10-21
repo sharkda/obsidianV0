@@ -131,7 +131,9 @@ Older notes still contain "build 1" from before this was settled — it always m
 
 Jim, verbatim (2026-09-06): *"the app is for iOS, we can ignore the macOS ones, just try to minimize any erros complaints for macOS will be fine."*
 
-Keep `hootmac` building — wrap iOS-only affordances in `#if os(iOS)` rather than letting them render wrongly — but **never design, lay out, or polish for macOS**, and do not raise macOS UX as a decision. Several views are reachable from both targets, so it is easy to burn a session on something nobody sees.
+**Tightened 2026-10-21 — Jim: *"no need to build macOS anymore, focus on iOS build."*** Build and verify **iOS only**. Do not spend a build cycle on `hootmac`, and do not report it as a verification step. Keep wrapping iOS-only affordances in `#if os(iOS)` so the macOS target is not *gratuitously* broken, but it is no longer something to prove.
+
+Previously: keep `hootmac` building — but **never design, lay out, or polish for macOS**, and do not raise macOS UX as a decision. Several views are reachable from both targets, so it is easy to burn a session on something nobody sees.
 
 **Exception that survives this:** keep the `#if os(iOS) / #elseif os(macOS)` split around `CLAuthorization` / `.authorizedWhenInUse` references even when the branches are identical — Xcode has historically flagged that case as macOS-unavailable.
 

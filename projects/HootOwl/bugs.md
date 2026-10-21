@@ -31,7 +31,7 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 
 **Fix:** layered, designed in **[[data-schema-lifecycle]]**. Pre-submission set is Layers 0–2 + 4 + 5a, ~75 lines: never `fatalError` on remote input, delete the two unrendered mandatory fields, lossy per-item array decode with a 70% floor, keep-last-good so the existing `AvailFreshness` colours age the stale numbers, and raise the swallowed `.debug` logs to `.error`. **Revised 2026-10-18 after Jim raised the ceiling** ([[data-schema-lifecycle]]): detection moves *out of the app* — a scheduled job watches both public feeds and tells Jim before any user is affected, with no app code and no privacy-label change — and the Gist-hosted alias map is promoted from optional to planned, extended to cover the date format and the feed URL.
 
-**Status:** open — designed, nothing applied. Awaiting Jim's call on the two open questions at the foot of the design page.
+**Status:** ✅ **fixed 2026-10-21, `9b957e6`** (iOS Debug + Release build clean; **not yet run**). All five shipping `fatalError` sites replaced, mandatory per-lot surface 4 fields → 2, `LossyArray` + a 70% floor on both cities, tolerant `UPDATETIME`. The over-the-air half — telling users via a Gist flag, fixing a rename without a release — is **1.1** per Jim's J1 answer. Plan: [[data-schema-lifecycle]]; session: [[2026-10-21]].
 
 **Files:** `Mu1Base+Ext.swift:221-226`, `TaipeiObs.swift:24,88-96`, `NewTaipeiCityObs.swift:106-150`, `model/AllAvailable.swift:16-150` (`:150` already carries `#warning("the data and metadata is chaning will break this ")`), `network/ContactConfig.swift`.
 

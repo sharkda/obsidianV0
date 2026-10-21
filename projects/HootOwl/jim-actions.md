@@ -129,16 +129,16 @@ Steps if you need them: [[operations#how-to-edit-it--step-by-step]]. **Validate 
 
 **Nothing here blocks the archive except J1.** The two items that remove the crash and give us early warning (`C1`, `C2` on that page) are mine and need no decision from you beyond J2 and J5.
 
-- [ ] **J1 — the one real decision: do the over-the-air pieces ship in GM 1.0, or in 1.1?** The "tell users / fix by Gist / heal without a download" half. My default if you say nothing: **1.1** — once the detector exists, a break costs a release you start the same hour rather than a disaster a user reports, and your exposure is at its lifetime minimum in the weeks after launch. But it is cheapest to write now, while it is all in your head. **If you pick 1.1, that is a commitment to ship 1.1, not a trigger to wait for a break.**
-- [ ] **J2 — the floor:** skip bad lots but reject the payload below 70% decoded, or reject on any failure at all? My default: **70%**. One constant either way.
+- [x] ~~**J1**~~ — **answered 2026-10-21: 1.1.** GM 1.0 gets the crash fix (shipped, `9b957e6`) and the stale banner that was already built. The over-the-air half ships in **1.1**, as a commitment rather than a trigger.
+- [x] ~~**J2**~~ — **proceeded on 70%** rather than block C1; one constant, one-line change if you disagree. Was: skip bad lots but reject the payload below 70% decoded, or reject on any failure at all? My default: **70%**. One constant either way.
 - [ ] **J3 — where should the detector shout?** GitHub issue, email, or both. My default: **both** — issue for the dated record, email so you actually see it.
 - [ ] **J4 — approve the user-facing copy** once I draft it properly, 繁中 + EN. It tells someone their numbers are stale; it deliberately does **not** say "the app might break, please update". Your call on tone.
 - [ ] **J5 — is `sharkda/hootOwl` public or private?** Decides the detector's cadence: a 15-minute cron overruns the free private Actions allowance, 30 minutes fits. My default: assume **private**, 30 minutes.
 - [ ] **J6 — in a browser, ~5 minutes:** create a GitHub token with `gist` scope and add it as a repo secret. **Only needed if you want the detector to raise the user-facing flag automatically**, so a break at 09:00 notifies users by 09:30 with no action from you. Your account, so it has to be you.
 - [ ] **J7 — paste one `feedStatus` block into the existing Gist**, both cities `ok`. I will give you the exact JSON; it is the same Gist as the contacts.
 
-> [!tip] If you only want to answer one thing
-> **J1.** Everything else has a sane default I will proceed on.
+> [!tip] What is actually waiting on you now
+> **J5** — is `sharkda/hootOwl` public or private? It decides the detector's cadence, and the detector (C2) is the next thing I build. Everything else still has a default I will proceed on.
 
 ---
 
