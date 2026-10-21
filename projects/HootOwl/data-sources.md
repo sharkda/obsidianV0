@@ -15,7 +15,7 @@
 
 ## Incident log — every time a feed changed under us
 
-**Reconstructed from git on 2026-10-19**, when Jim asked whether this has ever actually happened. It has, about **once every four or five months**. Full reasoning, confidence notes and what it means for the code in [[when-field-name-changes]].
+**Reconstructed from git on 2026-10-19**, when Jim asked whether this has ever actually happened. It has, about **once every four or five months**. Full reasoning, confidence notes and what it means for the code in [[data-schema-lifecycle]].
 
 | When | Feed | What upstream did | Fix | Confidence |
 |---|---|---|---|---|
@@ -30,7 +30,7 @@
 **The pattern, and it is not the one we feared.** Zero renames in 31 months. The recurring failure is **a mandatory field quietly going missing** (3×), and the severe ones were **transport** (the WAF block) and **corruption** (the truncation) — neither of which is a schema change at all.
 
 > [!tip] What I take from this for the re-check above
-> The contact-detail re-check this note already commits to is the right habit aimed at the wrong target. Contacts rot silently; **so do the feeds, and more consequentially.** The schema belongs in the same cadence — which is what the scheduled detector in [[when-field-name-changes]] automates, so neither Jim nor I has to remember it.
+> The contact-detail re-check this note already commits to is the right habit aimed at the wrong target. Contacts rot silently; **so do the feeds, and more consequentially.** The schema belongs in the same cadence — which is what the scheduled detector in [[data-schema-lifecycle]] automates, so neither Jim nor I has to remember it.
 
 ## 臺北市 (Taipei)
 

@@ -1,3 +1,8 @@
+> [!warning] ⚠️ This page is **old**. → **[[data-schema-lifecycle|Go to the new one: Data schema lifecycle]]**
+> Superseded 2026-10-21 and renamed. Three of the plan tables below superseded each other, and two different things were both called "#4" — so the current plan, the actions and the decisions all live on the new page.
+>
+> **Kept for:** the jim/claude thread, the full crash-surface analysis, and the six-layer draft the new page was built from. **Do not plan from this page.**
+
 
 # Jim's comment:
 first thing first, what kind of "solution are we looking at, the upperbound of our solution." 
@@ -119,7 +124,9 @@ Compare the two honestly:
 Once it exists, your #1 is solved completely and permanently — **and a break stops being an emergency**, because you find out while the app is still showing merely-stale numbers rather than when a user writes a review.
 
 ---
-
+> jim oct21 : if we have a detector offline, I'd also want a "safety net", I want to have a code inside the App that will check from my git , when we have a detection of app might break, we will raise a flag, and let users know, the app might not get update the data source has changed, please update as soon as practical 
+>  if the app might break, after a significant reshape, maybe we can have a crucial flag but I am guess this will require a lot of codes to stop the app from loading the data entirely and this is very unlikely to happen 
+>  
 ## Your #2 and #3 — the OTA fix. How far it actually reaches.
 
 Mostly achievable. Here is the honest table, because the ceiling is not the same for every kind of change:
@@ -536,6 +543,7 @@ That is the gap worth closing this week. Layer 5 closes the remaining gap and ca
 > ~~**Layer 5 — in or out?**~~ **In.** Jim's comment settles it: *"users get the fix w/o downloading and upgrade."* It is now item **#4** of the revised plan, and the only remaining question is whether it lands in build 1 or build 2.
 
 1. **Does the config layer (#4) make build 1?** Yours. Deferring is safe **once the detector (#1) exists** — a rename then costs a release you start the same hour. Shipping it now is cheaper than writing it six months from now during an outage.
+	> 
 2. **The 70% floor.** Alternative: any failure at all rejects the whole payload and keeps last-good. Simpler, more conservative, throws away good data when one lot is malformed. I prefer the floor; it's one constant either way. *(Still open.)*
 3. **Where should the detector shout?** A GitHub issue, an email, or both. An issue is free, dated, and already where the repo lives; email reaches you on a phone. Default if you don't say: **both** — issue for the record, email so you actually see it.
 4. **New Taipei's `:137`** is a crash the moment that city adds a CSV column. It's inside Layer 0 and costs nothing extra. Flagging it because it's a *second* bug found while designing for the first; it has its own line in [[bugs]] under 2026-10-16.

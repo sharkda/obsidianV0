@@ -123,6 +123,25 @@ Steps if you need them: [[operations#how-to-edit-it--step-by-step]]. **Validate 
 
 ---
 
+## Data schema lifecycle — new 2026-10-21
+
+**Why this is on your list:** Taipei and New Taipei change their feeds about once every four or five months — **seven times in 31 months** — and today one of those changes crashes the shipping app every ~2 minutes. The plan, the reasoning and my side of the work: **[[data-schema-lifecycle]]**.
+
+**Nothing here blocks the archive except J1.** The two items that remove the crash and give us early warning (`C1`, `C2` on that page) are mine and need no decision from you beyond J2 and J5.
+
+- [ ] **J1 — the one real decision: do the over-the-air pieces land in build 1 or build 2?** The "tell users / fix by Gist / heal without a download" half. My default if you say nothing: **build 2** — once the detector exists, a break costs a release you start the same hour rather than a disaster a user reports. But it is cheapest to write now, while it is all in your head.
+- [ ] **J2 — the floor:** skip bad lots but reject the payload below 70% decoded, or reject on any failure at all? My default: **70%**. One constant either way.
+- [ ] **J3 — where should the detector shout?** GitHub issue, email, or both. My default: **both** — issue for the dated record, email so you actually see it.
+- [ ] **J4 — approve the user-facing copy** once I draft it properly, 繁中 + EN. It tells someone their numbers are stale; it deliberately does **not** say "the app might break, please update". Your call on tone.
+- [ ] **J5 — is `sharkda/hootOwl` public or private?** Decides the detector's cadence: a 15-minute cron overruns the free private Actions allowance, 30 minutes fits. My default: assume **private**, 30 minutes.
+- [ ] **J6 — in a browser, ~5 minutes:** create a GitHub token with `gist` scope and add it as a repo secret. **Only needed if you want the detector to raise the user-facing flag automatically**, so a break at 09:00 notifies users by 09:30 with no action from you. Your account, so it has to be you.
+- [ ] **J7 — paste one `feedStatus` block into the existing Gist**, both cities `ok`. I will give you the exact JSON; it is the same Gist as the contacts.
+
+> [!tip] If you only want to answer one thing
+> **J1.** Everything else has a sane default I will proceed on.
+
+---
+
 ## Decisions only you can make
 
 *Each of these unblocks work I can then do.*

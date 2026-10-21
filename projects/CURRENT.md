@@ -1,5 +1,8 @@
 # Current Project Context
 
+> [!warning] 🔴 New 2026-10-21 — **a feed change crashes the shipping app, and there is a plan**
+> Taipei and New Taipei have changed their feeds **seven times in 31 months** — and `fatalError` is still the handler for untrusted network input, so the next one crashes Release every ~2 minutes. The crash surface, the six-stage plan and an **Actions** table splitting your steps from mine: **[[data-schema-lifecycle]]**. Your side is on [[jim-actions#Data schema lifecycle — new 2026-10-21]]; only **J1** actually blocks anything.
+
 Active focus across projects. Update at session END.
 
 ---

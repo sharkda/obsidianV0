@@ -6,7 +6,7 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 
 ## 2026-10-16 — `fatalError` on remote data: a renamed field, or one extra CSV column, crashes the shipping app (open)
 
-**Found while answering** *"if Taipei changes a field name, does that mean the data will not be processed any further?"* — the answer turned out to be worse than the question assumed. Full design in **[[when-field-name-changes]]**.
+**Found while answering** *"if Taipei changes a field name, does that mean the data will not be processed any further?"* — the answer turned out to be worse than the question assumed. Full design in **[[data-schema-lifecycle]]**.
 
 **Symptom:** none today. Latent. The moment Taipei renames a field in the availability feed, the app crashes **every ~2 minutes, in Release, on device** — not "shows no data".
 
@@ -29,7 +29,7 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 
 **Separately: New Taipei `:137` fires on an added column, not a rename.** The CSV parser compares column *count*, never names, so renames there are harmless — but a third column passes the `:131` header check and then hits the unguarded `fatalError` at `:137`. A city adding a column to its own export is ordinary.
 
-**Fix:** layered, designed in **[[when-field-name-changes]]**. Pre-submission set is Layers 0–2 + 4 + 5a, ~75 lines: never `fatalError` on remote input, delete the two unrendered mandatory fields, lossy per-item array decode with a 70% floor, keep-last-good so the existing `AvailFreshness` colours age the stale numbers, and raise the swallowed `.debug` logs to `.error`. **Revised 2026-10-18 after Jim raised the ceiling** ([[when-field-name-changes]]): detection moves *out of the app* — a scheduled job watches both public feeds and tells Jim before any user is affected, with no app code and no privacy-label change — and the Gist-hosted alias map is promoted from optional to planned, extended to cover the date format and the feed URL.
+**Fix:** layered, designed in **[[data-schema-lifecycle]]**. Pre-submission set is Layers 0–2 + 4 + 5a, ~75 lines: never `fatalError` on remote input, delete the two unrendered mandatory fields, lossy per-item array decode with a 70% floor, keep-last-good so the existing `AvailFreshness` colours age the stale numbers, and raise the swallowed `.debug` logs to `.error`. **Revised 2026-10-18 after Jim raised the ceiling** ([[data-schema-lifecycle]]): detection moves *out of the app* — a scheduled job watches both public feeds and tells Jim before any user is affected, with no app code and no privacy-label change — and the Gist-hosted alias map is promoted from optional to planned, extended to cover the date format and the feed URL.
 
 **Status:** open — designed, nothing applied. Awaiting Jim's call on the two open questions at the foot of the design page.
 
