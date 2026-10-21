@@ -49,7 +49,7 @@ Live at https://jimhsuyc.wixsite.com/tataro/privacy-policy. Full review, and a t
 
 ## ✅ `destination-mode` — kept, merged 2026-09-23
 
-Seven rounds of your testing, then merged to `main` and pushed. **It ships in build 1.** Everything about it: [[destination-mode]].
+Seven rounds of your testing, then merged to `main` and pushed. **It ships in GM 1.0.** Everything about it: [[destination-mode]].
 
 **Three things it leaves open, none of which block the merge:**
 
@@ -129,7 +129,7 @@ Steps if you need them: [[operations#how-to-edit-it--step-by-step]]. **Validate 
 
 **Nothing here blocks the archive except J1.** The two items that remove the crash and give us early warning (`C1`, `C2` on that page) are mine and need no decision from you beyond J2 and J5.
 
-- [ ] **J1 — the one real decision: do the over-the-air pieces land in build 1 or build 2?** The "tell users / fix by Gist / heal without a download" half. My default if you say nothing: **build 2** — once the detector exists, a break costs a release you start the same hour rather than a disaster a user reports. But it is cheapest to write now, while it is all in your head.
+- [ ] **J1 — the one real decision: do the over-the-air pieces ship in GM 1.0, or in 1.1?** The "tell users / fix by Gist / heal without a download" half. My default if you say nothing: **1.1** — once the detector exists, a break costs a release you start the same hour rather than a disaster a user reports, and your exposure is at its lifetime minimum in the weeks after launch. But it is cheapest to write now, while it is all in your head. **If you pick 1.1, that is a commitment to ship 1.1, not a trigger to wait for a break.**
 - [ ] **J2 — the floor:** skip bad lots but reject the payload below 70% decoded, or reject on any failure at all? My default: **70%**. One constant either way.
 - [ ] **J3 — where should the detector shout?** GitHub issue, email, or both. My default: **both** — issue for the dated record, email so you actually see it.
 - [ ] **J4 — approve the user-facing copy** once I draft it properly, 繁中 + EN. It tells someone their numbers are stale; it deliberately does **not** say "the app might break, please update". Your call on tone.

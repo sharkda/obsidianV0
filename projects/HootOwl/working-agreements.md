@@ -114,6 +114,19 @@ Do this **unprompted** as the last step of any wrap-up, not only when asked to p
 
 ## Project conventions that are not obvious from the code
 
+### Release names: "GM, 1.0" and "1.1" — never "build 1"
+
+Jim's vocabulary, set 2026-10-21 when he asked what I meant by "build 1" and the answer was genuinely ambiguous:
+
+| Say | Mean |
+|---|---|
+| **GM, 1.0** | The golden master — the first public release, `MARKETING_VERSION = 1.0` |
+| **1.1** | The first update after launch, with its own App Review (1–3 days) |
+
+**"Build 1" and "build 2" are retired.** They read as build numbers and are not: `CURRENT_PROJECT_VERSION` is already at **5** on the iOS target, and none of 1–5 shipped — they were archive attempts, several of them burned. Build numbers are a counter, not a statement; releases have names.
+
+Older notes still contain "build 1" from before this was settled — it always meant GM 1.0.
+
 ### iOS is the product; macOS only has to compile
 
 Jim, verbatim (2026-09-06): *"the app is for iOS, we can ignore the macOS ones, just try to minimize any erros complaints for macOS will be fine."*

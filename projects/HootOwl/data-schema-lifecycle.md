@@ -183,30 +183,31 @@ That is the true ceiling. The cost is that you stop being an app developer and a
 
 ## Actions
 
-### What "build 1" means here — and why it is a bad name
+### Which release — Jim's names for them
 
-I had been borrowing the vault's shorthand, and Jim rightly asked what it meant. **It is not a build number.** `CURRENT_PROJECT_VERSION` is already at **5** on the iOS target, and none of 1–5 ever shipped — they were archive attempts, several of them burned (the 2026-09-14 archive could not even launch under Xcode 27).
+Settled 2026-10-21. **These are not build numbers:** `CURRENT_PROJECT_VERSION` is already at **5** on the iOS target and none of 1–5 shipped — they were archive attempts, several burned (the 2026-09-14 archive could not launch under Xcode 27).
 
-| Phrase | What it actually means |
+| Jim's name | What it is |
 |---|---|
-| **"build 1"** | **The first public release** — `MARKETING_VERSION = 1.0`, whatever build number it eventually carries |
-| **"build 2"** | **The first update after launch** — 1.0.1 or 1.1, needing its own App Review, so **1–3 days** |
+| **GM, 1.0** | The **golden master** — the first public release, `MARKETING_VERSION = 1.0` |
+| **1.1** | The **first update after launch**, with its own App Review, so **1–3 days** |
 
-So J1, restated without the jargon: **does the over-the-air machinery go into the version you submit now, or into the first update after launch?**
+So J1 in those words: **does the over-the-air machinery ship in GM 1.0, or in 1.1?**
 
-> [!tip] The argument for the first update, in one line
+> [!tip] The argument for 1.1, in one line
 > **Your exposure is at its lifetime minimum in the weeks right after launch.** A feed break on day three with a few dozen users costs almost nothing; the same break in eighteen months with thousands of users costs a great deal. The machinery gets *more* valuable over time, and the window where it would be missing is the window where it is worth least. Meanwhile ② and ③ mean that window still looks like *honest stale numbers, and we knew within 30 minutes* — not a crash, and not a user telling us.
 
 > [!warning] The honest risk in that answer, and the guard
-> It assumes "the first update" actually happens. If you launch and then go quiet for six months — entirely plausible for one person — the window stops being short and this becomes "someday".
+> It assumes 1.1 actually happens. If you launch and then go quiet for six months — entirely plausible for one person — the window stops being short and this becomes "someday".
 >
-> **So the guard is a commitment, not a trigger: ④ ⑤ ⑥ land in the first update regardless of whether anything has broken.** Not "when we need it". If you would rather not make that commitment, answer J1 with *first release* and I will build it now.
+> **So the guard is a commitment, not a trigger: ④ ⑤ ⑥ ship in 1.1 regardless of whether anything has broken.** Not "when we need it". If you would rather not make that commitment, answer J1 with **GM 1.0** and I will build it now.
+
 
 ### Yours
 
 | | Action | Blocking? | My default if you say nothing |
 |---|---|---|---|
-| **J1** | **Decide: do ④ ⑤ ⑥ land in the first release, or the first update after it?** ② and ③ go in regardless. See *What "build 1" means* below — it is not a build number | **Yes — the one real decision** | **The first update.** Once ③ exists, a break costs a release you start the same hour, not a disaster a user reports — and your exposure is at its lifetime minimum in the weeks after launch. But it is cheapest to write now, while it is all in your head |
+| **J1** | **Decide: do ④ ⑤ ⑥ ship in GM 1.0, or in 1.1?** ② and ③ go in regardless | **Yes — the one real decision** | **1.1.** Once ③ exists, a break costs a release you start the same hour, not a disaster a user reports — and your exposure is at its lifetime minimum in the weeks after launch. But it is cheapest to write now, while it is all in your head |
 | **J2** | **The 70% floor**, or reject-everything-on-any-failure? | no | **70% floor** |
 | **J3** | **Where should the detector shout** — GitHub issue, email, or both? | no | **Both.** Issue for the dated record, email so you actually see it |
 | **J4** | **Approve the user-facing copy** in ④ once I draft it properly, 繁中 + EN | before ④ ships | — |
@@ -222,7 +223,7 @@ So J1, restated without the jargon: **does the over-the-air machinery go into th
 | **C2** | **③ Detect** — the script, the workflow, the committed schema fixtures, the heartbeat | J3, J5 |
 | **C3** | **⑥ Heal** — foreground refetch + refetch-on-break + cache-buster + the DEBUG config path | J1 |
 | **C4** | **④ Tell** — the `feedStatus` struct, the banner, and a proper copy draft for J4 in 繁中 + EN | J1, then J4 |
-| **C5** | **⑤ Fix** — alias map, config date format, config feed URL. **Last**, and only if J1 says first release | J1 |
+| **C5** | **⑤ Fix** — alias map, config date format, config feed URL. **Last**, and only if J1 says GM 1.0 | J1 |
 | **C6** | Two release-checklist lines in [[operations]]: run the live-feed decode before every archive, and **verify `feedStatus` is `ok` before submission** | C2 |
 | **C7** | Write the outcome into [[decisions]] once J1 and J2 are answered — including the alias map being **designed and deliberately deferred**, so it isn't re-litigated in six months | J1, J2 |
 
@@ -243,7 +244,7 @@ So J1, restated without the jargon: **does the over-the-air machinery go into th
 
 ## Still open
 
-1. **J1** — first release, or first update, for ④ ⑤ ⑥. Everything else is sequencing.
+1. **J1** — **GM 1.0 or 1.1** for ④ ⑤ ⑥. Everything else is sequencing.
 2. **J2** — the floor value.
 3. Whether the 2026-10-15 corruption is still happening. ②c covers it either way, but [[2026-10-15]] has no closing entry.
 
