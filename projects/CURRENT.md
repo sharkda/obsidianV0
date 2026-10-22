@@ -3,7 +3,7 @@
 > [!success] ✅ 2026-10-21 — **the feed-change crash is fixed; the release plan page is owed**
 > Taipei and New Taipei have changed their feeds **seven times in 31 months**, and `fatalError` was the handler for untrusted network input — so the next one would have crashed Release every ~2 minutes. **C1 fixed it (`9b957e6`); iOS Debug + Release build clean, not yet run.** GM 1.0 also already tells users when data stalls — `StaleDataBanner` was built and wired, it just could never be reached. The over-the-air half is **1.1**. Plan: **[[data-schema-lifecycle]]** · session: **[[2026-10-21]]**.
 >
-> **Owed:** the **1.0 / 1.1 / 1.2+ release plan page** Jim asked for — started, not written. Waiting on Jim: **J5** (is the repo public or private? it sets the detector's cadence).
+> 📋 **The release plan is written: [[release-plan]]** — every open item in **GM 1.0 / 1.1 / 1.2+**. Headline: **nothing in code blocks GM 1.0**; the whole critical path is Jim's ASC fields, screenshots, the 中文 pass and one device run. Ten blocking items, all his. Waiting on Jim: **J5** (repo public or private? it sets the detector's cadence), plus **D-01** and **E-02** as GM-1.0 decisions.
 
 Active focus across projects. Update at session END.
 

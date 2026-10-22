@@ -6,6 +6,7 @@ Tick items as you go. Nothing here needs the terminal or a conversation to resum
 
 > [!note] What belongs where
 > - **This note** — only things that need *you*: your accounts, your device, your judgement.
+> - [[release-plan]] — **what ships in GM 1.0 vs 1.1 vs 1.2+.** Read this to see why an item is *not* on this list yet.
 > - [[operations#2-release-checklist]] — the full checklist including everything I can do.
 > - [[operations]] — how-to steps (editing the Gist, testing).
 > - [[unfinished]] — engineering work not tied to release.
