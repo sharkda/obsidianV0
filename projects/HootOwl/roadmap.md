@@ -76,7 +76,7 @@ Not duplicated here — these live where they are and are linked so this note st
 
 | | Where |
 |---|---|
-| **D-01** — subscription unlocks nothing but ad removal. If subscribers were meant to get more, that gating was never built. A product question that would *generate* features. | [[jim-actions]] |
+| ~~**D-01**~~ — ✅ **closed 2026-10-27: the subscription *is* ad removal, and the app says so.** It stops being a feature-generating question until the first subscriber-only feature is proposed — which is the trigger to reopen it. | [[decisions#2026-10-27--the-subscription-is-remove-ads-and-the-app-says-exactly-that]] |
 | **E-01** — nothing tells a user when a feed is down. Arguably owed rather than wanted, which is why it is 🟠 and not here. | [[jim-actions]] |
 | **D-02** — label New Taipei's −9 lots rather than hide them. | [[data-sources]] |
 | A second tutorial video — the config is already keyed by **where the button appears**, so `tutorials.cyclops` needs no code. | [[operations#why-tutorials-is-keyed-by-name-not-numbered]] |

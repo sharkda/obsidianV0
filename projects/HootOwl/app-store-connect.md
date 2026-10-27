@@ -159,7 +159,7 @@ Parking data from the Taipei City and New Taipei City open data platforms, used 
 | *"Choose the city and the whole app works before you arrive"* | destination mode, [[destination-mode]] |
 | *"Some car parks do not publish live availability yet"* | New Taipei's own portal: lots mid-operator-change report `-9`. Saying so is more honest than hiding them — [[data-sources]] |
 | *"no servers of its own and never receives where you are"* | **verified by grep over every `URLRequest`/`dataTask` site**: whole-city datasets are downloaded and filtered on-device; no coordinate is ever put in a request. [[privacy-policy]] |
-| *"removes the banner; every other part works exactly the same"* | true today and stated on the purchase screen. **If subscriber-only features are ever added, this line must change** — see D-01 |
+| *"removes the banner; every other part works exactly the same"* | true today and stated on the purchase screen. **D-01 is now decided this way (2026-10-27): ad removal is the whole product.** If a subscriber-only feature is ever added, this line, the in-app purchase screen and the IAP description all change together — [[decisions#2026-10-27--the-subscription-is-remove-ads-and-the-app-says-exactly-that]] |
 | the **Data sources** paragraph | **word-for-word the app's own `opt_attribution_body`**, so the listing and the app cannot drift. 政府資料開放授權條款－第1版 requires the credit |
 
 ### Deliberately not said

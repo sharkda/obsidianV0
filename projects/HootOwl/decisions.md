@@ -4,7 +4,26 @@ Architectural and design decisions, with brief rationale. Newest at top.
 
 ---
 
-<!-- Template:
+## 2026-10-27 — The subscription is "remove ads", and the app says exactly that
+
+**Decision (Jim):** *"yes, you can change that to remove AD only, in the future, if we add subscriber only features we will get back to this."* This closes **D-01**, open since 2026-09-08.
+
+**What was actually wrong.** `AppScreen.sorted()` returns the same tabs for every tier. The only thing a paid tier changes anywhere in the app is whether the ad banner renders. So the app was selling a tier whose gating had never been built — not a bug, a product question that could only be answered by the person who owns the product.
+
+**Why this is the right answer and not a retreat.** There were two ways to make the sentence true: build gated features, or describe the product honestly. Building features days before a GM submission is how a release slips, and ad removal is a real thing people pay for — it is most of what a small utility's subscription is worth. The honest description costs nothing, needs no new code, and cannot be rejected for saying something the app does not do.
+
+**What this means in GM 1.0:**
+
+| | |
+|---|---|
+| Code | **No change.** The gating that exists is the gating we are selling |
+| The purchase screen | Must say *removes the banner; every other part works exactly the same* — [[app-store-connect#what-each-claim-rests-on]] |
+| App Store Connect | The subscription display name and description describe ad removal only, nothing broader |
+
+**The condition on it, in Jim's words:** *"if in the future we add subscriber only features we will get back to this."* So this is not settled forever — it is settled for **as long as the only difference is the banner**. The trigger to reopen it is the first subscriber-only feature, and when that lands, **three things move together**: the gating, the purchase-screen copy, and the ASC subscription description. A new feature that quietly makes the copy false is the failure mode to avoid, and it is exactly the shape of **R-04** (a Store field that says something untrue about the app).
+
+**Impact:** no files. Copy in [[app-store-connect]], bucket in [[release-plan#decisions-i-need-from-you-before-gm-10]].
+
 ## 2026-10-08 — 繁體中文 leads wherever both languages share a surface
 
 **Decision (Jim):** *"since this is Taiwan Taipei focusing, in any pages where English and Chinese co-exist, please show the Chinese one instead... most chinese users will confused, and they are like 90%."* Applied to the support page the same day.
@@ -260,6 +279,7 @@ Nothing was lost: size was already the stronger scarcity signal on that cell, an
 
 **Revisit if** custom terms are ever written — one constant, `LegalLink.termsOfUse`.
 
+<!-- Template:
 ## YYYY-MM-DD — Short title
 **Decision:** What was decided.
 **Why:** Constraints/motivation.

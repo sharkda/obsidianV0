@@ -34,9 +34,9 @@
 
 ### Decisions I need from you before GM 1.0
 
-| ID | Decision | My recommendation |
+| ID | Decision | Status |
 |---|---|---|
-| **D-01** | 🔴 **Is there any reason to subscribe?** `AppScreen.sorted()` returns the same tabs for every tier — the only thing a subscription changes is the **ad banner**. If subscribers were meant to get more, that gating was never built | **Ship as "remove ads", and say exactly that** in the product name and the subscription screen. It is honest, it is a real product, and it needs no new code. The alternative — building gated features now — is a 1.1 conversation at the earliest |
+| **D-01** | ~~🔴 **Is there any reason to subscribe?**~~ | ✅ **DECIDED 2026-10-27 — ship as "remove ads", and say exactly that.** Jim: *"yes… in the future, if we add subscriber only features we will get back to this."* **No code change, and no copy change either** — both the English and 中文 ASC descriptions were already drafted this way. Reasoning and the reopen trigger: [[decisions#2026-10-27--the-subscription-is-remove-ads-and-the-app-says-exactly-that]] |
 | **E-02** | 🟠 **Crash visibility.** No Crashlytics, no Sentry. Organizer shows only opted-in users, partial and delayed | **Launch on Organizer alone, decide a third-party SDK for 1.1.** A crash SDK collects diagnostic data, which is a **declarable nutrition-label category** — the same argument that kept detection out of the app in [[data-schema-lifecycle]]. Adding one now reopens R-09 days before submission. And C1 just removed the crash class we knew about |
 
 ### Mine for GM 1.0 — none of it blocking
@@ -64,7 +64,7 @@
 | **E-04** | Reject placeholder config values (`@example.com`, `1234-5678`) as absent | mine — **bundle with ⑤**, ~4 lines |
 | **E-11** | Feed parsing runs on the main thread — ~1,400 lots per zone per poll | mine. *Do it when polling is next touched, and ⑤ ⑥ touch polling* |
 | **E-13** | 11 duplicate parkIds in the NTPC feed | mine |
-| **D-02** | **Label New Taipei's −9 lots rather than hide them.** The portal explains it: those lots are mid-operator-change | yours — labelling beats hiding |
+| **D-02** | **Label New Taipei's −9 lots rather than hide them.** About 70% of New Taipei's lots report their free-space count as **`-9`**. That is not our bug and not a broken feed: the city's own dataset description says 部分停車場因**更換營運廠商**，尚無提供即時車位，其顯示數值將為 **-9** — those lots are mid-operator-change and have no live count to give. The decision is what the app shows for them: **label** (*"no live data from this lot"*) or **hide**. Full note: [[data-sources#-this-dataset-answers-the-open-9-question]] | yours — **labelling beats hiding**, because the lots exist and are usable, they just do not report. And the rate should fall on its own as operators finish switching, so re-measure before designing around today's number |
 | **E-02** | Decide a third-party crash SDK, now that R-09 is settled | yours |
 | **E-18 · E-19** | Toolbar squeeze · map-pin alpha floor at 30 min — both "built, never looked at on a device" | yours, in the same pass |
 | **R-13** | Record the real tutorial video; the Gist still points at a test clip | yours |
