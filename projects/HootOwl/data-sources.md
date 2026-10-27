@@ -101,7 +101,20 @@ Straight from the dataset description:
 
 > 部分停車場因**更換營運廠商**，尚無提供即時車位，其顯示數值將為 **-9**。
 
-So New Taipei's ~70% `-9` rate is **not a broken feed and not our bug** — those lots are mid-operator-change and genuinely have no live count to report. That reframes the product decision in [[jim-actions]]: the honest UI is to *label* them ("no live data from this lot") rather than hide them, because the lots exist and are usable, they simply do not report. It also means the rate should fall on its own as operators finish switching — worth re-measuring at the next check rather than designing around today's number.
+So New Taipei's ~70% `-9` rate is **not a broken feed and not our bug** — those lots are mid-operator-change and genuinely have no live count to report. That reframes the product decision in [[jim-actions]]: the honest UI is to *label* them rather than hide them, because the lots exist and are usable, they simply do not report. **Jim decided exactly that on 2026-10-27 and put it in GM 1.0** — [[decisions#2026-10-27--label-the-car-parks-with-no-live-count-d-02]].
+
+> [!warning] Re-measured 2026-10-27 — the "it will fall on its own" hypothesis is wrong
+> This note used to end *"the rate should fall on its own as operators finish switching."* Measured against both live feeds on 2026-10-27, **it has not moved**:
+>
+> | Feed | Lots | `-9` | Share |
+> |---|---|---|---|
+> | 臺北市 | 1,214 | 96 | **7.9%** |
+> | 新北市 | 1,378 | 957 | **69.4%** |
+> | **both** | **2,592** | **1,053** | **40.6%** |
+>
+> Thirteen months after the explanation was found, New Taipei is still at 69.4%. So this is not a transition to wait out — it is **the steady state**, and **four in ten car parks in the app** have no live number. That is what promoted D-02 from a nice-to-have into GM 1.0: it is not an edge case, it is the most common thing the app has to say.
+>
+> **Also measured, and worth knowing:** Taipei's field documentation describes `-11` / `-12` / `-13` as *fullness bands* (雖無格數，但可以顯示滿車率 — `-11` 剩餘格位足夠, `-12` 不足半數, `-13` 不足). Those would be real information the app currently throws away. **Zero occurrences in either feed today**, and nothing in the code reads them, so nothing was built for them. Re-check when the detector (C2) lands — it is one more thing a schema watcher can notice for free.
 
 **Also useful:** 更新頻率 每3分鐘 confirms the 5-minute "fresh" threshold in `AvailFreshness` is the right side of the publish interval.
 

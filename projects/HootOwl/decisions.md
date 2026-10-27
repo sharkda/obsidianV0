@@ -4,6 +4,57 @@ Architectural and design decisions, with brief rationale. Newest at top.
 
 ---
 
+## 2026-10-27 — Label the car parks with no live count (D-02)
+
+**Decision (Jim):** *"show the label, this need to be done in 1.0."* Closes **D-02**, open since 2026-09-09, and **promotes it out of 1.1 into GM 1.0**.
+
+**What made it a 1.0 item rather than a nicety — the numbers, measured against both live feeds the same day:**
+
+| Feed | Lots | reporting `-9` | Share |
+|---|---|---|---|
+| 臺北市 | 1,214 | 96 | 7.9% |
+| 新北市 | 1,378 | 957 | **69.4%** |
+| **both** | **2,592** | **1,053** | **40.6%** |
+
+**Four in ten car parks in this app have no live number.** It was never an edge case — it was the single most common thing the app has to say, and the one thing it never said. It also kills the standing assumption in [[data-sources]] that the rate would *"fall on its own as operators finish switching"*: thirteen months after the cause was identified, New Taipei is still at 69.4%. This is the steady state.
+
+**What the user saw before.** Four surfaces, four different wordless tokens, none of them translated:
+
+| Surface | Before |
+|---|---|
+| Map pin | a grey `P` |
+| Lot detail sheet | `Available: -` |
+| All tab row | `N/A` |
+| Cyclops cell | `"-9, does not provide"` — **the raw feed sentinel, in a user-facing cell** |
+
+**The distinction the fix exists to protect, and the reason it needed a type and not four string literals.** `cars < 0` and `cars == nil` are different facts. A negative value means the lot **is** in the feed and the source is declining to give a count — a fact about the car park, permanent until the city changes it. `nil` means *we* have nothing yet. Giving those the same words would have the app say *"this car park doesn't report live spaces"* on every cold launch, which is a lie. `AvailSignal` is the one place that reads the sign, so the four surfaces cannot drift apart again.
+
+**What shipped (`7cebf96`, iOS Debug + Release clean, not yet run):**
+
+| Surface | Now |
+|---|---|
+| Lot detail sheet | a sentence plus a second line explaining the dash the user is looking at |
+| All tab | `No live` / 「無即時」 instead of `N/A`, filter chip with it |
+| Cyclops | the sentinel replaced by the shared sentence |
+| **Map pin** | **deliberately unchanged** — a ~12pt badge on a map that can hold hundreds has no room for words, and the explanation is one tap away in the sheet. Changing the glyph for 40% of pins is a visual risk with no gain |
+
+**Copy, yours to overrule — it is three strings:**
+
+| | en | 中文 |
+|---|---|---|
+| The sentence | *This car park doesn't report live spaces* | 本停車場未提供即時車位 |
+| The second line | *The city's open data has no number for it. Total spaces are shown above.* | 市府開放資料沒有提供即時數字，上方顯示的是總車位數。 |
+| The badge | *No live* | 無即時 |
+
+**Two things found on the way, both left alone deliberately:**
+
+- **There is already an unused string `"No live data from source"` / 「來源無即時資料」** in `Localizable.xcstrings`, translated, marked manual, wired to nothing. Someone drafted this exact copy before and never used it. Not reused, because *"source"* is our word, not a driver's — but it is there if you prefer it, and it is a one-line swap.
+- **`Available` and `Total` shipped with no Chinese at all.** Both are now translated, because this work made them the labels a 中文 reader stares at while reading the note next to them. Part of what the 中文 pass would have had to find anyway.
+
+**Not built:** Taipei's docs describe `-11` / `-12` / `-13` as fullness bands (`-11` 剩餘格位足夠, `-12` 不足半數, `-13` 不足) — real information the app discards. **Zero occurrences in either feed today**, so nothing was written for them. Noted in [[data-sources]] for the detector to watch.
+
+**Impact:** `CoverageNoticeView.swift` (the new type and note), `NbsScreen.swift`, `MncplAllScreen.swift`, `MncplParkItemRowView.swift`, `CyclopsModel.swift`, `Localizable.xcstrings`. Bucket: [[release-plan]].
+
 ## 2026-10-27 — The subscription is "remove ads", and the app says exactly that
 
 **Decision (Jim):** *"yes, you can change that to remove AD only, in the future, if we add subscriber only features we will get back to this."* This closes **D-01**, open since 2026-09-08.

@@ -60,7 +60,7 @@ The growth path for the whole app, and the one feature that changes what the pro
 
 **What a new city touches, from what the last two taught us:**
 
-- A feed and its quirks — New Taipei needed **pagination** to get past a WAF (`e45051c`) and has **duplicate parkIds** (E-13) and **−9 lots** mid-operator-change (D-02).
+- A feed and its quirks — New Taipei needed **pagination** to get past a WAF (`e45051c`) and has **duplicate parkIds** (E-13) and **−9 lots** mid-operator-change (D-02, **69.4% of the city** and holding — now labelled rather than silent).
 - A fence/coverage polygon, which is where **E-12** (`convexEnclosing` integer truncation) becomes load-bearing — it already decides `isInServiceArea`.
 - **E-24** — `onb_s1_body` **hardcodes the city list** in both en and 中文. A third city makes onboarding understate coverage until that string changes.
 - `destinationChoices` in `Municipal+Coverage.swift`, which Jim deliberately cut to **one** entry (Taipei) because two adjacent cities was a meaningless choice. A genuinely separate city is the case that earns a second entry back.
@@ -78,7 +78,7 @@ Not duplicated here — these live where they are and are linked so this note st
 |---|---|
 | ~~**D-01**~~ — ✅ **closed 2026-10-27: the subscription *is* ad removal, and the app says so.** It stops being a feature-generating question until the first subscriber-only feature is proposed — which is the trigger to reopen it. | [[decisions#2026-10-27--the-subscription-is-remove-ads-and-the-app-says-exactly-that]] |
 | **E-01** — nothing tells a user when a feed is down. Arguably owed rather than wanted, which is why it is 🟠 and not here. | [[jim-actions]] |
-| **D-02** — label New Taipei's −9 lots rather than hide them. | [[data-sources]] |
+| ~~**D-02**~~ — ✅ **closed 2026-10-27 and shipped in GM 1.0.** Not New Taipei's problem alone either: measured, **40.6% of all lots in the app** have no live count, and the rate is not falling. | [[decisions#2026-10-27--label-the-car-parks-with-no-live-count-d-02]] |
 | A second tutorial video — the config is already keyed by **where the button appears**, so `tutorials.cyclops` needs no code. | [[operations#why-tutorials-is-keyed-by-name-not-numbered]] |
 
 ## Related
