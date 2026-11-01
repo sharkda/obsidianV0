@@ -250,7 +250,7 @@ To **remove** the video, delete that line (or the whole `"tutorials"` block). Th
 - [ ] ❓ **Every zone polls for every user.** `ActDeActOnes` has zero callers, so a Taipei user also polls New Taipei continuously. Costs battery and muddies any energy measurement. Tolerable at two cities; not at six.
 - [ ] ❓ **`fences` file missing from the bundle** — `Municipal+Fence 92 — the file "fences" couldn't be opened`, repeating.
 - [ ] ❓ **Ratings prompt is not implemented.** No `requestReview` anywhere. The agreed design is a native prompt at a win moment, never in onboarding.
-- [ ] ❓ Subscription / IAP state — flagged as unsatisfactory in [[Jim's backlog]] and untouched this cycle.
+- [ ] ❓ Subscription / IAP state — flagged as unsatisfactory in [[Jim's Features and backlogs]] and untouched this cycle.
 
 ## F. Cleanup (optional, none of it blocking)
 

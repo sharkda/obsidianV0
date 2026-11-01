@@ -10,7 +10,7 @@ Tick items as you go. Nothing here needs the terminal or a conversation to resum
 > - [[operations#2-release-checklist]] — the full checklist including everything I can do.
 > - [[operations]] — how-to steps (editing the Gist, testing).
 > - [[unfinished]] — engineering work not tied to release.
-> - [[Jim's backlog]] — bugs you want to work on with me.
+> - [[Jim's Features and backlogs]] — bugs you want to work on with me.
 
 ---
 
@@ -226,4 +226,4 @@ Say go and I will do these — listed so you know they are not forgotten, **not*
 ---
 
 ## Related
-[[operations]] · [[unfinished]] · [[bugs]] · [[onboarding]] · [[Admob]] · [[Jim's backlog]]
+[[operations]] · [[unfinished]] · [[bugs]] · [[onboarding]] · [[Admob]] · [[Jim's Features and backlogs]]

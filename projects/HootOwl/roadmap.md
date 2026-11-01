@@ -6,7 +6,7 @@
 |---|---|
 | **Features** — capability we would like the app to have | [[unfinished]] — engineering debt and things knowingly left half-done |
 | Wanted, not owed | [[bugs]] — things that are wrong |
-| Post-launch unless marked otherwise | [[Jim's backlog]] — bugs **Jim** wants to work on |
+| Post-launch unless marked otherwise | [[Jim's Features and backlogs]] — bugs **Jim** wants to work on |
 | | [[jim-actions]] — things only Jim can do, for *this* release |
 
 **IDs are `F-`, permanent, never reused** — same convention as the state-of-play tables, so a feature can be referred to across sessions without re-describing it.
@@ -82,4 +82,4 @@ Not duplicated here — these live where they are and are linked so this note st
 | A second tutorial video — the config is already keyed by **where the button appears**, so `tutorials.cyclops` needs no code. | [[operations#why-tutorials-is-keyed-by-name-not-numbered]] |
 
 ## Related
-[[unfinished]] · [[Jim's backlog]] · [[jim-actions]] · [[decisions]] · [[INDEX]]
+[[unfinished]] · [[Jim's Features and backlogs]] · [[jim-actions]] · [[decisions]] · [[INDEX]]

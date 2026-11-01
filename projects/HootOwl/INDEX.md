@@ -41,8 +41,8 @@
 | **[[app-icon]]** | *Why did the icon break again?* The alpha rule, the iOS mask, the Icon Composer workflow, and the **wiring step that makes a `.icon` actually take effect**. Two silent failures in two days live here |
 | **[[data-schema-lifecycle]]** | *What happens when Taipei or New Taipei changes a feed?* The current plan. Six stages — survive, detect, tell, fix, heal — with an **Actions** table splitting Jim's steps from mine. Built on the record: **7 upstream incidents in 31 months and never a rename**, so a mandatory field going missing is the real bug and the alias map goes last. **Stage ② shipped 2026-10-21 (`9b957e6`)** — the crash is fixed. The over-the-air half is 1.1 |
 | [[when-field-name-changes]] | ⚠️ **Old — superseded by the above.** Kept for the jim/claude thread, the full crash-surface analysis and the six-layer draft. Do not plan from it |
-| **[[roadmap]]** | *What do we want to build next?* Features we want but have not built, `F-` ids. **The third list** — deliberately not [[unfinished]] (debt) or [[Jim's backlog]] (bugs). Started 2026-10-09 |
-| **[[Jim's backlog]]** | Yours. Bugs you want to work on with me |
+| **[[roadmap]]** | *What do we want to build next?* Features we want but have not built, `F-` ids. **The third list** — deliberately not [[unfinished]] (debt) or [[Jim's Features and backlogs]] (bugs). Started 2026-10-09 |
+| **[[Jim's Features and backlogs]]** | Yours. Bugs you want to work on with me |
 
 ## Sessions — the narrative
 

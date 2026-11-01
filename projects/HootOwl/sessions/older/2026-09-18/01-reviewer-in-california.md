@@ -56,7 +56,7 @@ The 09-14 draft was **right on the facts and backwards in its ordering**. It led
 
 ## `tpe` → 0 changes the priority of J-01
 
-[[Jim's backlog]] item 1 — *"the search should be case insensitive, or simply move English upper, since I have to type TPE0155 or tpe0155 will not click!"* — has been a usability nicety since June.
+[[Jim's Features and backlogs]] item 1 — *"the search should be case insensitive, or simply move English upper, since I have to type TPE0155 or tpe0155 will not click!"* — has been a usability nicety since June.
 
 It is now **rejection insurance**. A reviewer who follows the notes, types lowercase out of habit, and gets an empty list has just been shown an app that appears broken. One `localizedCaseInsensitiveContains` in `MncplAllScreen.swift:77` removes that failure mode — and fixes the bug Jim actually reported.
 
@@ -68,4 +68,4 @@ It is now **rejection insurance**. A reviewer who follows the notes, types lower
 - **A demo video** would be stronger than any of this, and is already owed as **R-13**. Apple accepts a link in the review-notes field.
 
 ## Related
-[[app-store-connect#34-beta-app-review-information--paste-ready]] · [[release-strategy#the-one-risk-i-would-bet-money-on]] · [[00-state-of-play]] · [[Jim's backlog]]
+[[app-store-connect#34-beta-app-review-information--paste-ready]] · [[release-strategy#the-one-risk-i-would-bet-money-on]] · [[00-state-of-play]] · [[Jim's Features and backlogs]]

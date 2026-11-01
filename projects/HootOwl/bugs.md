@@ -122,7 +122,7 @@ That line is one statement: `actParkInfos[p0.mncplt] = p0`.
 **Files:** `hootowl/Municipalities/Nbs/NbsScreen.swift` — `snapCameraToDevice`, `wire0`.
 
 ## 2026-09-19 — Search only matched capitals, so `tpe0155` found nothing (fixed)
-**Symptom:** typing a lot id in lower case returned an empty list. `TPE0155` worked; `tpe0155` did not. Reported by Jim in June ([[Jim's backlog]] item 1) and lived as a usability nicety until the App Store review notes started telling reviewers to search for `TPE`.
+**Symptom:** typing a lot id in lower case returned an empty list. `TPE0155` worked; `tpe0155` did not. Reported by Jim in June ([[Jim's Features and backlogs]] item 1) and lived as a usability nicety until the App Store review notes started telling reviewers to search for `TPE`.
 **Root cause:** `MncplAllScreen.filtered(avMap:)` used a plain `String.contains`, which is case-sensitive. The haystack is `"\(id) \(name) \(address) \(area)"` and **every Taipei id is capitalised** (`TPE0001`…), so any lower-case English query matched zero rows out of 1,773.
 **Why it became urgent:** the 09-18 review notes instruct a reviewer to open the All tab and type `TPE`. **A reviewer who types it in lower case sees an empty list and concludes the app does not work** — the cheapest possible rejection, from a one-line bug.
 **Fix:** `localizedStandardContains`. Commit `9285a47`.
@@ -511,10 +511,26 @@ Both sides are raw feed IDs. Whether the convention was planned-and-never-built 
 
 ## 2026-06-15 — IME blocks UI, user stuck in search on All screen
 **Symptom:** When using IME (Chinese / multi-step input methods) in the search field on the All screen (`MncplAllScreen`), the IME / on-screen keyboard blocks the UI and the user cannot exit the search — they appear stuck on the search input.
-**Root cause:** Unknown — not yet investigated. Likely candidates: the search bar fails to dismiss IME on submit/cancel; IME composition state isn't resolved when the user taps outside; a `@FocusState` (or `.searchable` focus binding) is held by the SwiftUI lifecycle. Could also be a `.searchable` / `.searchSuggestions` interaction with IME composition events (vs. final-text events).
-**Fix / workaround:** TBD. First step when picking this up: reproduce in the simulator (or device) — capture which input method (注音 / 拼音 / handwriting / English) triggers it and which gesture (tap outside, swipe down, system back, etc.) fails to dismiss the IME.
-**Status:** open. Logged 2026-06-15 by Jim; investigation deferred until after the current battery pre-release picks land.
-**Files (likely starting point — not verified):** `hootowl/UI/mncplAll/MncplAllScreen.swift` per CLAUDE.md's `@AppStorage("mncpl_Park_SearchData")` note. The search is shared in spirit with `MncplCyclopsScreen` (via the `mncpl_watchList_data` pin list), so the same root cause may surface there.
+**Re-reported 2026-11-01 by Jim, from a live simulator** — *"I cannot leave the all screen, I click the tab to show all the tabs, I tried to clicked the cyclops tab, but nothing happen, I am still at the all screen."* Same bug, now diagnosed from a screenshot of the stuck state.
+
+**Root cause — found 2026-11-01, and it is not the IME.** The IME was a red herring; it is simply the most common reason a Taiwanese user has a text field focused for a long time.
+
+**The keyboard's accessory bar lives in its own window** (`UIRemoteKeyboardWindow`), pinned to the bottom of the display — **exactly where the auto-hidden tab bar slides back to.** While any field holds focus, that window sits in front of the tab bar and swallows every tap aimed at it. The tab bar is visible, looks completely normal, and does nothing. The app appears frozen on whichever tab you are on.
+
+**Why it is so hard to recognise:** on a simulator (or an iPad with a hardware keyboard) the *software keyboard never appears*. The accessory bar is then the only thing on screen — a lone floating `Done` button with nothing under it — so there is no visual cue that a text field is focused at all. The screenshot of the stuck state shows precisely this: the `Done` pill at the bottom right, the `chevron.up` restore pill above it, and no keyboard.
+
+**`MncplAllScreen` already had two escape routes and both missed the point.** The `Done` button on the accessory bar (added for exactly this, see the long comment at `MncplAllScreen.swift:166` — it had diagnosed *"keyboard up with no dismiss = every other tab unreachable"* and fixed only half of it) and `.scrollDismissesKeyboard(.immediately)`. **Both require the user to already know they are trapped.** Jim's instinct — tap the pill, tap another tab — is the one route neither covered.
+
+**Fix (2026-11-01, `pending`):** released in the one place that owns the tab bar, not in each screen — **six text fields across five screens** share this trap (`MncplAllScreen`, `NbsScreen`, `Municipal_Screen`, `AllTpeParkingScreen`, `TpeParkTools`).
+
+- `AppTabView.releaseKeyboard()` resigns first responder app-wide
+- called from the **floating pill** (asking for the tab bar means asking to leave) and from **`.onChange(of: selection)`** (a tab switch means the same)
+- plus `.onDisappear { searchFocused = false }` on `MncplAllScreen` as hygiene
+
+**Immediate workaround on a build without the fix:** tap **`Done`** first, *then* the pill, then the tab.
+
+**Status:** ✅ **fixed 2026-11-01** — iOS Debug + Release build clean. **Not yet confirmed on the simulator**; Jim to re-run and verify, since the diagnosis is from a screenshot plus the code path, not from an injected tap.
+**Files:** `hootowl/Backyard Birds/AppTabView.swift`, `hootowl/UI/mncplAll/MncplAllScreen.swift`.
 
 ## 2026-09-14 — A dangling `ConcaveHull` package reference blocked every command-line build
 **Symptom:** any `xcodebuild` invocation on `hootowl.xcodeproj` — even `-list` — died before doing anything:

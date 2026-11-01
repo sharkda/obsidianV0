@@ -159,7 +159,7 @@ All four re-checked against the live page today; all still present. None of thes
 
 ## 🐛 Jim's own backlog — not yet worked
 
-*From [[Jim's backlog]]. These have had no investigation; they are listed so they stop being invisible.*
+*From [[Jim's Features and backlogs]]. These have had no investigation; they are listed so they stop being invisible.*
 
 | ID | Item | State | Moved |
 |---|---|---|---|

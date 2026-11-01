@@ -1,6 +1,6 @@
 # Release plan — GM 1.0 · 1.1 · 1.2+
 
-**Every open item in the vault, in one of three buckets.** Built 2026-10-22 from the real IDs in [[00-state-of-play|sessions/2026-10-08]], [[roadmap]], [[unfinished]], [[jim-actions]] and [[Jim's backlog]] — nothing here is invented, and every row keeps the ID it already had.
+**Every open item in the vault, in one of three buckets.** Built 2026-10-22 from the real IDs in [[00-state-of-play|sessions/2026-10-08]], [[roadmap]], [[unfinished]], [[jim-actions]] and [[Jim's Features and backlogs]] — nothing here is invented, and every row keeps the ID it already had.
 
 > [!abstract] The headline, before the tables
 > **Nothing in code blocks GM 1.0.** `main` is shippable, and C1 (`9b957e6`) only improved that. **The entire critical path is yours** — App Store Connect fields, screenshots, the 中文 wording pass, and one device run.

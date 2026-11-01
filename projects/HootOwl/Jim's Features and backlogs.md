@@ -1,3 +1,23 @@
+undone:
+
+add a feature set in 1.0, the goal is to make those parks that do not provide livefeed of available count
+  as clear as possible, so you can chime in here, in the near me (mapview), can user clearly tell  level 0:
+  only park lot, no capacity, no live Available count Level 1:
+
+
+## Features
+
+### User Interface:
+
+#### highlight the rate and level of visibility 
+* target: 1.0
+Define the com
+add a feature set in 1.0, the goal is to highlight those parks that do not provide livefeed of available count 
+as clear as possible, so you can chime in here, in the near me (mapview), can user clearly tell  level 0:
+  only park lot, no capacity, no live Available count Level 1:
+
+## Backlogs
+
 > [!tip] Release to-dos are in [[jim-actions]] — this note stays for bugs you want to work on with me.
 
 bugs i need to work with claud on :

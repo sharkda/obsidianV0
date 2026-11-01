@@ -203,7 +203,7 @@ previousHash not changed    ← bail-out B
 
 ## Links
 
-- Jim's original report: [[Jim's backlog]] — 2026-06-29
+- Jim's original report: [[Jim's Features and backlogs]] — 2026-06-29
 - Bug log entry: [[bugs]] — 2026-08-07
 - Battery context (Finding 3 interacts with the deferred measurement): [[battery]]
 - Cyclops state-lifting rationale: [[swiftui-state-and-identity]]
