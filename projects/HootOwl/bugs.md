@@ -509,6 +509,28 @@ Both sides are raw feed IDs. Whether the convention was planned-and-never-built 
 **Files (candidates, not confirmed culprits):** see Root cause section above.
 **Option menu + recommended sequence:** see [[battery]] (standalone topic note).
 
+## 2026-11-01 — Subscribing changed nothing: the ad stayed, the screen stayed
+
+**Symptom (Jim):** *"i have subscribed, after the subscription, the sub screen did not change to the new state, and the Adbanner remain on screen."*
+
+**This is a 1.0 blocker by definition.** [[decisions#2026-10-27--the-subscription-is-remove-ads-and-the-app-says-exactly-that|D-01]] committed the app to *"removes the banner; every other part works exactly the same"*. If the banner does not go, the product does not exist and the App Store description is false.
+
+**Root cause.** `Transaction.updates` **only delivers transactions that were not returned directly by the `purchase()` call that created them** — renewals, Ask to Buy, purchases made on another device. A purchase made through `SubscriptionStoreView` is handed straight back to `.onInAppPurchaseCompletion`, so `StoreObs.listenForTransactions()` never sees it, and none of the refresh chain behind `onNewTransactionVerified` → `insertPurchasedID` → `refreshCurrentEntitlments()` runs.
+
+**Both purchase screens only logged in that handler** — `SubscriptionScreen.swift:220` and `SubscriptionStoreView.swift:58`. Nothing sent `entitledSubscriptionTeirRelay` or `showAdRelay`, so every subscriber-facing surface still believed the user was on `.none`.
+
+> [!note] Why five months of testing never caught it
+> The transaction was **also never finished**, and an unfinished transaction *is* replayed on `Transaction.updates` at the next launch. So **relaunching the app made the subscription appear** — and the failure read as a refresh quirk rather than a missing step.
+>
+> Confirmed directly on Jim's simulator: a relaunch of a build **with no fix in it** flipped the screen to *"You're subscribed — the ad banner stays off"* with the banner gone. That replay is the evidence for the diagnosis, and it is also exactly why nobody chased it.
+
+**Fix (2026-11-01, `1b83b72`):** `StoreObs.settlePurchase(_:)` finishes the transaction, then refreshes in the order `insertPurchasedID` already uses — entitlements first, because that is what sends the tier relay and flips the ad off, then `updateSubscriptionStatus()` for `.autoRenewable`. Called from both screens.
+
+**Status:** 🟡 built, installed on the simulator, **purchase path not yet exercised** — what ran was the replay path. To test properly: clear the existing transaction (Xcode → Debug → StoreKit → Manage Transactions), run from Xcode so the StoreKit configuration applies, and buy again. The banner should go **without** a relaunch.
+
+**Found alongside, not fixed:** the subscribed state is **untranslated** — *"You're subscribed"*, *"Thanks — the ad banner stays off."*, *"Manage subscription"*, *"Restore purchases"* all render in English next to 「付費使用」. One for the 中文 pass; it is the screen a paying user sees.
+**Files:** `hootowl/iAp/StoreObs.swift`, `hootowl/iAp/subUi/SubscriptionScreen.swift`, `hootowl/iAp/subUi/SubscriptionStoreView.swift`.
+
 ## 2026-11-01 — E-12: the service-area test said yes to Manila and Shanghai
 
 **Symptom:** none visible in Taipei, which is why it survived. `Municipal.isInServiceArea` returned `true` for any point whose longitude falls in **121°–122°E — at any latitude on Earth.**
