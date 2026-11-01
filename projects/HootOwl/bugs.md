@@ -509,6 +509,40 @@ Both sides are raw feed IDs. Whether the convention was planned-and-never-built 
 **Files (candidates, not confirmed culprits):** see Root cause section above.
 **Option menu + recommended sequence:** see [[battery]] (standalone topic note).
 
+## 2026-11-01 — E-12: the service-area test said yes to Manila and Shanghai
+
+**Symptom:** none visible in Taipei, which is why it survived. `Municipal.isInServiceArea` returned `true` for any point whose longitude falls in **121°–122°E — at any latitude on Earth.**
+
+**Root cause.** `[IdWgs].convexEnclosing(point:)` read `IdWgs.longitude` / `.latitude`, which are `Int(wgs84.longi)` / `Int(wgs84.latit)` — **every vertex truncated to a whole degree.** Measured against the shipped fences:
+
+| Fence | Vertices | lat range | lon range | after truncation |
+|---|---|---|---|---|
+| `taipei` | 13 | 24.980–25.180 | 121.462–121.623 | **2 points: (121,24), (121,25)** |
+| `newTaipeiCity` | 10 | 24.833–25.291 | 121.328–121.944 | **the same 2 points** |
+
+Both hulls collapse to **one identical vertical line segment**. Every edge then has `edgeX == 0`, so the cross product reduces to `±pointX`, which is zero whenever the point's longitude truncates to 121 — and a zero cross is read as *"on the edge"*, which never contradicts. The loop finishes and returns `true`.
+
+**What it actually claimed as covered:** Taoyuan, Hualien, **Manila (14.6°N)** and **Shanghai (31.2°N)**.
+
+**Two earlier assessments were wrong, and both are worth remembering:**
+
+1. *"Inert either way — nothing outside Municipal reads `activeFencesVbj`."* True when written. It stopped being true when `isInServiceArea` was added (`Municipal+Coverage.swift:128`).
+2. *"Masked in practice by the 1 km tolerance."* **Not masked at all.** `isInServiceArea` tests `convexEnclosing` **first** and returns `true` on a hit, so the tolerance behind it never runs. The broken test short-circuits the correct one.
+
+**Fix (2026-11-01, `300b8d7`):** do the arithmetic in real degrees, reading `wgs84` directly instead of the `Int`-truncating helpers. Half-plane semantics unchanged and still valid — a convex hull is convex.
+
+**Verified against `MunicipalFence.encloses(_:)`**, the correct ray-casting test already sitting in the same file:
+
+| | disagreements |
+|---|---|
+| before | **131 of 47,291** whole-degree grid points — *every one a false "covered"* |
+| after | **0 of 314,721** points across 118–124°E, 60°S–70°N |
+
+Banqiao is also no longer inside Taipei, which is the exact symptom `encloses`'s own doc comment was written to complain about.
+
+**Status:** ✅ fixed, iOS Debug + Release build clean. The measurement script is kept at `scratchpad/keep_e12.py` for the session; worth re-running if the fences are ever regenerated.
+**Files:** `hootowl/Municipalities/framework/Mu1Proto.swift`.
+
 ## 2026-06-15 — IME blocks UI, user stuck in search on All screen
 **Symptom:** When using IME (Chinese / multi-step input methods) in the search field on the All screen (`MncplAllScreen`), the IME / on-screen keyboard blocks the UI and the user cannot exit the search — they appear stuck on the search input.
 **Re-reported 2026-11-01 by Jim, from a live simulator** — *"I cannot leave the all screen, I click the tab to show all the tabs, I tried to clicked the cyclops tab, but nothing happen, I am still at the all screen."* Same bug, now diagnosed from a screenshot of the stuck state.

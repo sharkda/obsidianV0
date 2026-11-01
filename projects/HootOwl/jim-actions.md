@@ -56,7 +56,7 @@ Seven rounds of your testing, then merged to `main` and pushed. **It ships in GM
 
 - [ ] 🀄 **26 zh-Hant strings marked `needs_review`** — nine of them new this week (the eight `dest_*`/`svc_*` strings plus `sub_terms_of_use`). The one worth your eye is **`dest_bar_showing` → 「顯示 %@ — 你不在這裡」**: that bar is on screen constantly, and my Chinese for *"you're not there"* may land harsher than the English. *(Ignore `parkNav` → `台北停車s` — stray Latin "s", but nothing references it; it is a dead string on the unreachable `allTpe` screen.)*
 - [ ] 📱 **Parts nobody has tapped yet:** the grey/green search button and its *"we haven't collected live parking information for this area yet"* alert · the auto-search 1.2 s after the map settles 300 m away · **Clear** disappearing when you are outside the zone.
-- [ ] ⚠️ **E-12 is now load-bearing.** `convexEnclosing` is integer-truncated and was inert; `isInServiceArea` now depends on it, so a point near a fence boundary could resolve wrongly — green button where there is no data, or grey where there is. The 1 km tolerance masks it in practice.
+- [x] ✅ **E-12 fixed 2026-11-01** (`300b8d7`). It was far worse than "a point near a fence boundary": the truncation collapsed both hulls to one line segment, so the test said **yes to every longitude between 121° and 122°, at any latitude** — Manila and Shanghai included. And the 1 km tolerance masked nothing, because `isInServiceArea` short-circuits on this test first. Nothing needed from you.
 
 ## ~~Test `destination-mode`~~ — done, the old checklist
 

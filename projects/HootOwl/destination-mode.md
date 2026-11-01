@@ -271,7 +271,7 @@ The scheme now launches in **Cupertino**, so the picker is what you get on Run. 
 ## Known rough edges
 
 - **The Chinese is `needs_review`.** Six new strings, written by me rather than through Jim's pass. → [[zh-review]]
-- **`convexEnclosing` is still integer-truncated** (**E-12**). `Municipal.swift:239` uses it, so a destination near a fence edge could resolve wrongly. Inert for city-centre destinations; a real risk for an address search near a boundary. **`isInServiceArea` uses it too**, so the same truncation affects the button colours near a boundary — the 1 km tolerance masks it in practice.
+- ~~**`convexEnclosing` is still integer-truncated** (**E-12**)~~ — ✅ **fixed 2026-11-01** (`300b8d7`). The assessment here was too mild: it was not "a destination near a fence edge", it was **every point between 121°E and 122°E at any latitude**, and the 1 km tolerance masked nothing because `isInServiceArea` tests this first and returns early. [[bugs#2026-11-01--e-12-the-service-area-test-said-yes-to-manila-and-shanghai]]
 - **Keelung reads as covered and is not.** The New Taipei hull bulges over it. Soft failure — a search finds nothing rather than something wrong. **Jim's read: that makes Keelung the obvious next zone.** The durable fix is to ask the quadtree whether any lot exists within the radius, which answers every gap automatically.
 - **The picker appears on three screens** — map, watch list, list — because they all share `CoverageNoticeView`. On the map it is compact; on the other two it is the full `ContentUnavailableView`. Consistent, but possibly repetitive.
 - **No 'recent destinations'.** `nbs_recent_addresses` already persists searched addresses; the picker does not offer them.

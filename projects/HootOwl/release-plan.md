@@ -48,7 +48,7 @@
 | **D-02** | ✅ **Label the 40% of car parks with no live count** — Jim's call 2026-10-27, *"show the label, this need to be done in 1.0"* | ✅ **done `7cebf96`** — sheet, All tab and Cyclops all say it, in both languages; map pin deliberately unchanged. iOS Debug + Release clean, **not yet run**. Measured: **1,053 of 2,592 lots (40.6%)**, and New Taipei is still at 69.4% — this is the steady state, not a transition. [[decisions#2026-10-27--label-the-car-parks-with-no-live-count-d-02]] |
 | **E-30** | 🟠 Three permission strings the iOS build never uses, one placeholder with literal quotes | **Recommend doing it.** It contradicts the app's own promise of foreground-only *and* undercuts R-09's evidence. A three-key deletion. **Your call because it changes what the Store sees** |
 | **E-03** | 🟠 `TpeParkDescInfo.json` missing from the iOS bundle, logged at every launch, never investigated | **Recommend investigating before submission.** Likely the same missing-target-membership shape the `fences` folder had — and that one meant the geofence system had never run on iOS at all |
-| **E-12** | 🟠 `convexEnclosing` is integer-truncated, and now has **four** call sites including `isInServiceArea` | **Recommend fixing in 1.0 if it is the `Int(...)` one-liner it looks like.** It decides the search button's green/grey and whether a destination counts as covered. Masked today by the 1 km tolerance — which is luck, not design |
+| **E-12** | 🔴 ~~`convexEnclosing` is integer-truncated~~ — **it returned `true` for the whole 121°–122°E strip, pole to pole.** It claimed Manila and Shanghai as covered | ✅ **done `300b8d7`**. It was never "masked by the 1 km tolerance" — `isInServiceArea` runs this test **first** and short-circuits on a hit, so the tolerance never ran. Now agrees with the correct ray-casting test on **314,721 of 314,721** points. [[bugs#2026-11-01--e-12-the-service-area-test-said-yes-to-manila-and-shanghai]] |
 
 ---
 
@@ -108,7 +108,7 @@
 ## What I would do next session
 
 1. **Run C1** on a simulator. It compiles; nothing has exercised the new failure path. The standing rule holds — the worst breakage this project has had **compiled clean and crashed at launch**.
-2. **E-12**, if it is the one-liner it looks like. It decides coverage correctness and is the cheapest real risk on the board.
+2. ~~**E-12**~~ — ✅ done 2026-11-01, and it was not a one-liner's worth of risk: it was claiming coverage over two other countries.
 3. **E-03** — find out why that JSON is not in the bundle.
 4. **C2**, once you answer J5.
 
