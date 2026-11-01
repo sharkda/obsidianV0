@@ -521,7 +521,24 @@ Both sides are raw feed IDs. Whether the convention was planned-and-never-built 
 
 **`MncplAllScreen` already had two escape routes and both missed the point.** The `Done` button on the accessory bar (added for exactly this, see the long comment at `MncplAllScreen.swift:166` — it had diagnosed *"keyboard up with no dismiss = every other tab unreachable"* and fixed only half of it) and `.scrollDismissesKeyboard(.immediately)`. **Both require the user to already know they are trapped.** Jim's instinct — tap the pill, tap another tab — is the one route neither covered.
 
-**Fix (2026-11-01, `pending`):** released in the one place that owns the tab bar, not in each screen — **six text fields across five screens** share this trap (`MncplAllScreen`, `NbsScreen`, `Municipal_Screen`, `AllTpeParkingScreen`, `TpeParkTools`).
+> [!warning] First fix attempt was too weak — corrected the same hour
+> The first cut called `UIApplication.sendAction(#selector(resignFirstResponder))`. Jim then reported the decisive detail: ***"the input text box never loses the focus no matter what we do"*** — the caret keeps blinking however much you tap.
+>
+> **That is a second, deeper fault, and it explains why this bug survived five months.** The search field is a `TextField` inside `ToolbarItem(placement: .principal)`, so **UIKit hosts it in the navigation bar, outside the SwiftUI view's focus scope.** `@FocusState` never reaches it. So:
+>
+> | What was supposed to dismiss it | Why it never did |
+> |---|---|
+> | the `Done` button → `searchFocused = false` | sets a binding the hosted field does not observe |
+> | `.onSubmit`'s `defer { searchFocused = false }` | same |
+> | `.scrollDismissesKeyboard(.immediately)` | only reaches fields inside the scroll view's focus scope |
+>
+> **All three escape routes were no-ops.** That is why the screen felt like it had been fixed twice and still trapped people.
+>
+> **The working form is `endEditing(true)` on every window** — it walks the real UIKit hierarchy and *forces* the responder to resign, so it reaches a field SwiftUI's focus machinery cannot see. Every window and not just the key one, because while the keyboard is up its own window is key and the field is in another.
+
+**Fix (2026-11-01):** a file-level `releaseKeyboard()` using `endEditing(true)`, called from the **floating pill**, from **`.onChange(of: selection)`**, and from `MncplAllScreen`'s `Done`, `.onSubmit` and `.onDisappear`. Put in the one place that owns the tab bar rather than in each screen — **six text fields across five screens** share the trap (`MncplAllScreen`, `NbsScreen`, `Municipal_Screen`, `AllTpeParkingScreen`, `TpeParkTools`).
+
+**If it still traps:** the root cause is the toolbar hosting, so the durable fix is to **move the search field out of `ToolbarItem(.principal)`** into the content area next to the existing filter and token strips, where `@FocusState` behaves normally. Bigger UI change, Jim's call.
 
 - `AppTabView.releaseKeyboard()` resigns first responder app-wide
 - called from the **floating pill** (asking for the tab bar means asking to leave) and from **`.onChange(of: selection)`** (a tab switch means the same)
@@ -529,7 +546,7 @@ Both sides are raw feed IDs. Whether the convention was planned-and-never-built 
 
 **Immediate workaround on a build without the fix:** tap **`Done`** first, *then* the pill, then the tab.
 
-**Status:** ✅ **fixed 2026-11-01** — iOS Debug + Release build clean. **Not yet confirmed on the simulator**; Jim to re-run and verify, since the diagnosis is from a screenshot plus the code path, not from an injected tap.
+**Status:** 🟡 **fix built and installed on Jim's simulator 2026-11-01 09:05, awaiting his confirmation.** The first attempt was never actually tested — the installed build was from 08:03 and the fix was committed at 08:57, so what Jim tried was the old binary. Verified this time: `_$s7hootowl15releaseKeyboardyyF` and the `endEditing:` selector are both present in the installed `hootowl.debug.dylib`.
 **Files:** `hootowl/Backyard Birds/AppTabView.swift`, `hootowl/UI/mncplAll/MncplAllScreen.swift`.
 
 ## 2026-09-14 — A dangling `ConcaveHull` package reference blocked every command-line build
