@@ -448,3 +448,43 @@ The stack shape is the other half of the tell: `Dictionary._Variant.setValue` �
 **Fix at the boundary, not the caller.** `minuteFlow()` had been given a main-thread hop for this exact reason in September; `dailyRetrieveFlow` had not, and the place where the mutation *actually happened* was unguarded either way. Hopping in the sink that mutates the observable covers every publisher, present and future.
 
 **Seen:** 2026-09-24 (`80a792a`).
+
+
+## StoreKit 2 — `Transaction.updates` does not cover your own purchase
+
+`Transaction.updates` emits only transactions that were **not** returned directly by the `purchase()` call that created them: renewals, Ask to Buy, purchases made on another device. A purchase made in-app — including one `SubscriptionStoreView` performs for you — comes back through `.onInAppPurchaseCompletion` and **never appears on that stream.**
+
+So a `listenForTransactions()` loop is not a complete entitlement path. The purchase handler must do two things itself:
+
+```swift
+.onInAppPurchaseCompletion { product, result in
+    if case .success(.success(let verification)) = result {
+        await StoreObs.shared.settlePurchase(verification)   // finish() + refresh entitlements
+    }
+}
+```
+
+**The failure mode hides itself.** If the handler also never calls `finish()`, the transaction is replayed on `Transaction.updates` at the **next launch** — so relaunching the app appears to fix it, and the bug reads as a refresh quirk. HootOwl shipped this for months: subscribing left the ad banner up until you quit and reopened. See [[HootOwl/bugs#2026-11-01--subscribing-changed-nothing-the-ad-stayed-the-screen-stayed]].
+
+## SwiftUI — `@FocusState` does not reach a `TextField` inside `.toolbar`
+
+Toolbar content is hosted by UIKit in the navigation bar, outside the view's focus scope. A `.focused($flag)` binding on a field in `ToolbarItem(placement: .principal)` is **write-only in practice**: setting `flag = false` does not dismiss it, `.onSubmit`'s cleanup does not either, and `.scrollDismissesKeyboard` never sees it.
+
+Force it through UIKit instead:
+
+```swift
+UIApplication.shared.connectedScenes
+    .compactMap { $0 as? UIWindowScene }
+    .flatMap(\.windows)
+    .forEach { $0.endEditing(true) }
+```
+
+Every window, not just the key one — while the keyboard is up, its own window is key and the field you need is in another.
+
+**Why it matters beyond the keyboard:** the keyboard's accessory bar occupies the bottom of the display, which is where a tab bar lives. A field that cannot let go of focus therefore makes **every tab unreachable**, and on a simulator or iPad keyboard — where no software keyboard is drawn — there is no visual cue at all. See [[HootOwl/bugs#2026-06-15--ime-blocks-ui-user-stuck-in-search-on-all-screen]].
+
+## Truncating a coordinate to `Int` destroys a polygon
+
+`Int(wgs84.longi)` on a city-scale hull collapses every vertex onto two or three lattice points, and a half-plane test over a degenerate polygon returns `true` almost everywhere. HootOwl's service-area check claimed **Manila and Shanghai** for two years this way.
+
+If a type exposes both `Double` coordinates and `Int` convenience accessors, assume geometry wants the `Double` ones and check every call site. And validate a geometric predicate against a second, independent implementation over a grid — the disagreement count is the test. See [[HootOwl/bugs#2026-11-01--e-12-the-service-area-test-said-yes-to-manila-and-shanghai]].

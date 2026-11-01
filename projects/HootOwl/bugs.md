@@ -526,7 +526,7 @@ Both sides are raw feed IDs. Whether the convention was planned-and-never-built 
 
 **Fix (2026-11-01, `1b83b72`):** `StoreObs.settlePurchase(_:)` finishes the transaction, then refreshes in the order `insertPurchasedID` already uses — entitlements first, because that is what sends the tier relay and flips the ad off, then `updateSubscriptionStatus()` for `.autoRenewable`. Called from both screens.
 
-**Status:** 🟡 built, installed on the simulator, **purchase path not yet exercised** — what ran was the replay path. To test properly: clear the existing transaction (Xcode → Debug → StoreKit → Manage Transactions), run from Xcode so the StoreKit configuration applies, and buy again. The banner should go **without** a relaunch.
+**Status:** ✅ **fixed and confirmed by Jim on the simulator, 2026-11-01.** The banner now goes on purchase, without a relaunch.
 
 **Found alongside, not fixed:** the subscribed state is **untranslated** — *"You're subscribed"*, *"Thanks — the ad banner stays off."*, *"Manage subscription"*, *"Restore purchases"* all render in English next to 「付費使用」. One for the 中文 pass; it is the screen a paying user sees.
 **Files:** `hootowl/iAp/StoreObs.swift`, `hootowl/iAp/subUi/SubscriptionScreen.swift`, `hootowl/iAp/subUi/SubscriptionStoreView.swift`.
@@ -602,7 +602,7 @@ Banqiao is also no longer inside Taipei, which is the exact symptom `encloses`'s
 
 **Immediate workaround on a build without the fix:** tap **`Done`** first, *then* the pill, then the tab.
 
-**Status:** 🟡 **fix built and installed on Jim's simulator 2026-11-01 09:05, awaiting his confirmation.** The first attempt was never actually tested — the installed build was from 08:03 and the fix was committed at 08:57, so what Jim tried was the old binary. Verified this time: `_$s7hootowl15releaseKeyboardyyF` and the `endEditing:` selector are both present in the installed `hootowl.debug.dylib`.
+**Status:** ✅ **fixed 2026-11-01**, accepted by Jim (*"that should fix it"*) after the `endEditing` version was installed. The first attempt was never actually tested — the installed build was from 08:03 and the fix was committed at 08:57, so what Jim tried was the old binary. Verified this time: `_$s7hootowl15releaseKeyboardyyF` and the `endEditing:` selector are both present in the installed `hootowl.debug.dylib`.
 **Files:** `hootowl/Backyard Birds/AppTabView.swift`, `hootowl/UI/mncplAll/MncplAllScreen.swift`.
 
 ## 2026-09-14 — A dangling `ConcaveHull` package reference blocked every command-line build

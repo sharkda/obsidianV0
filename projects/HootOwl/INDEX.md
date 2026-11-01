@@ -55,6 +55,8 @@
 
 Most useful recent ones:
 
+- [[sessions/2026-11-01|2026-11-01]] — **three bugs, two of them long-standing and both mis-assessed in this vault**: the keyboard window eating the tab bar (filed June as an IME bug), E-12 claiming Manila and Shanghai, and subscribing not removing the ad
+
 - **[[sessions/older/2026-09-10/01-session-wrap|2026-09-10/01]]** — the name, map freshness, and the three-bugs-one-shape theme
 - **[[00-location-privacy-audit|2026-09-09/00]]** — six checks proving location never runs in the background, **plus the addendum where that audit turned out to be half the job**
 - **[[00-subscription-screen|2026-09-08/00]]** — the subscription rewrite and the three bugs it exposed
