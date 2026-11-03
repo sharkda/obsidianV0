@@ -14,6 +14,20 @@ Tick items as you go. Nothing here needs the terminal or a conversation to resum
 
 ---
 
+> [!important] 👉 Start here — 2026-11-03
+> **This note is history. The live list is [[release-plan#What actually blocks GM 1.0]]** — eleven rows, every one of them yours, in the order to do them. Open that table and work down it.
+>
+> **Do first:** **R-10, the screenshots.** It is the only item with a lead time; everything below it is paste-and-tick. Copy is drafted in both languages in [[app-store-connect]].
+>
+> **Three one-liners that unblock me** (answer in chat, or edit this note from your phone):
+> - **J5** — is `sharkda/hootOwl` public or private? Decides the C2 cron cadence. My default if you say nothing: private, 30 min.
+> - **E-30** — delete the three unused permission strings? I recommend yes. Your call because it changes what the Store sees.
+> - **E-02** — crash visibility: Organizer alone for GM 1.0, SDK decision deferred to 1.1? I recommend yes.
+>
+> **Mine, not yours, and not blocking:** E-03 (`TpeParkDescInfo.json` missing from the bundle), C2 (waiting on J5), and the 中文 pass — which now also has to cover the **subscribed-state screen**, still English next to 「付費使用」.
+>
+> **Note on 2026-11-01's three fixes** (stuck All screen, purchase settlement, E-12): all committed and pushed, all verified in the simulator. **Re-verify after your Xcode 27.2 upgrade** — the 09-14 lesson was that a toolchain change can compile clean and crash at launch.
+
 > [!tip] 🗺️ [[INDEX]] maps the whole folder — which note answers which question.
 
 > [!tip] 👉 The plan, as opposed to the list: [[release-strategy]]
