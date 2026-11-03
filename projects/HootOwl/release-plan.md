@@ -37,7 +37,7 @@
 | ID | Decision | Status |
 |---|---|---|
 | **D-01** | ~~🔴 **Is there any reason to subscribe?**~~ | ✅ **DECIDED 2026-10-27 — ship as "remove ads", and say exactly that.** Jim: *"yes… in the future, if we add subscriber only features we will get back to this."* **No code change, and no copy change either** — both the English and 中文 ASC descriptions were already drafted this way. Reasoning and the reopen trigger: [[decisions#2026-10-27--the-subscription-is-remove-ads-and-the-app-says-exactly-that]] |
-| **E-02** | 🟠 **Crash visibility.** No Crashlytics, no Sentry. Organizer shows only opted-in users, partial and delayed | **Launch on Organizer alone, decide a third-party SDK for 1.1.** A crash SDK collects diagnostic data, which is a **declarable nutrition-label category** — the same argument that kept detection out of the app in [[data-schema-lifecycle]]. Adding one now reopens R-09 days before submission. And C1 just removed the crash class we knew about |
+| **E-02** | ~~🟠 **Crash visibility.** No Crashlytics, no Sentry~~ | ✅ **DECIDED 2026-11-03 — ship on Xcode Organizer alone.** Jim: *"yes, ship w/o 3rd party crash collect SDK, we can come back to this later with 1.1."* An SDK collects diagnostic data, a **declarable nutrition-label category**, and adding one would reopen R-09 days before submission; C1 already removed the crash class we knew about. **No code change. Reopen trigger: a GM 1.0 crash Organizer shows but cannot explain.** [[decisions#2026-11-03--ship-gm-1-0-with-no-third-party-crash-sdk-e-02]] |
 
 ### Mine for GM 1.0 — none of it blocking
 
@@ -65,7 +65,7 @@
 | **E-04** | Reject placeholder config values (`@example.com`, `1234-5678`) as absent | mine — **bundle with ⑤**, ~4 lines |
 | **E-11** | Feed parsing runs on the main thread — ~1,400 lots per zone per poll | mine. *Do it when polling is next touched, and ⑤ ⑥ touch polling* |
 | **E-13** | 11 duplicate parkIds in the NTPC feed | mine |
-| **E-02** | Decide a third-party crash SDK, now that R-09 is settled | yours |
+| **E-02** | **Decide a third-party crash SDK** — deferred here by Jim's 2026-11-03 decision, not merely pending. Evaluate Crashlytics vs Sentry against the nutrition labels R-09 will have already filed | yours, with my evaluation |
 | **E-18 · E-19** | Toolbar squeeze · map-pin alpha floor at 30 min — both "built, never looked at on a device" | yours, in the same pass |
 | **R-13** | Record the real tutorial video; the Gist still points at a test clip | yours |
 | **R-15 · R-16** | The two New Taipei phone calls — the blocked bulk download, and whether 8607 sits on that number | yours, any time |

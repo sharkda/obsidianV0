@@ -4,6 +4,34 @@ Architectural and design decisions, with brief rationale. Newest at top.
 
 ---
 
+## 2026-11-03 — Ship GM 1.0 with no third-party crash SDK (E-02)
+
+**Decision (Jim):** *"yes, ship w/o 3rd party crash collect SDK, we can come back to this later with 1.1."* Closes **E-02**, the last open decision before the App Store Connect work.
+
+**What ships instead:** **Xcode Organizer alone.** Apple collects crash reports from users who opted into sharing diagnostics, aggregates them, and shows them under Window → Organizer → Crashes. No SDK, no code change, nothing to declare.
+
+**What that costs, stated honestly so nobody is surprised at launch.** Organizer is a *sample*, not a feed:
+
+| | Organizer | A crash SDK (Crashlytics, Sentry) |
+|---|---|---|
+| Coverage | **only users who opted into sharing analytics** — a minority | everyone |
+| Latency | **hours to a day** | minutes |
+| Breadcrumbs | stack trace only | logs, user steps, custom keys |
+| Non-fatals | ❌ none | ✅ caught errors, handled exceptions |
+
+So at launch we will see *that* something crashed, roughly, eventually — not *why*, and not the quiet non-fatal errors at all.
+
+**Why that is the right trade for GM 1.0 anyway, in the order the reasons actually weigh:**
+
+1. **It would reopen R-09 days before submission.** A crash SDK collects **diagnostic data**, which is a declarable nutrition-label category. R-09's evidence is gathered and settled — precise location · app functionality · foreground-only · **never tracking**. Adding an SDK means re-deriving that table and re-answering the tracking question for a third-party collector, with a submission in the same week. The same argument kept feed-shape detection out of the binary in [[data-schema-lifecycle]].
+2. **The crash class we knew about is already gone.** C1 (`9b957e6`) removed five `fatalError` sites and made both cities' feeds decode leniently. The thing most likely to crash the shipping app has been fixed, not merely instrumented.
+3. **Launch-week volume is the lifetime minimum.** The sample Organizer gives is thinnest exactly when few users exist — but so is the blast radius, and 1.1 is already a commitment rather than a hope (J1, 2026-10-21).
+4. **An SDK is a dependency, and this project has none.** No SPM packages at all today; AdMob is a manually embedded xcframework. Adding the first package manager dependency the week of submission is a build-system risk on top of a privacy one.
+
+**The reopen trigger — what would make this wrong:** a crash in GM 1.0 that Organizer shows but cannot explain. If that happens, the answer is **1.1 with an SDK**, not guesswork. Revisit in the 1.1 planning pass either way: [[release-plan#1-1--the-first-update]].
+
+---
+
 ## 2026-10-27 — Label the car parks with no live count (D-02)
 
 **Decision (Jim):** *"show the label, this need to be done in 1.0."* Closes **D-02**, open since 2026-09-09, and **promotes it out of 1.1 into GM 1.0**.
