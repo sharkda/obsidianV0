@@ -19,13 +19,19 @@ Tick items as you go. Nothing here needs the terminal or a conversation to resum
 >
 > **Do first:** **R-10, the screenshots.** It is the only item with a lead time; everything below it is paste-and-tick. Copy is drafted in both languages in [[app-store-connect]].
 >
-> **Three one-liners that unblock me** (answer in chat, or edit this note from your phone):
-> - ~~**J5**~~ ✅ **closed 2026-11-03** — checked GitHub rather than asking: the repo is **private**, so C2 runs on a 30-minute cron. Nothing needed from you.
+> **Two one-liners that unblock me** (answer in chat, or edit this note from your phone):
 > - **E-30** — delete the three unused permission strings? I recommend yes. Your call because it changes what the Store sees.
 > - **E-02** — crash visibility: Organizer alone for GM 1.0, SDK decision deferred to 1.1? I recommend yes.
 >
-> **Mine, not yours, and not blocking:** E-03 (`TpeParkDescInfo.json` missing from the bundle), C2 (waiting on J5), and the 中文 pass — which now also has to cover the **subscribed-state screen**, still English next to 「付費使用」.
+> **J5 and J3 are closed** (2026-11-03) — both turned out to be facts to look up, not preferences to state, so I answered them instead of asking. **If an item on your list ever reads like trivia rather than judgement, say so and I will go and check it.**
 >
+> **Mine, not yours, and not blocking:** E-03 (`TpeParkDescInfo.json` missing from the bundle), **C2 (now fully unblocked)**, and the 中文 pass — which now also has to cover the **subscribed-state screen**, still English next to 「付費使用」.
+>
+> [!tip] Finding an item by its ID
+> **`⌘⇧F`, not `⌘O`.** The quick switcher (`⌘O`) matches **file names only**, and no note is called "J3" or "E-30" — so it comes back empty and the item looks like it does not exist. `⌘⇧F` searches inside every note. Jim hit this twice on 2026-11-03.
+>
+> IDs live where they were raised, not in notes of their own: **J1–J7** in [[jim-actions]] and [[data-schema-lifecycle]] · **R-xx** in [[release-plan]] and [[operations]] · **E-xx** in [[release-plan]] and [[unfinished]] · **C1–C5** in [[data-schema-lifecycle]] · **D-xx** in [[decisions]].
+
 > **Note on 2026-11-01's three fixes** (stuck All screen, purchase settlement, E-12): all committed and pushed, all verified in the simulator. **Re-verify after your Xcode 27.2 upgrade** — the 09-14 lesson was that a toolchain change can compile clean and crash at launch.
 
 > [!tip] 🗺️ [[INDEX]] maps the whole folder — which note answers which question.
@@ -146,14 +152,14 @@ Steps if you need them: [[operations#how-to-edit-it--step-by-step]]. **Validate 
 
 - [x] ~~**J1**~~ — **answered 2026-10-21: 1.1.** GM 1.0 gets the crash fix (shipped, `9b957e6`) and the stale banner that was already built. The over-the-air half ships in **1.1**, as a commitment rather than a trigger.
 - [x] ~~**J2**~~ — **proceeded on 70%** rather than block C1; one constant, one-line change if you disagree. Was: skip bad lots but reject the payload below 70% decoded, or reject on any failure at all? My default: **70%**. One constant either way.
-- [ ] **J3 — where should the detector shout?** GitHub issue, email, or both. My default: **both** — issue for the dated record, email so you actually see it.
+- [x] ~~**J3**~~ — **answered 2026-11-03: both, and it costs nothing.** GitHub already emails the repo owner when a scheduled workflow fails, so the email channel exists whether or not I build it — choosing "issue only" would mean *removing* a free channel. So the detector **opens an issue** (the dated, searchable record of what changed and when) **and the failure email reaches you** with no setup. Nothing needed from you. If the mail turns out to be noise, it is a notification setting on your side, not a code change.
 - [ ] **J4 — approve the user-facing copy** once I draft it properly, 繁中 + EN. It tells someone their numbers are stale; it deliberately does **not** say "the app might break, please update". Your call on tone.
 - [x] ~~**J5**~~ — **answered 2026-11-03 by measurement, not by asking: the repo is private.** An unauthenticated `curl https://api.github.com/repos/sharkda/hootOwl` returns **404**, which is how GitHub hides a private repo from anyone without access. So the detector runs **every 30 minutes**: a private repo gets 2,000 free Actions minutes a month, a 15-minute cron needs ~2,880 runs and overruns it, 30 minutes needs ~1,440 and fits. **The cost is detection latency of up to 30 minutes instead of 15**, which is immaterial — the remedy is a config edit Jim makes by hand. **C2 is unblocked.**
 - [ ] **J6 — in a browser, ~5 minutes:** create a GitHub token with `gist` scope and add it as a repo secret. **Only needed if you want the detector to raise the user-facing flag automatically**, so a break at 09:00 notifies users by 09:30 with no action from you. Your account, so it has to be you.
 - [ ] **J7 — paste one `feedStatus` block into the existing Gist**, both cities `ok`. I will give you the exact JSON; it is the same Gist as the contacts.
 
 > [!tip] What is actually waiting on you now
-> **Nothing on this page.** J5 is closed (answered by checking GitHub, 2026-11-03), and **J3, J4, J6 and J7 all have defaults I will proceed on** — J3 both channels, J4 drafted for your review rather than blocked on it. J6 is the only one that genuinely needs your hands, and only if you want the user-facing flag raised automatically; without it the detector still shouts at **you**, just not at users.
+> **Nothing on this page.** **J5 and J3 are both closed** (2026-11-03) — each turned out to be a fact to look up rather than a preference to state, so I answered them instead of asking. **J4 and J7 are sequenced behind 1.1's ④**, not waiting on you now. **J6 is the only one that will ever need your hands**, and only if you want the detector to raise the user-facing flag by itself; without it the detector still shouts at **you**, just not at users. **C2 is fully unblocked.**
 
 ---
 
