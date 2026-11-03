@@ -18,7 +18,7 @@
 | ID | Item | Why it blocks |
 |---|---|---|
 | **R-10** | **Screenshots + your wording pass** | Longest lead time of anything here, and the only item that needs you to *make* something rather than paste it. Copy is drafted in both languages — [[app-store-connect]] |
-| **R-02** | **Decide the city-request destination, then one line in the Gist** | Gates **two** screens. The live Gist still has no `support` key, so onboarding's "tell us where you need it" prompt has nothing to tap. The URL already exists: `sharkda.github.io/findparkingtw/support/` |
+| **R-02** | **Paste one `support` block into the Gist** — **no longer a decision** | **Re-verified 2026-11-03:** the page is **live (`200`)**, and the Gist is at `version: 5` with top-level keys `version, contacts, tutorials` — **still no `support` key.** The destination was chosen 2026-10-08, so this is a paste, not a choice. Gates **two** screens: onboarding's *"tell us where you need it"* and the outside-coverage notice both invite a user to speak and give them nothing to tap. Exact JSON: [[operations#settled-2026-10-08--jim-chose-option-1-and-it-is-built]] |
 | **R-09** | **Privacy nutrition labels** | Evidence already gathered: precise location · app functionality · **foreground-only** · never tracking |
 | **R-06** | **Set territories manually** | Defaults to *all*, which drops you into the EEA with no consent platform. Exactly: Taiwan, US, Japan, Hong Kong, Macau — [[operations#gate-table]] |
 | **R-07** | **Age-rating questionnaire** | Required, and nothing in Xcode mentions it |
