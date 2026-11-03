@@ -211,7 +211,7 @@ So J1 in those words: **does the over-the-air machinery ship in GM 1.0, or in 1.
 | ~~**J2**~~ | ✅ **Proceeded on the default: 70% floor**, rather than block C1 on it. One constant, `TCMSV_allavailavble.Data.decodeFloor` — say the word and it changes in one line | — |
 | **J3** | **Where should the detector shout** — GitHub issue, email, or both? | no | **Both.** Issue for the dated record, email so you actually see it |
 | **J4** | **Approve the user-facing copy** in ④ once I draft it properly, 繁中 + EN | before ④ ships | — |
-| **J5** | **Is `sharkda/hootOwl` public or private?** Decides the detector's cadence and whether minutes are billed | before ③ ships | assume **private**, 30-minute cadence |
+| ~~**J5**~~ | ✅ **Answered 2026-11-03 by checking, not by asking — the repo is private.** An unauthenticated `curl https://api.github.com/repos/sharkda/hootOwl` returns **404**, which is how GitHub hides a private repo. **Cadence: 30 minutes.** Private repos get 2,000 free Actions minutes a month; a 15-minute cron needs ~2,880 runs and overruns it, 30 minutes needs ~1,440. Detection latency rises to at most 30 min, which costs nothing — the remedy is a manual config edit either way | — | **This should never have been Jim's question.** It was a fact to look up, not a preference. Jim, 2026-11-03: *"j5 what is public / private, I am very clueless"* |
 | **J6** | **Create a GitHub token with `gist` scope and add it as a repo secret** — only needed if you want the detector to raise the flag automatically (③ → ④ with no human step). Your account, so it has to be you | only for the auto-flag | — |
 | **J7** | **Paste one `feedStatus` block into the existing Gist** with both cities `ok`. I'll give you the exact JSON | before ④ ships | — |
 
@@ -220,7 +220,7 @@ So J1 in those words: **does the over-the-air machinery ship in GM 1.0, or in 1.
 | | Action | Depends on |
 |---|---|---|
 | ~~**C1**~~ | ✅ **done 2026-10-21, `9b957e6`** — 5 `fatalError` sites, mandatory surface 4→2 per lot, `LossyArray` + 70% floor on both cities, tolerant `UPDATETIME`. **iOS Debug + Release build clean; not yet run.** Proceeded on the 70% default for J2 | — |
-| **C2** | **③ Detect** — the script, the workflow, the committed schema fixtures, the heartbeat | J3, J5 |
+| **C2** | **③ Detect** — the script, the workflow, the committed schema fixtures, the heartbeat | ~~J5~~ closed; **J3** only, and I will default to both channels rather than wait |
 | **C3** | **⑥ Heal** — foreground refetch + refetch-on-break + cache-buster + the DEBUG config path | J1 |
 | **C4** | **④ Tell** — the `feedStatus` struct, the banner, and a proper copy draft for J4 in 繁中 + EN | J1, then J4 |
 | **C5** | **⑤ Fix** — alias map, config date format, config feed URL. **Last**, and only if J1 says GM 1.0 | J1 |
