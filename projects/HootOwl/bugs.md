@@ -71,11 +71,14 @@ The reason is legitimate: `locAuthorized` on macOS requires `.authorizedAlways`,
 
 Neither has a **zh-Hant** translation, so a Chinese-speaking Mac user reads English in a system alert. That is the **other half of E-05**, which the vault has been calling open since 09-10 — ⚠️ **and E-05's iOS half is already done**: `InfoPlist.xcstrings` has zh-Hant for both prompts the iOS app actually uses, and `zh-Hant.lproj/InfoPlist.strings` ships them (`用來顯示離你最近的停車場，只在使用 App 時取用。` and the tracking one). **E-05 should be re-scoped to macOS, not closed and not left as written.**
 
-**Proposed fix — tracked as E-30, not applied yet** because it changes what the App Store and the privacy labels see, and that is Jim's call:
+**Fix — tracked as E-30. Step 1 shipped 2026-10-09 (`aeeec4a`); steps 2 and 3 are open but are not Jim's call and do not block GM 1.0.**
 
-1. **iOS target:** delete all three keys.
-2. **macOS target:** keep the two Always keys, replace the text with a real purpose sentence, and add **zh-Hant**.
-3. **`NSDocumentsFolderUsageDescription`:** almost certainly unnecessary on macOS too — a sandboxed app's `URL.documentsDirectory` is its own container, which prompts for nothing. Verify, then delete rather than reword.
+1. ✅ **iOS target: delete all three keys — done 2026-10-09, `aeeec4a`.** Verified against the current `project.pbxproj` on 2026-11-03: the `hootowl` target (`SDKROOT = auto`, Debug `B2FB96B6…` and Release `B2FB96B7…`) now declares exactly **two** permission strings, both correct — `NSLocationWhenInUseUsageDescription` (*"only while the app is open"*) and `NSUserTrackingUsageDescription`. **Nothing contradicts R-09's foreground-only evidence any more, and nothing the Store sees is in question.**
+2. ⏳ **macOS target:** keep the two Always keys, replace the text with a real purpose sentence, and add **zh-Hant**. Still present, Debug `B2D25039…` and Release `B2D2503A…` (`SDKROOT = macosx`), including the nonsense `NSLocationUsageDescription = 1.0` — a *number* where a sentence belongs. **`hootmac` is not submitted to the App Store**, so this is cosmetic and mine, not a release gate.
+3. ⏳ **`NSDocumentsFolderUsageDescription`:** gone from iOS with step 1. On macOS it is almost certainly unnecessary too — a sandboxed app's `URL.documentsDirectory` is its own container, which prompts for nothing. Verify, then delete rather than reword.
+
+> [!warning] This entry said *"not applied yet … that is Jim's call"* for three weeks after it had shipped
+> Step 1 landed on 2026-10-09 and **no note was updated**, so E-30 stayed on [[jim-actions]] and in [[release-plan]] as a decision Jim still owed. On 2026-11-03 he went looking for it — *"now I can't find E-30"* — and the thing he could not find was a choice that no longer existed. **Closing the code is not closing the item.**
 
 
 <!-- Template:

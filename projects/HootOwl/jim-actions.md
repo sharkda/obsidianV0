@@ -19,11 +19,10 @@ Tick items as you go. Nothing here needs the terminal or a conversation to resum
 >
 > **Do first:** **R-10, the screenshots.** It is the only item with a lead time; everything below it is paste-and-tick. Copy is drafted in both languages in [[app-store-connect]].
 >
-> **Two one-liners that unblock me** (answer in chat, or edit this note from your phone):
-> - **E-30** — delete the three unused permission strings? I recommend yes. Your call because it changes what the Store sees.
-> - **E-02** — crash visibility: Organizer alone for GM 1.0, SDK decision deferred to 1.1? I recommend yes.
+> **One one-liner that unblocks me** (answer in chat, or edit this note from your phone):
+> - **E-02** — crash visibility: Organizer alone for GM 1.0, crash-SDK decision deferred to 1.1? I recommend yes. **This is the only genuine decision left on your plate before the App Store Connect work.**
 >
-> **J5 and J3 are closed** (2026-11-03) — both turned out to be facts to look up, not preferences to state, so I answered them instead of asking. **If an item on your list ever reads like trivia rather than judgement, say so and I will go and check it.**
+> **J5, J3 and E-30 are all closed** (2026-11-03). J5 and J3 were facts to look up rather than preferences to state, so I answered them. **E-30 had already shipped on 2026-10-09 (`aeeec4a`) and no note was updated** — it sat here for three weeks as a decision Jim no longer owed. **If an item on your list ever reads like trivia rather than judgement, or you cannot find the decision it claims to need, say so and I will go and check it.**
 >
 > **Mine, not yours, and not blocking:** E-03 (`TpeParkDescInfo.json` missing from the bundle), **C2 (now fully unblocked)**, and the 中文 pass — which now also has to cover the **subscribed-state screen**, still English next to 「付費使用」.
 >
