@@ -100,7 +100,7 @@
 
 | Item | Why it has no bucket |
 |---|---|
-| **③ Detect — C2, the feed-shape detector** | A script and a cron job. **Ships outside the binary**, so it needs no review and no version. It can go live before GM 1.0 or after; it is the next thing I build either way. Waiting on **J5** — is `sharkda/hootOwl` public or private? A 15-minute cron overruns the free private-repo Actions allowance; 30 minutes fits |
+| **③ Detect — C2, the feed-shape detector** | A script and a cron job. **Ships outside the binary**, so it needs no review and no version. It can go live before GM 1.0 or after; it is the next thing I build either way. **No longer waiting on J5** — checked 2026-11-03, the repo is private (unauthenticated GitHub API returns 404), so the cron is **every 30 minutes**: 2,000 free Actions minutes a month covers ~1,440 runs but not the ~2,880 a 15-minute cron needs |
 | **M-01 · M-02** | Second-machine setup. Blocks the MacBook Air from being useful, blocks no release. Move the Air's vault to `~/obsidianV0`, then copy `.claude/settings.local.json` across |
 
 ---
@@ -110,7 +110,7 @@
 1. **Run C1** on a simulator. It compiles; nothing has exercised the new failure path. The standing rule holds — the worst breakage this project has had **compiled clean and crashed at launch**.
 2. ~~**E-12**~~ — ✅ done 2026-11-01, and it was not a one-liner's worth of risk: it was claiming coverage over two other countries.
 3. **E-03** — find out why that JSON is not in the bundle.
-4. **C2**, once you answer J5.
+4. **C2** — unblocked 2026-11-03, J5 answered by checking GitHub.
 
 And **E-30** the moment you say yes, since it is your call about what the Store sees.
 

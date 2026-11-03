@@ -20,7 +20,7 @@ Tick items as you go. Nothing here needs the terminal or a conversation to resum
 > **Do first:** **R-10, the screenshots.** It is the only item with a lead time; everything below it is paste-and-tick. Copy is drafted in both languages in [[app-store-connect]].
 >
 > **Three one-liners that unblock me** (answer in chat, or edit this note from your phone):
-> - **J5** — is `sharkda/hootOwl` public or private? Decides the C2 cron cadence. My default if you say nothing: private, 30 min.
+> - ~~**J5**~~ ✅ **closed 2026-11-03** — checked GitHub rather than asking: the repo is **private**, so C2 runs on a 30-minute cron. Nothing needed from you.
 > - **E-30** — delete the three unused permission strings? I recommend yes. Your call because it changes what the Store sees.
 > - **E-02** — crash visibility: Organizer alone for GM 1.0, SDK decision deferred to 1.1? I recommend yes.
 >
@@ -148,12 +148,12 @@ Steps if you need them: [[operations#how-to-edit-it--step-by-step]]. **Validate 
 - [x] ~~**J2**~~ — **proceeded on 70%** rather than block C1; one constant, one-line change if you disagree. Was: skip bad lots but reject the payload below 70% decoded, or reject on any failure at all? My default: **70%**. One constant either way.
 - [ ] **J3 — where should the detector shout?** GitHub issue, email, or both. My default: **both** — issue for the dated record, email so you actually see it.
 - [ ] **J4 — approve the user-facing copy** once I draft it properly, 繁中 + EN. It tells someone their numbers are stale; it deliberately does **not** say "the app might break, please update". Your call on tone.
-- [ ] **J5 — is `sharkda/hootOwl` public or private?** Decides the detector's cadence: a 15-minute cron overruns the free private Actions allowance, 30 minutes fits. My default: assume **private**, 30 minutes.
+- [x] ~~**J5**~~ — **answered 2026-11-03 by measurement, not by asking: the repo is private.** An unauthenticated `curl https://api.github.com/repos/sharkda/hootOwl` returns **404**, which is how GitHub hides a private repo from anyone without access. So the detector runs **every 30 minutes**: a private repo gets 2,000 free Actions minutes a month, a 15-minute cron needs ~2,880 runs and overruns it, 30 minutes needs ~1,440 and fits. **The cost is detection latency of up to 30 minutes instead of 15**, which is immaterial — the remedy is a config edit Jim makes by hand. **C2 is unblocked.**
 - [ ] **J6 — in a browser, ~5 minutes:** create a GitHub token with `gist` scope and add it as a repo secret. **Only needed if you want the detector to raise the user-facing flag automatically**, so a break at 09:00 notifies users by 09:30 with no action from you. Your account, so it has to be you.
 - [ ] **J7 — paste one `feedStatus` block into the existing Gist**, both cities `ok`. I will give you the exact JSON; it is the same Gist as the contacts.
 
 > [!tip] What is actually waiting on you now
-> **J5** — is `sharkda/hootOwl` public or private? It decides the detector's cadence, and the detector (C2) is the next thing I build. Everything else still has a default I will proceed on.
+> **Nothing on this page.** J5 is closed (answered by checking GitHub, 2026-11-03), and **J3, J4, J6 and J7 all have defaults I will proceed on** — J3 both channels, J4 drafted for your review rather than blocked on it. J6 is the only one that genuinely needs your hands, and only if you want the user-facing flag raised automatically; without it the detector still shouts at **you**, just not at users.
 
 ---
 
