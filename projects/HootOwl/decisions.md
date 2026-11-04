@@ -162,7 +162,7 @@ So the rule bites on **web pages we publish**, which today means one page — an
 
 **Alternatives considered:** make the pin match the cell — rejected above. Undo `b907798` so the cell matches the pin — rejected; that is the version that read as stale data. Add a legend — rejected by omission: a map that needs a key to read its own pins has already lost the glance.
 
-See [[sessions/2026-10-08/00-state-of-play|D-07]] and the sibling decision below.
+See [[archive/sessions/2026-10-08/00-state-of-play|D-07]] and the sibling decision below.
 
 ## 2026-10-08 — On the Cyclops cell, colour means freshness and nothing else
 
@@ -185,7 +185,7 @@ Nothing was lost: size was already the stronger scarcity signal on that cell, an
 
 **Verified:** iOS Debug/Release and macOS Debug/Release all build; a simulator run rebuilt the Cyclops cells twice with zero uncaught exceptions; `.primaryM` no longer appears in any scarcity path (only a `.tint` on `CyclopsScreen2`).
 
-**Opened by this change — [[sessions/2026-10-08/00-state-of-play|D-07]]:** the **map pins still encode scarcity in colour** (maroon ≤3 / dodger >3, `CustomButton.swift:34-38`) and age in **alpha**. So after today the two surfaces use colour for different things. Flagged for Jim, deliberately not resolved — the pin's constraint is real (a 12pt badge on a busy map has little room for a size channel) and it may be the right local answer even at the cost of cross-screen consistency.
+**Opened by this change — [[archive/sessions/2026-10-08/00-state-of-play|D-07]]:** the **map pins still encode scarcity in colour** (maroon ≤3 / dodger >3, `CustomButton.swift:34-38`) and age in **alpha**. So after today the two surfaces use colour for different things. Flagged for Jim, deliberately not resolved — the pin's constraint is real (a 12pt badge on a busy map has little room for a size channel) and it may be the right local answer even at the cost of cross-screen consistency.
 
 ## 2026-10-07 — Promotional text points at the city data
 
@@ -423,7 +423,7 @@ Nothing was lost: size was already the stronger scarcity signal on that cell, an
 - **A scratch backup of the files** — was taken, but it lives in a session-temporary directory and is not a durable answer.
 **Implementation:** five commits (`85e4a45` fixes → `eaf1acb` alpha strip → `7ab9cf0` new icon + wiring → `5eef4fc` delete → `98f1253` `.DS_Store`), plus a safety ref `backup/icon-replacement-pre-fold`. Folding a late fix into the first commit was done by rebuilding the branch with cherry-picks rather than `rebase -i`, which is unavailable in this environment.
 **Caveat carried forward:** the branch is **not compile-verified**, and a Debug build exercises none of the fixed lines. Merge only after a successful Xcode **Release/Archive** build.
-**Status:** branch open, awaiting that build. Full narrative: [[sessions/older/2026-09-11/01-session-wrap|sessions/2026-09-11/]].
+**Status:** branch open, awaiting that build. Full narrative: [[archive/sessions/2026-09-11/01-session-wrap|sessions/2026-09-11/]].
 
 ## 2026-09-12 — Replace the owl app icon; adopt Icon Composer over a per-size set
 **Decision:** Retire the owl app icon and replace it with `FindParkingTw.icon`, authored in **Icon Composer** and shipped as a `.icon` file, rather than maintaining the 20-PNG `AppIcon.appiconset`.

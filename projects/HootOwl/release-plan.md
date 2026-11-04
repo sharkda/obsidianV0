@@ -1,6 +1,9 @@
 # Release plan — GM 1.0 · 1.1 · 1.2+
 
-**Every open item in the vault, in one of three buckets.** Built 2026-10-22 from the real IDs in [[00-state-of-play|sessions/2026-10-08]], [[roadmap]], [[unfinished]], [[jim-actions]] and [[Jim's Features and backlogs]] — nothing here is invented, and every row keeps the ID it already had.
+**Every open item in the vault, in one of three buckets.** Built 2026-10-22 from the real IDs in [[archive/sessions/2026-10-08/00-state-of-play|sessions/2026-10-08]], [[roadmap]], [[unfinished]], [[jim-actions]] and [[Jim's Features and backlogs]] — nothing here is invented, and every row keeps the ID it already had.
+
+> [!important] Since 2026-11-04 this page is **the live table of every open ID**
+> The 2026-10-08 state-of-play table it was built from is archived. When an item closes, strike it here (~~like this~~ ✅ date, commit). When it has been closed for a week, move the row to [[release-plan-closed]].
 
 > [!abstract] The headline, before the tables
 > **Nothing in code blocks GM 1.0.** `main` is shippable, and C1 (`9b957e6`) only improved that. **The entire critical path is yours** — App Store Connect fields, screenshots, the 中文 wording pass, and one device run.
@@ -24,6 +27,8 @@
 | **R-07** | **Age-rating questionnaire** | Required, and nothing in Xcode mentions it |
 | **R-08** | **繁體中文 on the subscription product in ASC** | The local fix shipped; ASC still has `zh_CN` not `zh_Hant`, and that is the one real users hit |
 | **R-04** | **Fix the privacy policy's opening claim** | *"collects only 'name'"* is **false for this app** and it is the first line a reviewer reads. 🟠 on the old table, but it is a false statement about the app, so I would not ship past it |
+| **中文** | **The 中文 pass: 33 strings marked `needs_review`** (31 in `Localizable`, 2 in `InfoPlist`, counted 2026-11-04) | Untranslated or unreviewed text a Chinese reviewer sees. Includes the subscribed-state strings (*You're subscribed*, *Manage subscription*, *Restore purchases*). Edit in [[zh-review]] |
+| **R-17** | **App Store listing in 繁體中文**, plus the data-source credit line (R-12) | ~90% of the audience reads Chinese. Drafts are in [[app-store-connect]] |
 | **R-14 + E-25** | **One device pass** | Three onboarding screens · the mail link (hardware only) · ATT on 2nd launch · Subscribe tab · coverage states · **plus the clean-install permission run E-25 still owes** |
 | **R-11** | **A TestFlight pass** | The only way to exercise sandbox purchases, the real ATT prompt, real ads, and the `tel:`/`mailto:` handoffs |
 | **R-20** | **Paste the App Review Notes** | Written and paste-ready. Leads with the map route, which is the one verified against the live geocoder |
@@ -67,10 +72,11 @@
 | **E-13** | 11 duplicate parkIds in the NTPC feed | mine |
 | **E-02** | **Decide a third-party crash SDK** — deferred here by Jim's 2026-11-03 decision, not merely pending. Evaluate Crashlytics vs Sentry against the nutrition labels R-09 will have already filed | yours, with my evaluation |
 | **E-18 · E-19** | Toolbar squeeze · map-pin alpha floor at 30 min — both "built, never looked at on a device" | yours, in the same pass |
+| **R-18 · R-19** | Privacy-policy polish: retention still says "the paid edition" · name `Find Parking TW` · effective date · the duplicated AdMob sentence · typos · a 中文 version. 🟡, not blocking | yours |
 | **R-13** | Record the real tutorial video; the Gist still points at a test clip | yours |
 | **R-21** | 🆕 **An App Store preview video** — the animation in the first media slot, as SpotHero has. Spec measured and the storyboard already written: [[screenshots#6-app-previews--the-video-in-the-first-slot-new-2026-11-04]]. **Deliberately 1.1:** optional, replaceable with no binary and no review, up to 24 h processing, and its payoff is conversion against traffic that does not exist in launch week | mine + yours — Jim drives the app, I record and encode |
 | **R-15 · R-16** | The two New Taipei phone calls — the blocked bulk download, and whether 8607 sits on that number | yours, any time |
-| **J-02 … J-05** | Your own backlog: the grey `0080` / stuck clown face, the IME tab-switch block, *"subscription is shit"*, and tab/launch | **needs triage with you first** — none has had any investigation |
+| **J-02 · J-04 · J-05** | Your own backlog (**J-03, the IME tab-switch block, was fixed 2026-11-01**, `5cdc3de` + `2464fe5`): the grey `0080` / stuck clown face, *"subscription is shit"*, and tab/launch | **needs triage with you first** — none has had any investigation |
 
 > [!note] Why E-11 belongs here and not in 1.2+
 > It is filed as "do it when polling is next touched." ⑤ and ⑥ *are* touching polling. Doing it separately means reading the same interleaved sink twice.
@@ -119,7 +125,7 @@
 
 ## Related
 
-- [[00-state-of-play|sessions/2026-10-08]] — the canonical ID table every row here came from. **Still the source of truth for State and Moved; this page only buckets them**
+- [[archive/sessions/2026-10-08/00-state-of-play|sessions/2026-10-08]] (archived) — the ID table every row here came from. **Superseded by this page as of 2026-11-04; was the source of truth for State and Moved; this page only buckets them**
 - [[jim-actions]] — your list, grouped by where you would be sitting
 - [[data-schema-lifecycle]] — the ② ③ ④ ⑤ ⑥ stages, and the J/C action tables
 - [[release-strategy]] — TestFlight vs straight to release, and the one rejection I would bet on

@@ -40,7 +40,7 @@ git -C "$VAULT" remote get-url origin       # → …:sharkda/obsidianV0.git
 
 *(Tested 2026-09-20 on the main Mac: resolves the vault root and the right remote.)*
 
-**If `~/obsidianV0` does not exist on this machine, stop and tell Jim** — that is the vault not having been moved yet, not a path to work around. It is on their to-do list: [[jim-actions#second-machine--the-macbook-air]].
+**If `~/obsidianV0` does not exist on this machine, stop and tell Jim** — that is the vault not having been moved yet, not a path to work around. It is on their to-do list: [[jim-actions#Second machine (blocks no release)]].
 
 ### Two things that are per-machine and will not arrive by syncing
 
@@ -96,19 +96,49 @@ Do this **unprompted** as the last step of any wrap-up, not only when asked to p
 - **Long answers go in the vault, not the terminal.** Briefings, investigations, plans, option menus → a note; the terminal gets a few lines and a pointer. Asked for explicitly 2026-08-13. The terminal scrolls away and is not searchable.
 - **Every session opens a dated folder** `sessions/YYYY-MM-DD/`, numbered notes inside (`00-…`, `01-…`). Do this without being asked. Since 2026-09-17 the day's first note is `00-state-of-play.md` — one table, every open item, **a stable ID per row** (`R-` release · `E-` engineering · `J-` Jim's backlog · `D-` decision). The next day copies it forward and only the **State** and **Moved** columns change.
 - **Session notes are append-only.** Do not retroactively edit yesterday's note to reflect today — carry the table forward into today's instead. I got this wrong twice and had to restore.
-- **Sessions older than two days move to `sessions/older/`.**
+- **Sessions older than two days move to `archive/sessions/`** (until 2026-11-04 this was `sessions/older/`). See [[#Vault upkeep]].
 
   > [!warning] Link by **note name**, not by path — the folders move
-  > Wikilinks resolve by name, so `[[02-reviewer-scope-and-testing]]` survives the move. A **path-prefixed** link like `[[sessions/2026-09-19/02-reviewer-scope-and-testing]]` does **not** — it silently breaks the moment that folder is archived. **59 of them had to be rewritten on 2026-09-23** after two days' folders moved at once.
+  > Wikilinks resolve by name, so `[[02-reviewer-scope-and-testing]]` survives the move. A **path-prefixed** link like `[[archive/sessions/2026-09-19/02-reviewer-scope-and-testing]]` does **not** — it silently breaks the moment that folder is archived. **59 of them had to be rewritten on 2026-09-23** after two days' folders moved at once.
   >
   > Spell out a path **only** when the note name is genuinely ambiguous (`01-session-wrap` exists three times), and expect to fix it later. After any move:
   > ```sh
-  > grep -rn "\[\[sessions/2026-" --include="*.md" projects/ | grep -v "sessions/older/"
+  > grep -rn "\[\[sessions/2026-" --include="*.md" projects/
   > ```
 - **Topic notes are updated inline, as work happens** — not batched to session END. `battery.md`, `privacy-policy.md`, `admob-sdk.md` and the like are meant to be readable standalone, months cold.
 - **`CURRENT.md` stays short and current-state-only.** Narrative accumulating there is what made it drift before.
 - **Jim files some requests as table rows in Obsidian**, not in chat — e.g. `## jim's request table` at the top of [[onboarding]], columns `id | request | rational | status | AI response`. **Check topic notes for these**, answer in the `AI response` cell, set `status`, and never edit their `request` or `rational` text.
 - **"save this"** is shorthand for the full session END protocol in `CLAUDE.md`.
+
+---
+
+## Vault upkeep
+
+**Jim, 2026-11-04:** *"make sure things are up-to-date on the project folder, move everything that is 'history' to an archive folder… tidy and compact, but do not lose anything."*
+
+The vault grew by appending. `CURRENT.md` reached 40 KB of stacked banners, and `jim-actions` kept 63 "open" items, many already done. **Run this pass at every wrap-up, before pushing.** A weekly cloud job also runs it, as a pull request Jim merges.
+
+**The one rule: move, never delete.** Anything that leaves a live note goes verbatim into `archive/`, or is already in a dated session note. `git mv` keeps file history; git keeps the rest.
+
+| Live note | Keep it | When it grows |
+|---|---|---|
+| [[CURRENT]] | **Current state only**, one screen. Replace it, never append | Nothing to archive: the narrative is already in the session note |
+| [[jim-actions]] | **Open items that need Jim only.** Check each against the repo or a newer note before listing it (a fact Claude can look up is never Jim's item: J5 sat on his list for weeks and was one `curl`) | Ticked items: delete the line. The ID's history lives in [[release-plan]] and the session notes |
+| [[release-plan]] | **The live table of every open ID** | Rows struck for over a week → paste verbatim at the top of [[release-plan-closed]] |
+| `sessions/` | The newest note(s) only | Older than two days → `archive/sessions/` |
+| Topic notes | Readable cold, current | A superseded note → `archive/notes/`, with a one-line pointer to its successor in [[INDEX]] |
+| [[INDEX]] | Every live note, one line each | Update it whenever a note is added or archived |
+
+**Before rewriting a live note wholesale**, copy it to `archive/<name>-to-YYYY-MM-DD.md` with an "Archived, frozen" banner. That is how CURRENT, jim-actions and INDEX were rebuilt on 2026-11-04.
+
+**After any move, check links.** Wikilinks resolve by name, so moves are safe. Path-style links (`[[archive/sessions/…]]`) and section links (`[[note#heading]]`) are the ones that break:
+
+```sh
+cd ~/obsidianV0 && grep -rhoE '\[\[archive/[^]|#\\]*' --include='*.md' . | sort -u | sed 's/\[\[//' \
+  | while read l; do [ -e "projects/HootOwl/$l.md" ] || [ -e "projects/HootOwl/$l" ] || echo "BROKEN $l"; done
+```
+
+**Out of scope:** Jim's own notes (`jim/`, [[Jim's Features and backlogs]], Jim's request tables). Never move or reword them. Only add status notes, the way J-01 was struck. Also out of scope: everything outside `projects/HootOwl/` and `projects/CURRENT.md`.
 
 ---
 

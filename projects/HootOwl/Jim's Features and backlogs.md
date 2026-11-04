@@ -24,7 +24,7 @@ bugs i need to work with claud on :
 
 1. ~~the search should be case insensitive, or simply move English upper, since I have to type TPE0155 or tpe0155 will not click!~~ — **fixed 2026-09-19, `9285a47`.** `tpe0155` now finds the lot; measured 0 → 1 match over the live feed. [[bugs#2026-09-19-search-only-matched-capitals-so-tpe0155-found-nothing-fixed]]
 2. ok, why 0080 is gray but others are green now? and the clown of 0155 never turns normal...
-3. IME block switch TAB in the all
+3. ~~IME block switch TAB in the all~~ — **fixed 2026-11-01, `5cdc3de` + `2464fe5`.** The IME was a red herring: the keyboard window sat over the tab bar and the field could never lose focus. [[bugs]] · [[2026-11-01]]
 4. subscription is shit
 5. opening tab... and launch
 
