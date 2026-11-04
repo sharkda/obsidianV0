@@ -14,6 +14,7 @@
 | **[[release-plan]]**      | *What ships when?* Every open item bucketed into **GM 1.0 / 1.1 / 1.2+**, keeping its existing ID. Opens with the ten items that actually block submission — **all ten Jim's** — because nothing in code does. Built 2026-10-22 |
 | **[[release-strategy]]**  | *How do I get through review?* TestFlight vs straight to release, order of operations, what a reviewer will poke, and the reviewer-in-California problem                                             |
 | **[[operations]]**        | *How do I do the thing?* Runbooks: editing the Gist, the release checklist, territories and their gate table, building and testing                                                                   |
+| **[[screenshots]]** | *What do I actually photograph, and at what size?* **R-10.** The measured pixel sizes (1206×2622 required, 1320×2868 large), a five-shot list with the claim each one makes, drafted captions 繁中-first, and the one real decision — plain or captioned. New 2026-11-04 |
 | **[[app-store-connect]]** | *What do I paste into App Store Connect?* The one page for all ASC copy — the field map, promotional text, What to Test, Beta App Review notes. Everything ASC-shaped goes here, not into a new note |
 
 ## Reference — the durable record

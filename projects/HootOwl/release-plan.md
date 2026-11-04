@@ -17,7 +17,7 @@
 
 | ID | Item | Why it blocks |
 |---|---|---|
-| **R-10** | **Screenshots + your wording pass** | Longest lead time of anything here, and the only item that needs you to *make* something rather than paste it. Copy is drafted in both languages — [[app-store-connect]] |
+| **R-10** | **Screenshots + your wording pass** | Longest lead time of anything here, and the only item that needs you to *make* something rather than paste it. **Now planned: [[screenshots]]** — sizes measured on this machine, a five-shot list, captions drafted 繁中-first, and the one decision left (plain or captioned; **I recommend plain for GM 1.0**, which removes the lead time entirely). Listing copy is in [[app-store-connect]] |
 | **R-02** | **Paste one `support` block into the Gist** — **no longer a decision** | **Re-verified 2026-11-03:** the page is **live (`200`)**, and the Gist is at `version: 5` with top-level keys `version, contacts, tutorials` — **still no `support` key.** The destination was chosen 2026-10-08, so this is a paste, not a choice. Gates **two** screens: onboarding's *"tell us where you need it"* and the outside-coverage notice both invite a user to speak and give them nothing to tap. Exact JSON: [[operations#settled-2026-10-08--jim-chose-option-1-and-it-is-built]] |
 | **R-09** | **Privacy nutrition labels** | Evidence already gathered: precise location · app functionality · **foreground-only** · never tracking |
 | **R-06** | **Set territories manually** | Defaults to *all*, which drops you into the EEA with no consent platform. Exactly: Taiwan, US, Japan, Hong Kong, Macau — [[operations#gate-table]] |
