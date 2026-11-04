@@ -68,6 +68,7 @@
 | **E-02** | **Decide a third-party crash SDK** — deferred here by Jim's 2026-11-03 decision, not merely pending. Evaluate Crashlytics vs Sentry against the nutrition labels R-09 will have already filed | yours, with my evaluation |
 | **E-18 · E-19** | Toolbar squeeze · map-pin alpha floor at 30 min — both "built, never looked at on a device" | yours, in the same pass |
 | **R-13** | Record the real tutorial video; the Gist still points at a test clip | yours |
+| **R-21** | 🆕 **An App Store preview video** — the animation in the first media slot, as SpotHero has. Spec measured and the storyboard already written: [[screenshots#6-app-previews--the-video-in-the-first-slot-new-2026-11-04]]. **Deliberately 1.1:** optional, replaceable with no binary and no review, up to 24 h processing, and its payoff is conversion against traffic that does not exist in launch week | mine + yours — Jim drives the app, I record and encode |
 | **R-15 · R-16** | The two New Taipei phone calls — the blocked bulk download, and whether 8607 sits on that number | yours, any time |
 | **J-02 … J-05** | Your own backlog: the grey `0080` / stuck clown face, the IME tab-switch block, *"subscription is shit"*, and tab/launch | **needs triage with you first** — none has had any investigation |
 

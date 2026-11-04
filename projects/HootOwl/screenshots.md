@@ -94,3 +94,65 @@ If captioned is wanted anyway, the captions are drafted — 繁體中文 leading
 - [ ] **Jim: which capture route** — option 1 above unless he says otherwise.
 - [ ] Mine: confirm the required sizes against **ASC's own Media Manager** before anything is uploaded, rather than against any documentation.
 - [ ] Mine: a zh-Hant set as well as English, since the screens are already localised and it is one locale flag.
+
+---
+
+## 6. App previews — the video in the first slot (new 2026-11-04)
+
+Jim spotted that **SpotHero's first "screenshot" is an animation** and asked whether we can do the same: https://apps.apple.com/us/app/spothero-1-rated-parking-app/id499097243
+
+**It is an App Preview video, confirmed from their page's raw JSON rather than its rendered text:**
+
+```json
+{"$kind":"ProductMediaItem","video":{"$kind":"Video",
+ "videoUrl":"https://apptrailers.itunes.apple.com/itunes-assets/PurpleVideo112/v4/3c/4d/38/
+             3c4d3883-8280-f59a-b2bf-7432f5300fdc/P829802554_default.m3u8"
+```
+
+One video, then **five** static screenshots. (Their listing is **English only** — no zh-Hant media at all, which is worth remembering before assuming the competition is doing more than it is.)
+
+### The placement is not a choice — that is why it reads as "the first screenshot"
+
+Apple's spec page, verbatim:
+
+> **App previews always appear before screenshots** on iPhone, iPad, Mac, and Apple TV — even if you reorder them in your app record.
+
+### The spec — from developer.apple.com, not from a guide
+
+| | |
+|---|---|
+| **Accepted resolution** | **886 × 1920 portrait** (1920 × 886 landscape) |
+| **…for which devices** | **every iPhone class** — Duo, Dynamic Island large *and* medium, Face ID large *and* medium. **One file covers all of them**, unlike screenshots |
+| Length | **15 s minimum, 30 s maximum** |
+| File | ≤ 500 MB · H.264 in `.mov` / `.m4v` / `.mp4`, or ProRes 422 (HQ only) in `.mov` |
+| Frame rate | **max 30 fps** · target bit rate 10–12 Mbps |
+| Audio | optional in practice; if present, stereo, 256 kbps AAC, 44.1/48 kHz |
+| How many | **optional**, up to **3 per device size and language** |
+| Poster frame | defaults to the **5 s** mark; selectable |
+| Processing | **up to 24 hours after upload** |
+
+**Why 886 × 1920 is not any device's real resolution**, in Apple's own words — this is the sentence that makes the whole workflow make sense:
+
+> **Accepted resolution** is the resolution App Store Connect actually accepts for your app preview file — because most app previews are **recorded via screen recording** rather than rendered at native resolution, App Store Connect accepts a defined set of standard portrait or landscape resolutions per display size instead of requiring an exact per-device match. **Use the accepted resolution — not the device resolution** — when preparing your video file.
+
+> [!warning] ⚠️ The trap: mismatch the aspect ratio and you lose the slot you did it for
+> *"If you upload an app preview in an aspect ratio that differs from your screenshots, it appears in the **'A Closer Look'** section on your product page."* All the work, none of the placement. **886 × 1920 is 19.5:9, which matches our 1320 × 2868 and 1206 × 2622 stills**, so this is safe as planned — but it is the reason not to improvise the dimensions.
+
+### Can we produce one here
+
+**Yes, with two gaps.** `xcrun simctl io <device> recordVideo --codec h264` exists and records the booted simulator to a QuickTime movie — verified on this machine, 2026-11-04.
+
+| Gap | Detail |
+|---|---|
+| **Navigation, worse than for stills** | A screenshot needs one static screen. **30 seconds of preview needs continuous, deliberate movement** — and `simctl` cannot inject a tap, with no `Simulator.app` for desktop automation either (§4). Jim drives, I record. |
+| **No encoder** | Recording comes out at device resolution (1320 × 2868); it has to be resampled to **886 × 1920**. **`ffmpeg` is not installed** and `/usr/bin/avconvert` cannot target an arbitrary size. Needs `brew install ffmpeg` — **Jim's machine, Jim's call** — or an export from iMovie/QuickTime. |
+
+### Recommendation: 1.1, not GM 1.0
+
+1. **It is explicitly optional**, and the only item of its kind on the list that is.
+2. **It can be added later with no binary and no app review** — media is replaceable at any time, same as screenshots.
+3. **Up to 24 hours of processing** is a real scheduling hazard next to a submission date.
+4. **Its value is conversion optimisation**, which pays against real traffic. In launch week there is almost none, and that is also when [[release-strategy]] says exposure is at its lifetime minimum.
+5. It is **the longest-lead item on the whole GM 1.0 list** — and the only one that nothing requires.
+
+**If we do it in 1.1, the shot list in §2 is already the storyboard**: map → pin → sheet → All with filters → Cyclops → destination. Five beats in 30 seconds is about 5 s each, which is also roughly the minimum a viewer needs to read a screen.
