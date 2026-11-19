@@ -4,6 +4,21 @@ Architectural and design decisions, with brief rationale. Newest at top.
 
 ---
 
+## 2026-11-12 — On the map, the user's zoom wins; fit to nearby lots only once
+
+**Decision (Jim asked: *"can you keep the zoom factor?"*):** the map fits to the nearest lots once when it opens or when the user asks for "back to me". After that, location updates only re-centre, at the camera height on screen. A user who has pinched keeps their zoom and never gets an automatic fit.
+**Why:** re-fitting on every update pulsed the map on a moving car, and the code's own rule (`userHasSetSpan`: "their zoom is theirs from now on") was not being honoured by the fit. **Rejected:** following at the reported span (a runaway zoom-out, see [[bugs]]).
+
+## 2026-11-06 — StoreKit 2 verification outranks the legacy receipt check
+
+**Decision:** a subscription that `Transaction.currentEntitlements` verifies is never revoked by the `verifyReceipt` cloud-function check. **Why:** StoreKit 2 already verifies on device; the old check can only fail open-the-ads on paying users (missing receipt, network, a deprecated endpoint). **Reopen:** when 1.1 removes the receipt path entirely.
+
+## 2026-11-06 — App Store media: 繁體中文 only, Jim records the preview himself
+
+**Decision (Jim):** the screenshots and App Preview are Chinese for both store languages, uploaded to the primary language. Jim records on the iPhone 18 Pro Max simulator (Release, zh-Hant) and edits in iMovie's App Preview project (886×1920, 15–30 s). Tools: `~/Movies/HootOwl-preview/0-prepare … 4-stop.command` (reset, record, drive 台北車站 → 101).
+
+---
+
 ## 2026-11-03 — Ship GM 1.0 with no third-party crash SDK (E-02)
 
 **Decision (Jim):** *"yes, ship w/o 3rd party crash collect SDK, we can come back to this later with 1.1."* Closes **E-02**, the last open decision before the App Store Connect work.

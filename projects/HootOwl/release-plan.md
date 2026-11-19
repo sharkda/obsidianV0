@@ -34,6 +34,9 @@
 | **R-20** | **Paste the App Review Notes** | Written and paste-ready. Leads with the map route, which is the one verified against the live geocoder |
 | **R-01** | **Re-archive and upload** | Last, not first. The 09-14 archive contains the `.commands` launch crash and cannot start. Burn a build number |
 
+> [!note] 2026-11-19 — code changes since the table was built (`024c197`)
+> ✅ `span` readout no longer ships · ✅ legacy receipt check can't revoke a verified subscription (verify in R-11) · ✅ map keeps its zoom while following · 🟠 **open:** DestinationBar doesn't refresh on a location fix, triage for 1.0. → [[bugs]]
+
 > [!tip] If you want the shortest path
 > **R-10 first** — screenshots are the only thing with a lead time. Everything else is paste-and-tick work you can do in one sitting, and **R-01 is last by definition.**
 

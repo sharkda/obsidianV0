@@ -488,3 +488,11 @@ Every window, not just the key one — while the keyboard is up, its own window 
 `Int(wgs84.longi)` on a city-scale hull collapses every vertex onto two or three lattice points, and a half-plane test over a degenerate polygon returns `true` almost everywhere. HootOwl's service-area check claimed **Manila and Shanghai** for two years this way.
 
 If a type exposes both `Double` coordinates and `Int` convenience accessors, assume geometry wants the `Double` ones and check every call site. And validate a geometric predicate against a second, independent implementation over a grid — the disagreement count is the test. See [[HootOwl/bugs#2026-11-01--e-12-the-service-area-test-said-yes-to-manila-and-shanghai]].
+
+## MapKit — never feed a reported span back as a region
+
+`onMapCameraChange` reports the region actually drawn. On a portrait screen its latitude span is larger than the longitude span. Averaging them and asking for a **square** region makes MapKit widen it to fit, so each round trip zooms out a little: a runaway. To keep the zoom while moving the centre, keep the **camera height**: `MapCamera(centerCoordinate:, distance: context.camera.distance)`. See [[HootOwl/bugs#2026-11-12--the-map-pulsed-in-and-out-while-the-user-moved-fixed]].
+
+## Simulator — edit an app's preferences with `defaults`, not by editing the plist
+
+`cfprefsd` caches the domain and writes its copy back, so `plutil -remove` on `Library/Preferences/<bundle>.plist` silently reverts. Use `xcrun simctl spawn <sim> defaults delete "<container>/Library/Preferences/<bundle>" <key>` (path without `.plist`), with the app terminated.

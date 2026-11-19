@@ -4,6 +4,39 @@ Known issues, gotchas, and bugs encountered/fixed. Newest at top.
 
 ---
 
+## 2026-11-12 — The map pulsed in and out while the user moved (fixed)
+
+**Symptom:** recording the App Preview drive, the map zoomed in, then out, on every location update.
+**Root cause:** two camera moves fought. Each update snapped to `arrivalSpan` (0.004 sweet spot), then the search it triggered ran `fitCameraToNearbyLots`, which zoomed out to the nearest three lots.
+**First fix was worse:** following at the *reported* span made a runaway zoom-out to all of 新北市. MapKit reports a tall portrait span; fed back as a square region, it widens to fit, and that compounds every update. It also saved 0.3 (the maximum) as "the user's zoom".
+**Fix:** fit once per appearance (`hasFitOnce`), then re-centre with `MapCamera(distance:)` at the height on screen. A user who pinched (`userHasSetSpan`) keeps their zoom and gets no fit. `024c197`, `NbsScreen.swift` `snapCameraToDevice`.
+**Status:** fixed, verified on the simulator over the full 台北車站 → 101 drive.
+
+## 2026-11-06 — A failed legacy receipt check took away a paid subscription (fixed)
+
+**Symptom:** on Jim's iPhone, subscribing worked for a moment and then the ad came back.
+**Root cause:** after StoreKit 2 verifies a purchase, `wireReceipt` still posts the old App Store receipt to the `verifyReceipt` cloud function. A missing receipt, a rejected one, or the subject's initial `.na` value all call `revokeEntitlment`, which turns the ad back on. That path was disabled on the simulator only, so it never showed there.
+**Who it hits besides testers:** any real subscriber whose receipt is missing (fresh install, new phone) or whose cloud function call fails. `verifyReceipt` is also deprecated by Apple.
+**Fix:** `revokeEntitlment` first asks `Transaction.currentEntitlements`; a verified, unrevoked, unexpired entitlement is kept. `024c197`.
+**Status:** fixed. Still owed: verify with a sandbox purchase (R-11).
+
+> [!note] Not an app bug, same day: Xcode's StoreKit test certificate is "expired" on device
+> Xcode 27.2's local StoreKit testing signs transactions with a "StoreKit Testing in Xcode" certificate. On Jim's iPhone 15 Pro it fails as expired (`-67818`, 「憑證已過期」), so every test purchase arrives unverified and the app rightly refuses it. Reinstalling did not help; the certificate is not in the Mac keychain. **Workaround: Apple sandbox** (scheme StoreKit Configuration: None + Settings → Developer → Sandbox Apple Account). Jim confirmed sandbox works. Jim has since made `storekit2026.storekit`; re-check after the OS upgrade.
+
+## 2026-11-06 — The map's "span" readout shipped to every user (fixed)
+
+**Symptom:** a developer label `span 0.015` on the map in Release.
+**Root cause:** `Text("span …")` in `NbsScreen` had no `#if DEBUG`; it shipped from May. The file-name overlays on All and Cyclops were guarded by `targetEnvironment(simulator)` only, so a Release build on the simulator (App Store media) showed them too.
+**Fix:** span is `#if DEBUG`; overlays are `#if DEBUG && targetEnvironment(simulator)`. `024c197`.
+**Status:** fixed.
+
+## 2026-11-06 — DestinationBar does not refresh when the user's location arrives (open)
+
+**Symptom:** with a saved destination (`mncpl_destination`), "顯示 台北市 — 你不在這裡" stays up after a real fix inside Taipei arrives.
+**Root cause (suspected):** `DestinationBar.canReturnToMyLocation` reads `municipal.userLoc2dVbj.value`, a Combine subject SwiftUI does not observe. Same for the user's location `Annotation` in `NbsScreen.mapView()`.
+**Related, not a bug:** with location denied, the app falls back to a destination on purpose, and the scheme's default location was Cupertino (now `stadium.gpx`), which made the simulator look broken. Reset with `~/Movies/HootOwl-preview/0-prepare.command`.
+**Status:** open, triage for 1.0.
+
 ## 2026-10-16 — `fatalError` on remote data: a renamed field, or one extra CSV column, crashes the shipping app (open)
 
 **Found while answering** *"if Taipei changes a field name, does that mean the data will not be processed any further?"* — the answer turned out to be worse than the question assumed. Full design in **[[data-schema-lifecycle]]**.

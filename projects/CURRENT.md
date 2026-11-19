@@ -3,25 +3,26 @@
 **HootOwl / Find Parking TW**: an iOS SwiftUI app showing live parking for Taipei and New Taipei City. Heading for **GM 1.0**.
 
 > [!info] This note is current state only. **Replace it, don't append to it.**
-> What happened before lives in the dated session notes and in [[CURRENT-log-to-2026-11-04]] (the full log up to 2026-11-04, kept verbatim). Upkeep rules: [[working-agreements#Vault upkeep]].
+> What happened before lives in the dated session notes and in [[CURRENT-log-to-2026-11-04]]. Upkeep rules: [[working-agreements#Vault upkeep]].
 
-*Last updated 2026-11-04.*
+*Last updated 2026-11-19, before Jim's macOS upgrade.*
 
 ## Where things stand
 
-- **Nothing in code blocks GM 1.0.** The remaining release work is Jim's: App Store Connect fields, screenshots, one device pass and TestFlight. → [[jim-actions]]
-- **App repo:** `main` = `origin/main` = `1b83b72` (2026-11-01). **Uncommitted:** Jim's `CURRENT_PROJECT_VERSION 3 → 5` in `project.pbxproj`.
-- **Settled 2026-11-03:** J5 (repo is private, so C2's cron runs every 30 min) · E-02 (ship on Xcode Organizer alone) · E-30 (actually done 2026-10-09) · R-02 is a paste, not a decision.
-- **New 2026-11-04:** [[screenshots]] plans R-10. The App Store preview video is R-21, a 1.1 item.
-- **Toolchain:** Xcode 27.0 / Swift 6.4, last re-verified 2026-10-08. If Xcode changes, every "it builds" claim expires. Build **and run** again.
+- **App repo:** `main` = `origin/main` = `024c197`. Nothing uncommitted. Build 5.
+- **Jim is making the App Store media** (R-10, R-21): Release on the iPhone 18 Pro Max simulator, 繁體中文, scripts in `~/Movies/HootOwl-preview/`. → [[2026-11-19]]
+- **Fixed this session:** the `span` label shipping to users · the legacy receipt check revoking paid subscriptions · the map pulsing zoom while moving. → [[bugs]]
+- **Open, triage for 1.0:** DestinationBar does not refresh when a location fix arrives. → [[bugs]]
+- **Toolchain:** Xcode 27.2 (27B51). **Jim is upgrading macOS now**, so every "it builds" claim expires: rebuild and run. `xcode-select` points at CommandLineTools; use `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
+- **Purchases on device:** Xcode's StoreKit test certificate fails as expired; use Apple sandbox. Re-check after the upgrade.
 
 ## Next, for Claude
 
-1. **Run C1 and D-02 on the simulator.** Both compile clean but have never been run.
-2. **E-03:** find out why `TpeParkDescInfo.json` is missing from the iOS bundle.
-3. **C2:** the feed-shape detector (a script plus a 30-minute cron). Unblocked.
-4. **Overdue: re-check [[data-sources]]**. It was last checked 2026-09-09, due 2026-10-09. This is Claude's job.
-5. **Translate the subscribed-state strings.** *You're subscribed*, *Manage subscription* and *Restore purchases* are still English.
+1. **After the OS upgrade:** build Debug and Release, run on the simulator, re-check the StoreKit test certificate.
+2. **DestinationBar refresh bug:** fix or defer, Jim decides.
+3. **E-03:** why `TpeParkDescInfo.json` is missing from the iOS bundle (the log still says so every launch).
+4. **C2:** the feed-shape detector. **Overdue:** re-check [[data-sources]].
+5. **Weekly vault routine:** create it once Jim installs the Claude GitHub app on both repos.
 
 ## Where to look
 
@@ -29,8 +30,7 @@
 |---|---|
 | What do I (Jim) have to do? | [[jim-actions]] |
 | What ships in 1.0 / 1.1 / 1.2+? Every open ID | [[release-plan]] |
-| What happened last session? | [[2026-11-01]], the newest note in `HootOwl/sessions/` |
+| What happened last session? | [[2026-11-19]] |
 | Which note answers which question? | [[INDEX]] |
 | New machine, or how we work? | [[working-agreements]] |
-| How do I do X (Gist, release checklist, builds)? | [[operations]] |
 | Why did we decide X? Known bugs? | [[decisions]] · [[bugs]] |

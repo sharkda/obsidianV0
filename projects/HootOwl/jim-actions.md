@@ -23,7 +23,7 @@
   - type `tpe` in All
   - the destination-mode picker and bar: do they read as an offer or as nagging?
   - a clean-install permission run
-- [ ] **R-11 · A TestFlight pass:** sandbox purchase, the real ATT prompt, real ads, `tel:` / `mailto:`.
+- [ ] **R-11 · A TestFlight pass:** sandbox purchase, the real ATT prompt, real ads, `tel:` / `mailto:`. Check the ad stays off after subscribing and after a relaunch (the 11-06 receipt fix).
 
 ## 2 · App Store Connect: paste and tick in one sitting
 
@@ -34,7 +34,7 @@
 - [ ] **R-17 · Listing in 繁體中文:** description, keywords and screenshots, plus the data-source credit line (R-12). Drafts: [[app-store-connect]]
 - [ ] **Listing fields:** name `Find Parking TW` and subtitle `Taipei & New Taipei parking` · the three URL fields (en **and** zh-Hant) · Marketing URL `https://sharkda.github.io` · categories Navigation then Travel · copyright `2026 Yu-Ching Hsu`. All paste-ready in [[app-store-connect]].
 - [ ] **R-20 · Paste the App Review notes.** → [[app-store-connect]]
-- [ ] **R-01 · Re-archive and upload. Do this last.** The 09-14 archive can't launch. Commit the build bump (3 → 5) first.
+- [ ] **R-01 · Re-archive and upload. Do this last.** The 09-14 archive can't launch. The build bump (3 → 5) is committed (`024c197`).
 
 ## 3 · Privacy policy polish (🟡, not blocking)
 
@@ -52,7 +52,7 @@
 - [ ] **Check AdMob's app-ads.txt status** once you're live.
 - [ ] **D-06 · Watch early reviews** for the *"there will be more of them over time"* ad line.
 - [ ] **R-13 · Record the real tutorial video.** The Gist still points at your test clip.
-- [ ] **R-21 · App preview video:** you drive the app, Claude records. → [[screenshots#6-app-previews--the-video-in-the-first-slot-new-2026-11-04]]
+- [ ] **R-21 · App preview video:** in progress. You record on the iPhone 18 Pro Max simulator with the scripts in `~/Movies/HootOwl-preview/` (start with `0-prepare`), then edit in iMovie. → [[2026-11-19]]
 - [ ] **J4 · Approve the stale-data copy** · **J7 · Paste the `feedStatus` block** · **J6 · Gist token** (optional). → [[data-schema-lifecycle]]
 - [ ] **R-15 · R-16 · Two New Taipei calls:** the blocked bulk download, and whether 02-29702960 / ext. 8607 is right.
 - [ ] **E-18 · E-19 · Look on a device:** the toolbar squeeze, and whether pins at 0.45 alpha are legible.

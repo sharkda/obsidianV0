@@ -43,7 +43,7 @@
 
 ## Sessions and archive
 
-- **`sessions/`** holds only the newest session note(s). Latest: [[2026-11-01]].
+- **`sessions/`** holds only the newest session note(s). Latest: [[2026-11-19]].
 - **`archive/`** holds everything historical, unchanged:
   - `archive/sessions/`: every older session, 2026-08-13 → 2026-10-21
   - `archive/notes/`: superseded topic notes ([[when-field-name-changes]], [[cyclops-first-run]], [[tab-restore-pill]])
